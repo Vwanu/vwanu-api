@@ -86,9 +86,9 @@ export default {
           password
         );
 
-        const link = `${config.get('BASE_URL')}/verify-email/${
-          user.id
-        }/${user.activationKey}`;
+        const link = `${config.get('BASE_URL')}/verify-email/${user.id}/${
+          user.activationKey
+        }`;
 
         try {
           await sendEmail({
@@ -99,7 +99,7 @@ export default {
           });
         } catch (error) {
           Log.error(
-            `Error sending email  when creating user code: ${error.code} message: ${error.message}`
+            `Error sending email  when creating user code : ${error.code} message: ${error.message}`
           );
         } finally {
           await userService.loginUser(
@@ -197,9 +197,9 @@ export default {
 
         await userService.updateUser(user, { resetPasswordKey: nanoid() });
 
-        const link = `${config.get('BASE_URL')}/reset-password/${
-          user.id
-        }/${user.resetPasswordKey}`;
+        const link = `${config.get('BASE_URL')}/reset-password/${user.id}/${
+          user.resetPasswordKey
+        }`;
 
         try {
           await sendEmail({
