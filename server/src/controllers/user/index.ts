@@ -166,12 +166,12 @@ export default {
 
       await requesting.addVisitor(requester);
 
-      req.app
-        .get('current_user')
-        .broadcast.emit(`notification-${requestingID}`, {
-          type: 'visit',
-          data: requester,
-        });
+      // req.app
+      //   .get('current_user')
+      //   .broadcast.emit(`notification-${requestingID}`, {
+      //     type: 'visit',
+      //     data: requester,
+      //   });
 
       sendResponse(
         res,
@@ -592,12 +592,12 @@ export default {
       requester.addFriendshipRequested(friend),
     ]);
 
-    req.app
-      .get('current_user')
-      .broadcast.emit(`notification-${friend.id}`, {
-        type: 'new-friend-request',
-        data: requester,
-      });
+    // req.app
+    //   .get('current_user')
+    //   .broadcast.emit(`notification-${friend.id}`, {
+    //     type: 'new-friend-request',
+    //     data: requester,
+    //   });
 
     const newU = await requester.reload();
     sendResponse(res, StatusCodes.OK, { user: newU }, 'okd');
