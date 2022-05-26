@@ -1,3 +1,4 @@
+/* eslint-disable  */
 import config from 'config';
 import { Response, Request, NextFunction } from 'express';
 
@@ -105,8 +106,30 @@ const Common = {
   getUploadedFiles: (mediaArray: string[], request): any => {
     const data = request;
 
+    console.log(Object.keys(data));
     const documentFiles = request.UploadedMedia;
     if (documentFiles?.postImage || documentFiles?.postVideo) {
+      data.Media = [];
+
+      mediaArray.forEach((mediaGroup) => {
+        if (documentFiles[mediaGroup]) {
+          data.Media.push({
+            original: documentFiles[mediaGroup][0].path,
+            UserId: data.UserId,
+          });
+        }
+      });
+    }
+    delete data.UploadedMedia;
+    return data;
+  },
+
+  getAndSaveUploadedFiles: (mediaArray: string[], request): any => {
+    const data = request;
+
+    console.log(Object.keys(data));
+    const documentFiles = request.UploadedMedia;
+    if (documentFiles?.albumImage || documentFiles?.albumVideo) {
       data.Media = [];
 
       mediaArray.forEach((mediaGroup) => {
