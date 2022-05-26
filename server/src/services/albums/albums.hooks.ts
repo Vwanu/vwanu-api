@@ -1,4 +1,6 @@
 import * as authentication from '@feathersjs/authentication';
+
+import AutoOwn from '../../Hooks/AutoOwn.hook';
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = authentication.hooks;
@@ -8,9 +10,17 @@ export default {
     all: [authenticate('jwt')],
     find: [],
     get: [],
-    create: [],
-    update: [],
-    patch: [],
+    create: [
+      (context) => {
+        console.log('in a pre-hook');
+        console.log(Object.keys(context.data));
+
+        return context;
+      },
+      AutoOwn,
+    ],
+    update: [AutoOwn],
+    patch: [AutoOwn],
     remove: [],
   },
 

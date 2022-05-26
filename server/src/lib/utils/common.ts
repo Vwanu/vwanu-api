@@ -121,6 +121,32 @@ const Common = {
     delete data.UploadedMedia;
     return data;
   },
+
+  getAndSaveUploadedFiles: (mediaArray: string[], request): any => {
+    const data = request;
+    const { UploadedMedia } = request;
+    console.log(Object.keys(data));
+
+    const documentFiles = UploadedMedia;
+    console.log({ documentFiles, UploadedMedia: request.UploadedMedia });
+    if (
+      documentFiles &&
+      (documentFiles['album-photo'] || documentFiles['album-video'])
+    ) {
+      data.Media = [];
+
+      mediaArray.forEach((mediaGroup) => {
+        if (documentFiles[mediaGroup]) {
+          data.Media.push({
+            original: documentFiles[mediaGroup][0].path,
+            UserId: data.UserId,
+          });
+        }
+      });
+    }
+    delete data.UploadedMedia;
+    return data;
+  },
 };
 
 export default Common;

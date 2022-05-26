@@ -3,6 +3,8 @@ import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import { Albums } from './albums.class';
 import hooks from './albums.hooks';
+import transferUploadedFilesToFeathers from '../../middleware/PassFilesToFeathers/file-to-feathers.middleware';
+import { albumStorage } from '../../cloudinary';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -18,8 +20,15 @@ export default function (app: Application): void {
     paginate: app.get('paginate'),
   };
 
-  // Initialize our service with any options it requires
-  app.use('/albums', new Albums(options, app));
+  app.use(
+    '/albums',
+    albumStorage.fields([
+      { name: 'album-photo', maxCount: 1 },
+      { name: 'album-video', maxCount: 1 },
+    ]),
+    transferUploadedFilesToFeathers,
+    new Albums(options, app)
+  );
 
   // Get our initialized service so that we can register hooks
   const service = app.service('albums');
