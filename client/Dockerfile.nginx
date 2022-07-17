@@ -8,7 +8,7 @@ COPY ./ ./
 RUN npm i --legacy-peer-deps
  ENV REACT_APP_API_URL=http://165.227.81.34
 
-# RUN npm run build; 
+RUN npm run build; 
 
 
 # step 2 form production
