@@ -12,9 +12,9 @@ RUN npm i --legacy-peer-deps
 
 
 # step 2 form production
-# FROM nginx:1.12-alpine 
-# RUN addgroup app && adduser -S -G app app
-# USER app
+FROM nginx:1.12-alpine 
+RUN addgroup app && adduser -S -G app app
+USER app
 # COPY --from=build-stage /app/build /usr/share/nginx/html/
 
 COPY --from=build-stage /app/build /var/www
