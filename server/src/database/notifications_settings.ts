@@ -19,10 +19,10 @@ export default (sequelize: any, DataTypes: any) => {
      * @param models - The models object containing the User model.
      */
     static associate(models: any): void {
-      NotificationSetting.belongsToMany(models.User, {
-        through: 'user_notification_settings',
-        foreignKey: 'notification_setting_id',
-      });
+      // NotificationSetting.belongsToMany(models.User, {
+      //   through: models.UserNotificationSettings,
+      //   foreignKey: 'notification_setting_id',
+      // });
     }
   }
 

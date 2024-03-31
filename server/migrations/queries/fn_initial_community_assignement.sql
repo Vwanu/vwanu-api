@@ -1,49 +1,45 @@
 CREATE OR REPLACE FUNCTION fn_initial_community_assignement()
 RETURNS TRIGGER
 AS $$
-
-    p_role uuid;
-    user_city text;
-    community_base_id uuid;
+DECLARE
+    v_community_role_id uuid;
+    v_community_id uuid;
+    v_city_id uuid;
+    v_city_name text;
 BEGIN
-    -- Trigger only on changes to active_status to true and changes in address
-    IF (OLD.active_status IS DISTINCT FROM NEW.active_status AND NEW.active_status = true)  THEN
-        -- Insert the new user in the community_users table
-        -- Retrieve the user's city from the updated address
-        SELECT Address.city 
-        INTO user_city 
-        FROM users
-        JOIN EntityAddress ON users.id = EntityAddress.entity_id AND EntityAddress.entity_type = 'user' AND EntityAddress.address_type = 'primary'
-        JOIN Address ON EntityAddress.address_id = Address.id AND Address.id = NEW.address_id -- Assuming NEW.address_id represents the new address
-        WHERE users.id = NEW.id
-        LIMIT 1;
+    
+     -- First, get the cityId from the address of the user
+    SELECT "CityId" INTO v_city_id
+    FROM "Addresses"
+    WHERE id = NEW."AddressId";
 
-        IF user_city IS NOT NULL THEN
-            -- Find a community matching the user's city
-            SELECT id 
-            INTO community_base_id
-            FROM communities 
-            WHERE name LIKE user_city
-            LIMIT 1;
-        END IF;
+    -- Next, get the city name from the Cities table
+    SELECT name INTO v_city_name
+    FROM "Cities"
+    WHERE id = v_city_id;
 
-        -- Retrieve the 'member' role ID
-        SELECT id
-        INTO p_role
-        FROM community_roles
-        WHERE name = 'member';
+   -- Check if there's a community for the user's city
+    SELECT id INTO v_community_id
+    FROM "Communities"
+    WHERE "Communities".name = v_city_name
+    LIMIT 1;
 
-        -- Assign the user to the community if not already assigned
-        IF community_base_id IS NOT NULL AND p_role IS NOT NULL AND NOT EXISTS (
-            SELECT 1 
-            FROM community_users 
-            WHERE user_id = NEW.id AND community_id = community_base_id
+    -- If there's a community for the user's city, assign the user to the community
+    IF v_community_id IS NOT NULL THEN
+        IF NOT EXISTS(
+            SELECT 1
+            FROM community_users
+            WHERE user_id = NEW."UserId" AND community_id = v_community_id
         ) THEN
-            INSERT INTO community_users (user_id, community_id, role_id) -- Assuming there's a role_id column to use
-            VALUES (NEW.id, community_base_id, p_role);
+            SELECT id INTO v_community_role_id
+            FROM "CommunityRoles"
+            WHERE name = 'member';
+          
+            INSERT INTO community_users (user_id, community_id,community_role_id, created_at)
+            VALUES (NEW."UserId", v_community_id, v_community_role_id, NOW());
         END IF;
-    END IF;
-
+        END IF;
+        
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;

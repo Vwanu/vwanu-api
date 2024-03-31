@@ -12,12 +12,12 @@ export default (sequelize: any, DataTypes: any) => {
     notification_status: string;
 
     static associate(models: any): void {
-      UserNotificationSetting.hasOne(models.User, {
-        foreignKey: 'user_id',
-      });
-      UserNotificationSetting.hasOne(models.NotificationSettings, {
-        foreignKey: 'notification_setting_id',
-      });
+      // UserNotificationSetting.hasOne(models.User, {
+      //   foreignKey: 'user_id',
+      // });
+      // UserNotificationSetting.hasOne(models.NotificationSettings, {
+      //   foreignKey: 'notification_setting_id',
+      // });
     }
   }
   UserNotificationSetting.init(

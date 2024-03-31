@@ -1,34 +1,46 @@
 const { v4 } = require('uuid');
+const config = require('config');
 const { QueryTypes } = require('sequelize');
 
 module.exports = {
   async up(queryInterface) {
-    // select all cities in the database where the country is 'USA'
-    const query = `
-      SELECT name FROM cities 
-      INNER JOIN countries on cities.country_id = countries.id
-      WHERE countries.name = 'haiti'
+    const env = config.util.getEnv('NODE_ENV');
+    // select all cities in the database 
+    const query = ` 
+      SELECT name FROM "Cities" AS cities
+      ${env === 'development' && 'LIMIT 10'}
       `;
+      
 
-    await Promise.all(
-      queryInterface.sequelize
-        .query(query, { type: QueryTypes.SELECT, raw: true })
-        .then((cities) => {
-          // for each city, create a community
-          cities.forEach((city) => {
-            queryInterface.sequelize.query(
-              'INSERT INTO communities (id, name, createdAt, updatedAt) VALUES (?, ?, ?, ?)',
-              {
-                replacements: [v4(), city.name, new Date(), new Date()],
-                type: QueryTypes.INSERT,
-              }
-            );
-          });
-        })
-    );
+    const defaultUserQuery = `SELECT id FROM "Users" WHERE email = '${config.get(
+      'ROOT_USER_EMAIL'
+    )}'`;
+
+    const userId = (
+      await queryInterface.sequelize.query(defaultUserQuery, {
+        type: QueryTypes.SELECT,
+        raw: true,
+      })
+    )[0];
+
+    const cities = await queryInterface.sequelize.query(query, {
+      type: QueryTypes.SELECT,
+      raw: true,
+    });
+
+    const communities = cities.map((city) => ({
+      id: v4(),
+      UserId: userId.id,
+      description: city.name,
+      name: city.name,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }));
+
+    await queryInterface.bulkInsert('Communities', communities);
   },
 
   async down(queryInterface) {
-    return queryInterface.bulkDelete('Users', null, {});
+    return queryInterface.bulkDelete('Communities', null, {});
   },
 };
