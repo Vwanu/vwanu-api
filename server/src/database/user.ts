@@ -25,6 +25,8 @@ export default (sequelize: any, DataTypes: any) => {
 
     birthday: string;
 
+    active_status: boolean;
+
     backgroundImage: string;
 
     backgroundImageStatus: boolean;
@@ -279,6 +281,10 @@ export default (sequelize: any, DataTypes: any) => {
         type: DataTypes.INTEGER,
         defaultValue: 0,
         allowNull: false,
+      },
+      active_status: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
       },
 
       youtubePrivacy: {
