@@ -1,3 +1,4 @@
+
 import { Id } from '@feathersjs/feathers';
 import { Sequelize } from 'sequelize';
 import notBannedQuery from '../sql/notbanned.sql';
