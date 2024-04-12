@@ -19,6 +19,11 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      active_status: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+        allowNull: false,
+      },
 
       lastName: {
         type: Sequelize.STRING,
@@ -75,7 +80,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      website: {
+      birthday: {
         type: Sequelize.STRING,
         allowNull: true,
       },
