@@ -60,10 +60,10 @@ install-tmux: detect-os
 dev: check-docker start-docker check-tmux
 	@if [ "$(FRONTEND)" = "yes" ]; then \
 		echo "Starting both Docker Compose and Frontend React Application in new tmux sessions..."; \
-		tmux new-session -d -s docker-compose 'docker-compose -f docker-compose.react.yml up'; \
+		tmux new-session -d -s docker-compose 'docker-compose -f docker-compose.dev.yml up'; \
 		tmux new-session -d -s react-frontend 'cd client && npm start'; \
 		echo "Started Docker Compose in tmux session 'docker-compose'"; \
 		echo "Started frontend in tmux session 'react-frontend'"; \
 	else \
-		docker-compose -f docker-compose.react.yml up; \
+		docker-compose -f docker-compose.dev.yml up; \
 	fi
