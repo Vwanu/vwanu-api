@@ -56,7 +56,7 @@ install-tmux: detect-os
 # To attach to a tmux session, use:
 # tmux attach-session -t [session-name]
 # For example, tmux attach-session -t docker-compose or tmux attach-session -t react-frontend
-# To detach from a tmux session and leave it running in the background, press Ctrl+B and then D.
+# To detach from a tmux session and leave it running in the background, press Ctrl+B and then D .
 dev: check-docker start-docker check-tmux
 	@if [ "$(FRONTEND)" = "yes" ]; then \
 		echo "Starting both Docker Compose and Frontend React Application in new tmux sessions..."; \
