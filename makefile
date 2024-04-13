@@ -67,3 +67,6 @@ dev: check-docker start-docker check-tmux
 	else \
 		docker-compose -f docker-compose.dev.yml up; \
 	fi
+production: check-docker start-docker
+	docker-compose -f docker-compose.yml up --build; 
+	
