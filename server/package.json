@@ -14,7 +14,7 @@
     "dev": "nodemon",
     "test:local": "jest --watch --no-cache --detectOpenHandles",
     "test": "jest --coverage --passWithNoTests --detectOpenHandles --verbose",
-    "build": "tsc",
+    "build": "tsc --project tsconfig.production.json",
     "preinstall": "npm i nodemon -g",
     "start": "NODE_ENV=development node src/bin/index.js",
     "start:staging": "NODE_ENV=staging node src/bin/index.js",
