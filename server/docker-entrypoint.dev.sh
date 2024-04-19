@@ -10,5 +10,5 @@ echo "Seeding database"
 npm run seed
 
 echo "Starting server"
-npm run start
+npm run dev
  
