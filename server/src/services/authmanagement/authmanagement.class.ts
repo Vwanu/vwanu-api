@@ -24,6 +24,11 @@ import {
   verifySignupWithShortToken,
 } from './verify-signup';
 
+import  {
+  requestPhoneVerification,
+  verifyPhoneWithShortToken
+} from './verify-phone'
+
 import sendResetPwd from './send-reset-pwd';
 import notifier from '../../lib/utils/messenger';
 import sanitizeUserForClient from '../../lib/utils/sanitizeUserForClient';
@@ -44,6 +49,8 @@ const optionsDefault = {
   identifyUserProps: ['email'],
   sanitizeUserForClient,
 };
+
+
 // eslint-disable-next-line import/prefer-default-export
 export class AuthManagement extends Service {
   app;
@@ -96,6 +103,28 @@ export class AuthManagement extends Service {
             this.ops,
             data.value.token,
             data.value.user,
+            data.notifierOptions
+          );
+        } catch (err) {
+          return Promise.reject(err);
+        }
+        case 'verifyPhoneShort':
+        try {
+          return await verifyPhoneWithShortToken(
+            this.ops,
+            data.value.token,
+            data.value.user,
+            data.notifierOptions
+          );
+        } catch (err) {
+          return Promise.reject(err);
+        }
+
+        case 'requestPhoneVerification':
+        try {
+          return await requestPhoneVerification(
+            this.ops,
+            data.value,
             data.notifierOptions
           );
         } catch (err) {
