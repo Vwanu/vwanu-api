@@ -58,6 +58,10 @@ install-tmux: detect-os
 # For example, tmux attach-session -t docker-compose or tmux attach-session -t react-frontend
 # To detach from a tmux session and leave it running in the background, press Ctrl+B and then D .
 dev: check-docker start-docker check-tmux
+	echo "Setting up dev environment on the machine" 
+	npm ci --ignore-scripts
+	npm run server-install
+	echo "Server modules downloaded" 
 	@if [ "$(FRONTEND)" = "yes" ]; then \
 		echo "Starting both Docker Compose and Frontend React Application in new tmux sessions..."; \
 		tmux new-session -d -s docker-compose 'docker-compose -f docker-compose.dev.yml up'; \
@@ -65,7 +69,7 @@ dev: check-docker start-docker check-tmux
 		echo "Started Docker Compose in tmux session 'docker-compose'"; \
 		echo "Started frontend in tmux session 'react-frontend'"; \
 	else \
-		docker-compose -f docker-compose.dev.yml up; \
+		docker-compose -f docker-compose.dev.yml up --build; \
 	fi
 production: check-docker start-docker
 	docker-compose -f docker-compose.yml up --build; 
