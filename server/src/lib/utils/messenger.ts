@@ -2,23 +2,28 @@
 import Logger from './logger';
 import { Application } from '../../declarations';
 import Notifier from './notifier/not';
-import { EmailerService } from './outReach';
+import { EmailerService, TexterService } from './outReach';
 import getTemplate from './getTemplate';
 import sanitizeUserFor3rdParty from './sanitizer/sanitizerFor3rdParty';
+import {NotifierOptions} from '../../schema/email.schema'
 
+
+
+const defaultNotifierOptions:NotifierOptions ={
+  source: 'email'
+}
 export default function (app: Application) {
   const getMessageTemplateFunction = getTemplate(app);
   return {
-    notifier: async (type, user, notifierOptions) => {
-      const options = notifierOptions || {};
-      options.type = options.type || 'email';
+    notifier: async (type, user, options:NotifierOptions=defaultNotifierOptions) => {
       try {
         const template: any = await getMessageTemplateFunction(type, options);
         if (!template) {
           Logger.error(`${type} template not found`);
-          throw new Error(`${type} email template not found`);
+          throw new Error(`${type}  template not found`);
         }
-        const notifierInstance = new Notifier(EmailerService());
+        const notifierInstance = options.source =='email' ? new Notifier(EmailerService()): new Notifier(TexterService());
+
         const sanitizedUser = sanitizeUserFor3rdParty(user);
         const { email: to } = sanitizedUser;
         notifierInstance.sendTemplate(to, template?.id, sanitizedUser);
