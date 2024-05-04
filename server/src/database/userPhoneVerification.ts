@@ -27,10 +27,18 @@ export default (sequelize: any, DataTypes: any) => {
       user_id: {
         type: DataTypes.UUID,
         allowNull: false,
+        references:{
+          model:'Users',
+          key:'id'
+        }
       },
       phone_id: {
-        type: DataTypes.UUID,
+        type: DataTypes.INTEGER,
         allowNull: false,
+        references:{
+          model:'phones',
+          key:'id'
+        }
       },
       verification_code: {
         type: DataTypes.STRING,

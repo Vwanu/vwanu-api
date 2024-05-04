@@ -13,7 +13,8 @@ export class Phone extends Service {
 
   // POST: Add a new phone or verify an existing one
   async create(data, params: Params) {
-    const { sequelize } = this.app.get('sequelizeClient');
+    const sequelize  = this.app.get('sequelizeClient');
+    
     if (params?.query && params?.query?.verify) {
       // Handle verification logic
       const { verificationCode } = params.query;
@@ -27,8 +28,10 @@ export class Phone extends Service {
       ).then(result => result[0])
        .catch(err => { throw new BadRequest(err.message); });
     } else {
+      console.log('not reading query')
       // Handle adding a new phone
       const { userId, phoneNumber, phoneType, countryCode } = data;
+      console.log({ userId, phoneNumber, phoneType, countryCode })
       return sequelize.query(
         'SELECT add_or_associate_phone(:userId, :phoneNumber, :phoneType, :countryCode) AS verificationCode',
         {
