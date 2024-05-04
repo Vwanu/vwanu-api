@@ -9,8 +9,8 @@ export default {
   before: {
     get: notAllow,
     create: authenticate('jwt'),
-    update: notAllow,
-    patch: notAllow,
-    remove: notAllow,
+    update: notAllow,// only his own phone number 
+    patch: notAllow,// only his own phone number 
+    remove: notAllow,// only his own phone number 
   },
 };

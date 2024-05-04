@@ -1,9 +1,9 @@
 import { Params } from '@feathersjs/feathers';
+import { Application } from '../../declarations';
 import { BadRequest, NotFound } from '@feathersjs/errors';
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
-import { Application } from '../../declarations';
 
-export class PhoneManagement extends Service {
+export class Phone extends Service {
   app;
 
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
@@ -14,7 +14,7 @@ export class PhoneManagement extends Service {
   // POST: Add a new phone or verify an existing one
   async create(data, params: Params) {
     const { sequelize } = this.app.get('sequelizeClient');
-    if (params.query && params.query.verify) {
+    if (params?.query && params?.query?.verify) {
       // Handle verification logic
       const { verificationCode } = params.query;
       const { userId, phoneNumber } = data;

@@ -7,7 +7,7 @@ import { UserPhoneVerificationsInterface } from '../schema/UserPhoneVerification
 import { nanoid } from 'nanoid';
 
 export default (sequelize: any, DataTypes: any) => {
-  class UserPhoneVerifications extends Model<PhoneInterface> implements PhoneInterface {
+  class UserPhoneVerifications extends Model<UserPhoneVerificationsInterface> implements UserPhoneVerificationsInterface {
     user_id:string
     phone_id :string
     verification_code: number
@@ -26,26 +26,24 @@ export default (sequelize: any, DataTypes: any) => {
     {
       user_id: {
         type: DataTypes.UUID,
-        primaryKey: true,
-        defaultValue: DataTypes.UUIDV4,
         allowNull: false,
       },
       phone_id: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
+        type: DataTypes.UUID,
+        allowNull: false,
       },
       verification_code: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
+        type: DataTypes.STRING,
+        allowNull: false,
         defaultValue:nanoid(),
       },
       code_sent_time: {
-        type: DataTypes.STRING,
+        type: DataTypes.DATE,
         allowNull: false,
         defaultValue:Date.now(),
       },
       verified_time: {
-        type: DataTypes.STRING,
+        type: DataTypes.DATE,
         allowNull: true,
       },
       is_verified:{
@@ -58,8 +56,8 @@ export default (sequelize: any, DataTypes: any) => {
     },
     {
       sequelize,
-      modelName: 'PhoneNumbers',
-      tableName:'phone_numbers',
+      modelName: 'UserPhoneVerifications',
+      tableName:'user_phone_verifications',
       underscored:true,
 
     }

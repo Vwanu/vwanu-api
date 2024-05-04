@@ -44,6 +44,10 @@ import communityBans from './community-bans';
 import communityHistory from './community-history';
 import notificationsSettings from './notifications_settings';
 import UserNotificationsSettings from './user_notifications_settings';
+import phone from './phones'
+import userPhoneVerification from './userPhoneVerification';
+import errorCodes from './errorCodes.db';
+
 
 const tables = [
   call,
@@ -84,6 +88,9 @@ const tables = [
   userWorkplace,
   notificationsSettings,
   UserNotificationsSettings,
+  phone, 
+  userPhoneVerification,
+  errorCodes
 ];
 
 export default function (app: Application): void {

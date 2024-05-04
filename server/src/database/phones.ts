@@ -6,7 +6,7 @@ import { Model } from 'sequelize';
 import { PhoneInterface } from '../schema/phoneNumbers.schema';
 
 export default (sequelize: any, DataTypes: any) => {
-  class PhoneNumbers extends Model<PhoneInterface> implements PhoneInterface {
+  class Phone extends Model<PhoneInterface> implements PhoneInterface {
     id: string
     phone_number: string
     phone_type:string
@@ -19,7 +19,7 @@ export default (sequelize: any, DataTypes: any) => {
     //   });
     // }
   }
-  PhoneNumbers.init(
+  Phone.init(
     {
       id: {
         type: DataTypes.UUID,
@@ -28,11 +28,11 @@ export default (sequelize: any, DataTypes: any) => {
         allowNull: false,
       },
       phone_number: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: true,
       },
       phone_type: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: true,
       },
       country_code: {
@@ -44,11 +44,11 @@ export default (sequelize: any, DataTypes: any) => {
     },
     {
       sequelize,
-      modelName: 'PhoneNumbers',
-      tableName:'phone_numbers',
+      modelName: 'Phone',
+      tableName:'phones',
       underscored:true,
 
     }
   );
-  return PhoneNumbers;
+  return Phone;
 };
