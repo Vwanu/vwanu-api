@@ -6,7 +6,7 @@ DECLARE
     v_new_code TEXT;
 BEGIN
     -- Check if the phone number exists
-    SELECT phone_id INTO v_phone_id FROM phone_numbers WHERE phone_number = phone_number;
+    SELECT phone_id INTO v_phone_id FROM phones WHERE phone_number = phone_number;
 
     -- If the phone number does not exist, insert it
     IF v_phone_id IS NULL THEN

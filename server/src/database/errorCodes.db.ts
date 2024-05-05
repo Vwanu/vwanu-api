@@ -36,6 +36,7 @@ export default (sequelize: any, DataTypes: any) => {
       modelName: 'ErroCodes',
       tableName:'error_codes',
       underscored:true,
+      timestamps:false,
     }
   );
   return ErroCode;

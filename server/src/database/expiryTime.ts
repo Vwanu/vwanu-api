@@ -25,8 +25,8 @@ export default (sequelize: any, DataTypes: any) => {
     {
      
       sequelize,
-      modelName: 'ExpiryTime',
-      tableName:'expiry_time',
+      modelName: 'ExpiryTimes',
+      tableName:'expiry_times',
       timestamps:false,
       underscored:true
     }
