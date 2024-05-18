@@ -1,8 +1,13 @@
 /* eslint-disable import/prefer-default-export */
 import { Params } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
-import { BadRequest, NotFound } from '@feathersjs/errors';
+import { BadRequest, NotFound, GeneralError } from '@feathersjs/errors';
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
+import { StatusCodes } from 'http-status-codes';
+
+import { Application } from '../../declarations';
+import notifier from '../../lib/utils/messenger';
+
+
 
 const sendVerificationCode = async (phoneNumber, verificationCode) => {
   console.log({ phoneNumber, verificationCode })
@@ -38,7 +43,7 @@ export class Phone extends Service {
     }
     console.log('not reading query')
     // Handle adding a new phone
-    const { userId, phoneNumber, countryCode } = data;
+    const { UserId: userId, phoneNumber, countryCode } = data;
     console.log({ userId, phoneNumber, countryCode })
     return sequelize.query(
       'SELECT add_or_associate_phone(:userId, :phoneNumber, :countryCode) AS verificationCode',
@@ -46,12 +51,16 @@ export class Phone extends Service {
         replacements: { userId, phoneNumber, countryCode },
         type: sequelize.QueryTypes.SELECT
       }
-    ).then(result => {
+    ).then(result =>
+      notifier(this.app).notifier('phoneVerificationCode', { phoneNumber, verificationCode: result[0].verificationCode }, { source: 'sms' }).then(() =>
+        ({ message: statusMessages.successFullPhoneVerifcation })).catch(err => { throw new GeneralError(err.message); })
+    )
+      .catch(err => {
 
-      sendVerificationCode(phoneNumber, result[0].verificationCode);
-      return { message: statusMessages.successFullPhoneVerifcation }
-    })
-      .catch(err => { throw new BadRequest(err.message); });
+        const Err = err.code === StatusCodes.INTERNAL_SERVER_ERROR ? GeneralError : BadRequest;
+
+        throw new Err((err.message))
+      });
 
   }
 

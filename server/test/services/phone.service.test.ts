@@ -57,10 +57,10 @@ describe('PhoneManagement Service', () => {
         .post(endpoint)
         .set('Authorization', `Bearer ${testUsers[0].accessToken}`)
         .send({
-          userId: user.id,
-          phoneNumber: '1234567890',
+          phoneNumber: '1234569890',
           countryCode,
         });
+      console.log('response', res.body)
       expect(res.statusCode).toBe(StatusCodes.CREATED);
       expect(res.body).toHaveProperty('message');
       expect(res.body.message).toContain(' Verification code sent.');
