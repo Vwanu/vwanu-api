@@ -1,8 +1,16 @@
+/* eslint-disable import/prefer-default-export */
 import { Params } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import { BadRequest, NotFound } from '@feathersjs/errors';
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 
+const sendVerificationCode = async (phoneNumber, verificationCode) => {
+  console.log({ phoneNumber, verificationCode })
+};
+
+const statusMessages = {
+  successFullPhoneVerifcation: "Phone number added successfully. Verification code sent."
+}
 export class Phone extends Service {
   app;
 
@@ -13,8 +21,8 @@ export class Phone extends Service {
 
   // POST: Add a new phone or verify an existing one
   async create(data, params: Params) {
-    const sequelize  = this.app.get('sequelizeClient');
-    
+    const sequelize = this.app.get('sequelizeClient');
+
     if (params?.query && params?.query?.verify) {
       // Handle verification logic
       const { verificationCode } = params.query;
@@ -26,21 +34,25 @@ export class Phone extends Service {
           type: sequelize.QueryTypes.SELECT
         }
       ).then(result => result[0])
-       .catch(err => { throw new BadRequest(err.message); });
-    } else {
-      console.log('not reading query')
-      // Handle adding a new phone
-      const { userId, phoneNumber, phoneType, countryCode } = data;
-      console.log({ userId, phoneNumber, phoneType, countryCode })
-      return sequelize.query(
-        'SELECT add_or_associate_phone(:userId, :phoneNumber, :phoneType, :countryCode) AS verificationCode',
-        {
-          replacements: { userId, phoneNumber, phoneType, countryCode },
-          type: sequelize.QueryTypes.SELECT
-        }
-      ).then(result => result[0])
-       .catch(err => { throw new BadRequest(err.message); });
+        .catch(err => { throw new BadRequest(err.message); });
     }
+    console.log('not reading query')
+    // Handle adding a new phone
+    const { userId, phoneNumber, countryCode } = data;
+    console.log({ userId, phoneNumber, countryCode })
+    return sequelize.query(
+      'SELECT add_or_associate_phone(:userId, :phoneNumber, :countryCode) AS verificationCode',
+      {
+        replacements: { userId, phoneNumber, countryCode },
+        type: sequelize.QueryTypes.SELECT
+      }
+    ).then(result => {
+
+      sendVerificationCode(phoneNumber, result[0].verificationCode);
+      return { message: statusMessages.successFullPhoneVerifcation }
+    })
+      .catch(err => { throw new BadRequest(err.message); });
+
   }
 
   // GET: Retrieve phone details
@@ -54,7 +66,7 @@ export class Phone extends Service {
         type: sequelize.QueryTypes.SELECT
       }
     ).then(result => result[0])
-     .catch(err => { throw new NotFound('Phone details not found.'); });
+      .catch(err => { throw new NotFound('Phone details not found.'); });
   }
 
   // PATCH: Update phone details
@@ -68,7 +80,7 @@ export class Phone extends Service {
         type: sequelize.QueryTypes.SELECT
       }
     ).then(result => result[0])
-     .catch(err => { throw new BadRequest(err.message); });
+      .catch(err => { throw new BadRequest(err.message); });
   }
 
   // DELETE: Remove a phone association
@@ -82,6 +94,6 @@ export class Phone extends Service {
         type: sequelize.QueryTypes.SELECT
       }
     ).then(result => result[0])
-     .catch(err => { throw new BadRequest(err.message); });
+      .catch(err => { throw new BadRequest(err.message); });
   }
 }
