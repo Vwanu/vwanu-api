@@ -5,28 +5,37 @@ import Notifier from './notifier/not';
 import { EmailerService, TexterService } from './outReach';
 import getTemplate from './getTemplate';
 import sanitizeUserFor3rdParty from './sanitizer/sanitizerFor3rdParty';
-import {NotifierOptions} from '../../schema/email.schema'
+import { NotifierOptions } from '../../schema/email.schema'
 
 
 
-const defaultNotifierOptions:NotifierOptions ={
+const defaultNotifierOptions: NotifierOptions = {
   source: 'email'
 }
+
+const createMessage = (template: any, user: any) => {
+  const { body } = template;
+  const { verificationCode } = user;
+  return body.replace(/{{verificationCode}}/g, verificationCode);
+};
 export default function (app: Application) {
   const getMessageTemplateFunction = getTemplate(app);
   return {
-    notifier: async (type, user, options:NotifierOptions=defaultNotifierOptions) => {
+    notifier: async (type, user, options: NotifierOptions = defaultNotifierOptions) => {
       try {
         const template: any = await getMessageTemplateFunction(type, options);
         if (!template) {
           Logger.error(`${type} template not found`);
           throw new Error(`${type}  template not found`);
         }
-        const notifierInstance = options.source =='email' ? new Notifier(EmailerService()): new Notifier(TexterService());
-
+        const notifierInstance = options.source === 'email' ? new Notifier(EmailerService()) : new Notifier(TexterService());
+        if (options.source === 'sms') {
+          const message = createMessage(template, user);
+          return await notifierInstance.send(user.phone, message, user.verificationCode)
+        }
         const sanitizedUser = sanitizeUserFor3rdParty(user);
         const { email: to } = sanitizedUser;
-        notifierInstance.sendTemplate(to, template?.id, sanitizedUser);
+        return await notifierInstance.sendTemplate(to, template?.id, sanitizedUser);
       } catch (error) {
         Logger.error(error);
         throw new Error(error);

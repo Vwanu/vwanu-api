@@ -48,6 +48,7 @@ import phone from './phones'
 import userPhoneVerification from './userPhoneVerification';
 import errorCodes from './errorCodes.db';
 import expiryTime from './expiryTime'
+import templateMessages from './templateMessages';
 
 
 const tables = [
@@ -89,10 +90,11 @@ const tables = [
   userWorkplace,
   notificationsSettings,
   UserNotificationsSettings,
-  phone, 
+  phone,
   userPhoneVerification,
   errorCodes,
-  expiryTime
+  expiryTime,
+  templateMessages
 ];
 
 export default function (app: Application): void {

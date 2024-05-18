@@ -3,17 +3,17 @@ import { Model } from 'sequelize';
 
 // Custom imports
 
-import { UserPhoneVerificationsInterface } from '../schema/UserPhoneVerifications.schema';
 import { nanoid } from 'nanoid';
+import { UserPhoneVerificationsInterface } from '../schema/UserPhoneVerifications.schema';
 
 export default (sequelize: any, DataTypes: any) => {
   class UserPhoneVerifications extends Model<UserPhoneVerificationsInterface> implements UserPhoneVerificationsInterface {
-    user_id:string
-    phone_id :string
+    user_id: string
+    phone_id: string
     verification_code: number
     code_sent_time: string
-    verified_time:string
-    is_verified :boolean
+    verified_time: string
+    is_verified: boolean
 
     // static associate(models: any) {
     //   PhoneNumbers.belongsToMany(models.Users, {
@@ -27,48 +27,48 @@ export default (sequelize: any, DataTypes: any) => {
       user_id: {
         type: DataTypes.UUID,
         allowNull: false,
-        references:{
-          model:'Users',
-          key:'id'
+        references: {
+          model: 'Users',
+          key: 'id'
         }
       },
       phone_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references:{
-          model:'phones',
-          key:'id'
+        references: {
+          model: 'phones',
+          key: 'id'
         }
       },
       verification_code: {
         type: DataTypes.STRING,
         allowNull: false,
-        defaultValue:nanoid(),
+        defaultValue: nanoid(),
       },
       code_sent_time: {
         type: DataTypes.DATE,
         allowNull: false,
-        defaultValue:Date.now(),
+        defaultValue: Date.now(),
       },
       verified_time: {
         type: DataTypes.DATE,
         allowNull: true,
       },
-      is_verified:{
-        type:DataTypes.BOOLEAN,
-        defaultValue:false,
-        allowNull:false, 
+      is_verified: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        allowNull: false,
       }
 
-      
+
     },
     {
       sequelize,
       modelName: 'UserPhoneVerifications',
-      tableName:'user_phone_verifications',
-      underscored:true,
+      tableName: 'user_phone_verifications',
+      underscored: true,
 
     }
   );
-  return UserPhoneVerifications  ;
+  return UserPhoneVerifications;
 };

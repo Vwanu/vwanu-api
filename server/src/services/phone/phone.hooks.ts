@@ -2,6 +2,7 @@ import { disallow } from 'feathers-hooks-common';
 import * as feathersAuthentication from '@feathersjs/authentication';
 
 import AutoOwn from '../../Hooks/AutoOwn'
+
 const { authenticate } = feathersAuthentication.hooks;
 const notAllow = disallow('external');
 
