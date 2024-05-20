@@ -27,6 +27,7 @@ export default (sequelize: any, DataTypes: any) => {
         type: DataTypes.JSON,
         allowNull: false
       }
+      
     },
 
     {
