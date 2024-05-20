@@ -29,9 +29,10 @@ export default function (app: Application) {
           throw new Error(`${type}  template not found`);
         }
         const notifierInstance = options.source === 'email' ? new Notifier(EmailerService()) : new Notifier(TexterService());
+
         if (options.source === 'sms') {
           const message = createMessage(template, user);
-          return await notifierInstance.send(user.phone, message, user.verificationCode)
+          return await notifierInstance.send(user.phone, message, "")
         }
         const sanitizedUser = sanitizeUserFor3rdParty(user);
         const { email: to } = sanitizedUser;

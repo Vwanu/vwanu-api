@@ -27,7 +27,7 @@ export default (app: Application) =>
     return new Promise((resolve, reject) => {
       app
         .service(TemplateServiceName)
-        ._find({ query: { snug, ...notifierOptions }, paginate: false })
+        ._find({ query: { snug }, paginate: false })
         .then((response) => {
           resolve(response[0] as any);
         })
