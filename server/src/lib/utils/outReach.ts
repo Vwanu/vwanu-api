@@ -6,11 +6,8 @@ import { IMessenger } from '../../schema/email.schema';
 import TwilioMessenger from './texter/twillioMessenger'
 import SendGridMessenger from './mailer/SendGridMessenger.mailer';
 
-export const TexterService=():IMessenger=>{
-  const {authToken,fromNumber,accountSid} = config.get<{authToken:string, fromToken:string,accounsid:string}>('Texterconfiguration')
-  const texter = new TwilioMessenger(authToken,fromNumber,accountSid )
-  return texter;
-}
+
+
 
 export const EmailerService = (): IMessenger => {
   const emailConfig = config.get('EmailerConfiguration');
@@ -20,3 +17,11 @@ export const EmailerService = (): IMessenger => {
   );
   return messenger;
 };
+
+
+
+export const TexterService = (): IMessenger => {
+  const { authToken, fromNumber, accountSid } = config.get<{ authToken: string, fromToken: string, accounsid: string }>('Texterconfiguration')
+  return new TwilioMessenger(authToken, fromNumber, accountSid)
+};
+export default { TexterService, EmailerService }

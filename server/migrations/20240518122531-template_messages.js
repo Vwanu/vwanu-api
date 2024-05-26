@@ -15,14 +15,14 @@ module.exports = {
         type: DataTypes.JSON,
         allowNull: false,
       },
-      created_at: {
-        allowNull: false,
-        type: DataTypes.DATE,
-      },
-      updated_at: {
-        allowNull: false,
-        type: DataTypes.DATE,
-      },
+      // created_at: {
+      //   allowNull: false,
+      //   type: DataTypes.DATE,
+      // },
+      // updated_at: {
+      //   allowNull: false,
+      //   type: DataTypes.DATE,
+      // },
     });
   },
 

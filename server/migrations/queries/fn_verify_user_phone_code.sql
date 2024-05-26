@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION verify_user_code(user_id VARCHAR, phone_number VARCHAR, provided_code VARCHAR)
+CREATE OR REPLACE FUNCTION fn_verify_user_phone_code(user_id VARCHAR, phone_number VARCHAR, provided_code VARCHAR)
 RETURNS TEXT AS $$
 DECLARE
     v_phone_id INT;

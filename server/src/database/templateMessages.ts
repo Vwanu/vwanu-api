@@ -36,6 +36,7 @@ export default (sequelize: any, DataTypes: any) => {
       modelName: 'TemplateMessages',
       underscored: true,
       tableName: 'template_messages',
+      timestamps: false 
     }
   );
   return TemplateMessage;
