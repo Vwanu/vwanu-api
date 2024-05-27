@@ -42,7 +42,7 @@ import workplace from './workplace';
 import userWorkplace from './userWorkplace';
 import communityBans from './community-bans';
 import communityHistory from './community-history';
-import notificationsSettings from './notifications_settings';
+import notificationsSettings from './notifications_types';
 import UserNotificationsSettings from './user_notifications_settings';
 import phone from './phones'
 import userPhoneVerification from './userPhoneVerification';

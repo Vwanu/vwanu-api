@@ -34,7 +34,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [],// check the user setting and determing if text or email should be sent
     update: [],
     patch: [],
     remove: [],
