@@ -10,6 +10,11 @@
     "from": "SEND_EMAIL_FROM",
     "api_key": "sendGridApiKey"
   },
+  "Texterconfiguration":{
+    "authToken":"TWILLIO_AUTH_TOKEN",
+    "fromNumber":"TWILLIO_NUMBER",
+    "accountSid":"TWILLIO_ACCOUNT_SID"
+  },
   "SMTP_CONFIGURATION": {
     "host": "SMTP_HOST",
     "port": "SMTP_PORT",
