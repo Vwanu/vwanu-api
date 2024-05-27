@@ -14,14 +14,14 @@ export class Phone extends Service {
     this.app = app;
   }
 
-  async updatePrimaryPhone(userId, phoneNumber) {
+  async updatePrimaryPhone(userId, phoneId) {
 
-    const { sequelize } = this.app.get('sequelizeClient');
+    const sequelize = this.app.get('sequelizeClient');
 
     return sequelize.query(
-      'SELECT update_primary_phone(:userId, :phoneNumber) AS status',
+      'SELECT fn_update_primary_phone(:userId, :phoneId) AS status',
       {
-        replacements: { userId, phoneNumber },
+        replacements: { userId, phoneId },
         type: sequelize.QueryTypes.SELECT
       }
     ).then(result => result[0])
@@ -29,10 +29,8 @@ export class Phone extends Service {
   }
 
   async resendVerification(userId, phoneNumber) {
-    console.log('resendVerification')
-    console.log({ userId, phoneNumber })
-    const sequelize = this.app.get('sequelizeClient');
 
+    const sequelize = this.app.get('sequelizeClient');
     return sequelize.query(
       'SELECT fn_get_phone_verification_code(:userId, :phoneNumber) AS verificationCode',
       {
@@ -56,11 +54,8 @@ export class Phone extends Service {
           replacements: { userId, phoneNumber, verificationCode },
           type: sequelize.QueryTypes.SELECT
         }
-      ).then(result => {
-        console.log('fn_verify_user_phone_code result: ', result)
-      })
+      ).then(result => result[0])
         .catch(err => {
-          console.log('Error form db', err.message)
           throw new BadRequest(err.message);
         });
     }
@@ -69,7 +64,7 @@ export class Phone extends Service {
     const { UserId: userId, phoneNumber, countryCode } = data;
 
     return sequelize.query(
-      'SELECT add_or_associate_phone(:userId, :phoneNumber, :countryCode) AS verificationCode',
+      'SELECT fn_add_or_associate_phone(:userId, :phoneNumber, :countryCode) AS verificationCode',
       {
         replacements: { userId, phoneNumber, countryCode },
         type: sequelize.QueryTypes.SELECT
@@ -97,13 +92,12 @@ export class Phone extends Service {
 
   // PATCH: Update phone details
   async patch(id, data, params: Params) {
-    console.log('in patch')
+
     const { UserId: userId, phoneNumber } = data;
     switch (params.query.action) {
       case 'updatePrimary':
         return this.updatePrimaryPhone(userId, phoneNumber);
       case 'resendVerification':
-        console.log('resendVer ')
         return this.resendVerification(userId, phoneNumber)
       default:
         throw new BadRequest('Please specify an action')
