@@ -49,7 +49,7 @@ import userPhoneVerification from './userPhoneVerification';
 import errorCodes from './errorCodes.db';
 import expiryTime from './expiryTime'
 import templateMessages from './templateMessages';
-
+import userNotificationTypes from './user_notification_types';
 
 const tables = [
   call,
@@ -94,7 +94,8 @@ const tables = [
   userPhoneVerification,
   errorCodes,
   expiryTime,
-  templateMessages
+  templateMessages,
+  userNotificationTypes
 ];
 
 export default function (app: Application): void {

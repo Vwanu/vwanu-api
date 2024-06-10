@@ -22,11 +22,20 @@ export default (sequelize: any, DataTypes: any) => {
       user_id: {
         type: DataTypes.UUID,
         primaryKey: true,
+        references: {
+          model: 'Users',
+          key: 'id'
+        }
       },
       notification_slug: {
-        type: DataTypes.UUID,
+        type: DataTypes.STRING,
         unique: true,
         allowNull: false,
+        primaryKey: true,
+        references: {
+          model: 'notification_types',
+          key: 'notification_slug'
+        }
       },
       text: {
         type: DataTypes.BOOLEAN,

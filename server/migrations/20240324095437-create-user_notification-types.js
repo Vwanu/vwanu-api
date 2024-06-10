@@ -10,7 +10,7 @@ module.exports = {
         },
       },
       notification_slug: {
-        type: DataTypes.UUID,
+        type: DataTypes.STRING,
         unique: true,
         allowNull: false,
         reference: {

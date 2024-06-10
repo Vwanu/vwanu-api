@@ -53,6 +53,8 @@ import communityBans from './community-bans/community-bans.service';
 import communityHistory from './community-history/community-history.service';
 import phone from './phone/phone.service'
 import templateMessage from './templateMessages/templateMessage.service';
+import notificationTypes from './notification_types/notification_types.service';
+import userNotificationTypes from './user_notification_types/user_notification_types.service';
 
 export default function (app: Application): void {
   app.configure(search);
@@ -108,4 +110,6 @@ export default function (app: Application): void {
   app.configure(communityHistory);
   app.configure(phone)
   app.configure(templateMessage)
+  app.configure(notificationTypes)
+  app.configure(userNotificationTypes)
 }
