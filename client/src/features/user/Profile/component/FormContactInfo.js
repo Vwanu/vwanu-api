@@ -7,8 +7,12 @@ import { useQueryClient } from "react-query";
 import { Field, Telephone, Form, Submit } from "../../../../components/form";
 import Loader from "../../../../components/common/Loader";
 import { useUpdateUser } from "../../userSlice";
+import { AddPhone, useSendOtpPhone, useVerifyPhone } from "../../../auth/authSlice";
 import CustomModal from "../../../../components/common/CustomModal";
 import { GoX } from "react-icons/go";
+import { useGetPhone } from "./../../../auth/authSlice";
+import { useGetCountry } from "../../../address/addressSlice";
+import { getValueFromList } from "../../../../helpers";
 
 //Functions for notification after actions
 const updateSuccess = () =>
@@ -21,12 +25,40 @@ const updateError = () =>
     position: "top-center",
   });
 
+const sendOTPSuccess = () =>
+  toast.success("Code successfully resent!", {
+    position: "top-center",
+  });
+
+const sendOTPError = () =>
+  toast.error("Sorry. Error on resending code OTP!", {
+    position: "top-center",
+  });
+
+const verifySuccess = () =>
+  toast.success("Telephone successfully Verified!", {
+    position: "top-center",
+  });
+
+const verifyError = (textError) =>
+  toast.error(textError || "Sorry. Error on verifying Telephone!", {
+    position: "top-center",
+  });
+
 const FormContactInfo = ({ user }) => {
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const [modal, setModal] = useState(false);
+  const [countryC, setCountryC] = useState("");
 
   const updateUser = useUpdateUser(["user", "me"], undefined, undefined);
+  const addPhone = AddPhone(["user", "me"], undefined, undefined);
+  const resendOTP = useSendOtpPhone(["user", "sendOTP"], undefined, undefined);
+  const verifyCode = useVerifyPhone(["user", "verifyCode"], undefined, undefined);
+  const { data: phoneUser } = useGetPhone(["user", "me"], true);
+  const { data: countryList } = useGetCountry(["country", "all"], true);
+
+  console.log("phone", phoneUser);
 
   const initialValues = {
     phone: user ? user?.telephone : "",
@@ -58,7 +90,27 @@ const FormContactInfo = ({ user }) => {
   });
 
   const handleSubmitVerify = async (dataObj) => {
-    console.log(dataObj?.otp);
+    try {
+      let phoneNumber = "15188471332";
+      const data = { phoneNumber, verificationCode: dataObj?.otp };
+      await verifyCode.mutateAsync(data);
+      verifySuccess();
+    } catch (e) {
+      console.log("error", e?.response?.data?.message);
+      verifyError(e?.response?.data?.message);
+    }
+  };
+
+  const resendOTPSubmit = async () => {
+    try {
+      let phoneNumber = "+15188471332";
+      const dataObj = { phoneNumber };
+      await resendOTP.mutateAsync(dataObj);
+      sendOTPSuccess();
+    } catch (e) {
+      console.log(e);
+      sendOTPError();
+    }
   };
 
   const handleSubmit = async (dataObj) => {
@@ -75,7 +127,12 @@ const FormContactInfo = ({ user }) => {
       website: dataObj?.website,
     };
 
+    const idCode = getValueFromList(countryList, countryC, "id");
+
+    const phoneData = { phoneNumber: dataObj?.phone, countryCode: idCode };
+
     try {
+      await addPhone.mutateAsync(phoneData);
       await updateUser.mutateAsync(data);
       updateSuccess();
       queryClient.invalidateQueries(["user", "me"]);
@@ -120,7 +177,9 @@ const FormContactInfo = ({ user }) => {
               />
               <p className="mt-4">
                 {`Don't receive the OTP? `}
-                <button className="text-secondary font-semibold hover:text-primary">Resend OTP</button>
+                <button onClick={() => resendOTPSubmit()} className="text-secondary font-semibold hover:text-primary">
+                  Resend OTP
+                </button>
               </p>
               <Submit title={"Verify"} className="mb-2 mt-5 bg-primary hover:bg-secondary py-1 w-full text-white rounded" />
             </Form>
@@ -133,6 +192,7 @@ const FormContactInfo = ({ user }) => {
         <div className="w-full ">
           <Telephone
             label="Telephone"
+            setCountryCode={setCountryC}
             labelButton={
               !user?.telephone && (
                 <div className="">
