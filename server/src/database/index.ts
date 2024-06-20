@@ -42,14 +42,14 @@ import workplace from './workplace';
 import userWorkplace from './userWorkplace';
 import communityBans from './community-bans';
 import communityHistory from './community-history';
-import notificationsSettings from './notifications_settings';
+import notificationsSettings from './notifications_types';
 import UserNotificationsSettings from './user_notifications_settings';
 import phone from './phones'
 import userPhoneVerification from './userPhoneVerification';
 import errorCodes from './errorCodes.db';
 import expiryTime from './expiryTime'
 import templateMessages from './templateMessages';
-
+import userNotificationTypes from './user_notification_types';
 
 const tables = [
   call,
@@ -94,7 +94,8 @@ const tables = [
   userPhoneVerification,
   errorCodes,
   expiryTime,
-  templateMessages
+  templateMessages,
+  userNotificationTypes
 ];
 
 export default function (app: Application): void {
