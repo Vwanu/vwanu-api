@@ -23,9 +23,8 @@ export default (sequelize: any, DataTypes: any) => {
   UserNotificationSetting.init(
     {
       user_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         primaryKey: true,
-        autoIncrement: true,
       },
       notification_setting_id: {
         type: DataTypes.STRING,

@@ -1,4 +1,4 @@
-import { z, object, string, number, TypeOf } from 'zod';
+import { z, object, string, TypeOf } from 'zod';
 
 const validNotificationsNames = [
   'new_chat',
@@ -15,8 +15,12 @@ const validNotificationsNames = [
   'new_blog_response',
 ];
 
-export const createnotificationSettingsSchema = object({
+export const createnotificationTypesSchema = object({
   body: object({
+    notification_slug: string({
+      required_error: 'Please provide notification slug',
+      invalid_type_error: 'Invalid notification slug',
+    }),
     notification_name: string({
       required_error: 'Please provide notification name',
       invalid_type_error: 'Invalid notification name',
@@ -26,18 +30,18 @@ export const createnotificationSettingsSchema = object({
       invalid_type_error: 'Invalid notification description',
     }),
   }).refine(
-    (data) => validNotificationsNames.includes(data.notification_name),
+    (data) => validNotificationsNames.includes(data.notification_slug),
     {
-      message: 'Invalid notification setting  name',
+      message: 'Invalid notification type slug',
       path: ['notification_name'],
     }
   ),
 });
 
-export const notificationSettingsSchema = object({
-  id: number({
-    required_error: 'Please provide the notification setting id',
-    invalid_type_error: 'Invalid notification setting id',
+export const notificationTypesSchema = object({
+  notification_slug: string({
+    required_error: 'Please provide notification slug',
+    invalid_type_error: 'Invalid notification slug',
   }),
   notification_name: string({
     required_error: 'Please provide notification name',
@@ -53,9 +57,9 @@ export const notificationSettingsSchema = object({
  * Represents the inferred type of the `notificationSettingsSchema`.
  * This type defines the structure of the notification settings.
  */
-export type NotificationSettingsInterface = z.infer<
-  typeof notificationSettingsSchema
+export type NotificationTypesInterface = z.infer<
+  typeof notificationTypesSchema
 >;
-export type CreateNotificationSettingsInput = TypeOf<
-  typeof createnotificationSettingsSchema
+export type CreateNotificationTypesInput = TypeOf<
+  typeof createnotificationTypesSchema
 >;
