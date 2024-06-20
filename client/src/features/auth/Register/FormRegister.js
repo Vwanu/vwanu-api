@@ -1,12 +1,15 @@
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 import * as Yup from "yup";
 import useAuth from "../../../hooks/useAuth";
+import { useGetCountry } from "../../address/addressSlice";
+import { getValueFromList } from "../../../helpers";
 
 // Core components
 import { alertService } from "../../../components/common/Alert/Services";
 import { Alert } from "../../../components/common/Alert";
 import { Field, Form, Telephone, Checkbox, Submit } from "../../../components/form";
 import Loader from "../../../components/common/Loader";
+import { AddPhone } from "../authSlice";
 
 const ValidationSchema = Yup.object().shape({
   firstName: Yup.string().required().min(3).label("First Name"),
@@ -34,6 +37,9 @@ let trigger = false;
 
 const FormRegister = () => {
   const { isLoading, error, signup } = useAuth();
+  const addPhone = AddPhone(["user", "me"], undefined, undefined);
+  const [countryC, setCountryC] = useState("");
+  const { data: countryList } = useGetCountry(["country", "all"], true);
 
   function reloadPage() {
     window.location.reload();
@@ -42,8 +48,13 @@ const FormRegister = () => {
   const handleRegister = async (credentials) => {
     trigger = true;
     try {
+      const idCode = getValueFromList(countryList, countryC, "id");
+      // console.log("credentials", formatPhoneNumber(credentials?.phone), code, "+" + countryC);
+      const phoneData = { phoneNumber: credentials.phone, countryCode: idCode };
+      // console.log("phoneData", phoneData);
       await signup(credentials);
       // alertService.error(error, { autoClose: true });
+      await addPhone.mutateAsync(phoneData);
       reloadPage();
     } catch (e) {
       console.log("error", e);
@@ -115,6 +126,7 @@ const FormRegister = () => {
         <Telephone
           label=""
           name="phone"
+          setCountryCode={setCountryC}
           containerClassName="my-4"
           className="mt-1 lg:mb-2 lg:mt-0 bg-blue-200 text-secondary placeholder:text-secondary font-semibold rounded-full input-secondary border-none invalid:text-red-500 autofill:text-secondary autofill:bg-blue-200"
         />
