@@ -21,7 +21,7 @@ export default (sequelize: any, DataTypes: any) => {
     {
       user_id: {
         type: DataTypes.UUID,
-        primaryKey: true,
+        // primaryKey: true,
         references: {
           model: 'Users',
           key: 'id'
@@ -29,7 +29,7 @@ export default (sequelize: any, DataTypes: any) => {
       },
       notification_slug: {
         type: DataTypes.STRING,
-        unique: true,
+        // unique: true,
         allowNull: false,
         primaryKey: true,
         references: {

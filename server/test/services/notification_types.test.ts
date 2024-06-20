@@ -17,7 +17,8 @@ describe("notification Types  service", () => {
   beforeAll(async () => {
     server = request(app);
     const userData = getRandUser();
-    users = await server.post(userEndpoint).send({ ...userData, id: undefined });
+    delete userData.id;
+    users = await server.post(userEndpoint).send(userData);
   })
 
   it('registered the service', () => {
@@ -26,7 +27,9 @@ describe("notification Types  service", () => {
   });
 
   it('Should list all notification types', async () => {
+    console.log('List all notification types', users.body.errors)
     const res = await server.get(endpoint).set('Authorization', `Bearer ${users.body.accessToken}`);
+    console.log('not types', res.body.data)
     expect(res.status).toEqual(200);
     expect(res.body.data).toBeInstanceOf(Array);
 

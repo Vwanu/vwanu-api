@@ -1,6 +1,8 @@
 import * as authentication from '@feathersjs/authentication';
+import { HookContext } from '@feathersjs/feathers';
 // Don't remove this comment. It's needed to format import lines nicely.
 import addAssociation from '../../Hooks/AddAssociations';
+
 
 const { authenticate } = authentication.hooks;
 
@@ -24,7 +26,14 @@ export default {
       }),
     ],
     get: [],
-    create: [],
+    create: [async (context: HookContext) => {
+      const { data, app } = context;
+      const sequelizeClient = app.get('sequelizeClient');
+      const { notificationType } = data;
+      const dat = (await sequelizeClient.models.UserNotificationTypes.findOne({ where: { user_id: data.to, notification_slug: notificationType } }));
+      context.data.sound = dat?.sound || false;
+      return context;
+    }],
     update: [],
     patch: [],
     remove: [],

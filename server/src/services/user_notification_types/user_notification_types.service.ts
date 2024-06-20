@@ -16,6 +16,7 @@ export default function (app: Application): void {
   const options = {
     Model: sequelize.models.UserNotificationTypes,
     paginate: app.get('paginate'),
+    multi: ['patch']
   };
 
   // Initialize our service with any options it requires

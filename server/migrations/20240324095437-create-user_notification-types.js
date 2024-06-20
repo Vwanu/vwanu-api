@@ -11,7 +11,7 @@ module.exports = {
       },
       notification_slug: {
         type: DataTypes.STRING,
-        unique: true,
+        primaryKey: true,
         allowNull: false,
         reference: {
           model: 'notification_types',

@@ -7,7 +7,7 @@ import { getRandUsers } from '../../src/lib/utils/generateFakeUser';
 
 const userEndpoint = '/users';
 const endpoint = '/user_notification_types';
-const notificationEndpoint = '/notifications';
+const notificationEndpoint = '/notification';
 let users = [];
 let server;
 
@@ -21,8 +21,16 @@ describe("user notification Types  service", () => {
           server
             .post(userEndpoint)
             .send({ ...userData, id: undefined })));
+    // console.log({ e: users[0].body.errors, instance: users[0].body.errors[0].instance });
     users = users.map(user => user.body);
   })
+
+  afterAll(async () => {
+    const sequelize = app.get('sequelizeClient');
+    await sequelize.models.UserNotificationTypes.destroy({ where: {} });
+    await sequelize.models.Notification.destroy({ where: {} });
+    await Promise.all(users.map(async user => server.delete(`${userEndpoint}/${user.id}`).set('Authorization', `Bearer ${user.accessToken}`)))
+  });
 
   it('registered the service', () => {
     const service = app.service(endpoint.split('/')[1]);
@@ -33,46 +41,52 @@ describe("user notification Types  service", () => {
     const user1 = users[0];
     const res = await server.get(endpoint).set('Authorization', `Bearer ${user1.accessToken}`);
     expect(res.status).toEqual(200);
-    expect(res.body).toBeInstanceOf(Array);
+    expect(res.body.data).toBeInstanceOf(Array);
   });
   it('User 1 should be notified when user 2 comment their post', async () => {
+
     const user1 = users[0];
     const user2 = users[1];
-    const post = await server.post('/posts').send({ content: 'test post' }).set('Authorization', `Bearer ${user1.accessToken}`);
-    await server.post(`/comments/`).send({
-      content: 'test comment',
-      post_id: post.body.id
-    }).set('Authorization', `Bearer ${user2.accessToken}`);
+    const post = await server.post('/posts').send({ postText: 'test post' }).set('Authorization', `Bearer ${user1.accessToken}`);
+    // no notifications before making the comment 
+    await app.get('sequelizeClient').models.Notification.destroy({ where: {} });
+
+    await server.post(`/comments`).send({
+      postText: 'test comment',
+      PostId: post.body.id
+    }).set('Authorization', `${user2.accessToken}`);
+
     const notifications = await server.get(notificationEndpoint).set('Authorization', `Bearer ${user1.accessToken}`);
-    expect(notifications.body.length).toBeGreaterThan(0);
-    expect(notifications.body[0].type).toBe('comment');
-    expect(notifications.body[0].from).toBe(user2.id);
-    expect(notifications.body[0].to).toBe(user1.id);
-    expect(notifications.body[0].sound).toBeTruthy();
+    expect(notifications.body.data.length).toBeGreaterThan(0);
+    expect(notifications.body.data[0].notificationType).toBe('new_comment');
+    expect(notifications.body.data[0].UserId).toBe(user2.id);
+    expect(notifications.body.data[0].to).toBe(user1.id);
+    expect(notifications.body.data[0].sound).toBeTruthy();
   }
   );
   it('User 1 should set their post comment notification settings to silent', async () => {
     const user1 = users[0];
-    const res = await server.patch(`${endpoint}/1`).send({ sound: false }).set('Authorization', `Bearer ${user1.accessToken}`);
+    const res = await server.patch(endpoint).send({ sound: false, notification_slug: 'new_comment' }).set('Authorization', `Bearer ${user1.accessToken}`);
     expect(res.status).toEqual(200);
   });
-  it('user 1 should be silently notified when user 2 likes their post', async () => {
-    ;
-
-
+  it('user 1 should be silently notified when user 2 comment their post', async () => {
     const user1 = users[0];
     const user2 = users[1];
-    const post = await server.post('/posts').send({ content: 'test post' }).set('Authorization', `Bearer ${user1.accessToken}`);
-    await server.post(`/comments/`).send({
-      content: 'test comment',
-      post_id: post.body.id
-    }).set('Authorization', `Bearer ${user2.accessToken}`);
+    const post = await server.post('/posts').send({ postText: 'test post' }).set('Authorization', `Bearer ${user1.accessToken}`);
+    // no notifications before making the comment 
+    await app.get('sequelizeClient').models.Notification.destroy({ where: {} });
+
+    await server.post(`/comments`).send({
+      postText: 'test comment',
+      PostId: post.body.id
+    }).set('Authorization', `${user2.accessToken}`);
+
     const notifications = await server.get(notificationEndpoint).set('Authorization', `Bearer ${user1.accessToken}`);
-    expect(notifications.body.length).toBeGreaterThan(0);
-    expect(notifications.body[0].type).toBe('comment');
-    expect(notifications.body[0].from).toBe(user2.id);
-    expect(notifications.body[0].to).toBe(user1.id);
-    expect(notifications.body[0].sound).toBeFalsy();
+    expect(notifications.body.data.length).toBeGreaterThan(0);
+    expect(notifications.body.data[0].notificationType).toBe('new_comment');
+    expect(notifications.body.data[0].UserId).toBe(user2.id);
+    expect(notifications.body.data[0].to).toBe(user1.id);
+    expect(notifications.body.data[0].sound).toBeFalsy();
   });
 
 });
