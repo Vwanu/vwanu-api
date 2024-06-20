@@ -21,7 +21,7 @@ describe("user notification Types  service", () => {
           server
             .post(userEndpoint)
             .send({ ...userData, id: undefined })));
-    // console.log({ e: users[0].body.errors, instance: users[0].body.errors[0].instance });
+
     users = users.map(user => user.body);
   })
 
