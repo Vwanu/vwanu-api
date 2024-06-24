@@ -3,7 +3,7 @@ import * as authentication from '@feathersjs/authentication';
 // Don't remove this comment. It's needed to format import lines nicely.
 import { disallow } from 'feathers-hooks-common';
 import LimitToOwner from '../../Hooks/LimitToOwner';
-import { AutoOwn } from '../../Hooks';
+import { AutoOwn, AgeAllow } from '../../Hooks';
 
 import saveProfilePicture from '../../Hooks/SaveProfilePictures.hooks';
 
@@ -22,9 +22,10 @@ const refetch = async (context) => {
 };
 
 const { authenticate } = authentication.hooks;
+
 export default {
   before: {
-    all: [authenticate('jwt')],
+    all: [authenticate('jwt'), AgeAllow],
     find: [FindCommunities],
     create: [
       AutoOwn,
