@@ -10,6 +10,14 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4,
         allowNull: false,
       },
+      access_role: {
+        type: Sequelize.UUIDV4,
+        allowNull: true,
+        references: {
+          model: 'CommunityRoles',
+          key: 'id',
+        },
+      },
       email: {
         type: Sequelize.STRING,
         allowNull: false,
