@@ -222,7 +222,7 @@ export default (sequelize: any, DataTypes: any) => {
         allowNull: false,
       },
       access_role: {
-        type: DataTypes.UUIDV4,
+        type: DataTypes.UUID,
         allowNull: true,
         references: {
           model: 'CommunityRoles',

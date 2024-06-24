@@ -11,7 +11,7 @@ module.exports = {
         allowNull: false,
       },
       access_role: {
-        type: Sequelize.UUIDV4,
+        type: Sequelize.UUID,
         allowNull: true,
         references: {
           model: 'CommunityRoles',
