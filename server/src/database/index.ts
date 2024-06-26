@@ -50,6 +50,7 @@ import errorCodes from './errorCodes.db';
 import expiryTime from './expiryTime'
 import templateMessages from './templateMessages';
 import userNotificationTypes from './user_notification_types';
+import accessLevelLogs from './access_level_logs'
 
 const tables = [
   call,
@@ -95,7 +96,8 @@ const tables = [
   errorCodes,
   expiryTime,
   templateMessages,
-  userNotificationTypes
+  userNotificationTypes,
+  accessLevelLogs
 ];
 
 export default function (app: Application): void {
