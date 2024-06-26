@@ -1,6 +1,7 @@
 import * as authentication from '@feathersjs/authentication';
 // Don't remove this comment. It's needed to format import lines nicely.
 import AutoOwn from '../../Hooks/AutoOwn';
+import AgeAllow from '../../Hooks/AgeAllow';
 import LimitToOwner from '../../Hooks/LimitToOwner';
 import NoCommentOnLockParents from '../../Hooks/NoCommentOnLockParents';
 import CanDiscussInCommunity from '../../Hooks/CanDoInCommunity.hook';
@@ -11,7 +12,7 @@ const { authenticate } = authentication.hooks;
 
 export default {
   before: {
-    all: [authenticate('jwt')],
+    all: [authenticate('jwt'), AgeAllow],
     find: [includeUserAndLastComment(false)],
     get: [includeUserAndLastComment(true)],
     create: [AutoOwn, CanDiscussInCommunity, NoCommentOnLockParents],

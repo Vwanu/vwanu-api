@@ -3,12 +3,13 @@ import * as authentication from '@feathersjs/authentication';
 import addAssociation from '../../Hooks/AddAssociations';
 
 import OwnerOrAuthorized from './hooks/OwnerOrAuthorized';
+import AgeAllow from '../../Hooks/AgeAllow';
 
 const { authenticate } = authentication.hooks;
 
 export default {
   before: {
-    all: [authenticate('jwt')],
+    all: [authenticate('jwt'), AgeAllow],
     find: [
       (context) => {
         context.params.query = {

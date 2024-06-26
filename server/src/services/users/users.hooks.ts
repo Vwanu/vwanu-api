@@ -12,6 +12,7 @@ import filesToBody from '../../middleware/PassFilesToFeathers/feathers-to-data.m
 
 import {
   SaveAddress,
+  AssignRole,
   AddVisitor,
   GetUser,
   SendWelcomeMail /* SendEmail */,
@@ -41,6 +42,7 @@ export default {
     find: [authenticate('jwt'), GetUser],
     get: [authenticate('jwt'), GetUser],
     create: [
+      AssignRole('member'),
       validateResource(schema.createUserSchema),
       saveProfilePicture(['profilePicture', 'coverPicture']),
       filesToBody,

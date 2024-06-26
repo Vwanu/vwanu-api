@@ -3,12 +3,13 @@ import * as authentication from '@feathersjs/authentication';
 
 import * as schema from '../../schema/bans';
 import validateResource from '../../middleware/validateResource';
+import AgeAllow from '../../Hooks/AgeAllow';
 
 const { authenticate } = authentication.hooks;
 
 export default {
   before: {
-    all: [authenticate('jwt')],
+    all: [authenticate('jwt'), AgeAllow],
     create: validateResource(schema.createBanSchema),
     find: [],
     get: [],

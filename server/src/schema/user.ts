@@ -49,6 +49,7 @@ export const socialMediaSchema = object({
 
 export const account = object({
   id: z.string(),
+  access_role: z.string(),
   approved_status: z.boolean(),
   active_status: z.boolean(),
   email_activation_key: z.string(),
