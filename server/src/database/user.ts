@@ -17,6 +17,8 @@ export default (sequelize: any, DataTypes: any) => {
 
     address: string;
 
+    access_role: string;
+
     active: boolean;
 
     avatar: string | undefined;
@@ -218,6 +220,14 @@ export default (sequelize: any, DataTypes: any) => {
         primaryKey: true,
         defaultValue: DataTypes.UUIDV4,
         allowNull: false,
+      },
+      access_role: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: {
+          model: 'CommunityRoles',
+          key: 'id',
+        }
       },
       resetAttempts: {
         type: DataTypes.INTEGER,
