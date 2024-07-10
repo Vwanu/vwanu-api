@@ -4,10 +4,18 @@ const { nanoid } = require('nanoid');
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Users', {
-     id: {
+      id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true,
+      },
+      access_role_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: 'CommunityRoles',
+          key: 'id',
+        },
       },
       email: {
         type: Sequelize.STRING,
@@ -81,15 +89,15 @@ module.exports = {
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('Users');
-  }
+  },
 };

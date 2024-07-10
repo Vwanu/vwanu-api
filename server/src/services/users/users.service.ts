@@ -1,4 +1,6 @@
 import { ServiceAddons } from '@feathersjs/feathers';
+import { createSwaggerServiceOptions , ServiceSwaggerOptions} from 'feathers-swagger';
+
 /** Local dependencies */
 import { Users } from './users.class';
 import hooks from './users.hooks';
@@ -12,6 +14,10 @@ declare module '../../declarations' {
   interface ServiceTypes {
     users: Users & ServiceAddons<any>;
   }
+  // interface ServiceOptions{
+  //   docs?:ServiceSwaggerOptions
+
+  // }
 }
 
 export default function (app: Application): void {
@@ -33,7 +39,18 @@ export default function (app: Application): void {
       { name: 'coverPicture', maxCount: 1 },
     ]),
     fileToFeathers,
-    new Users(options, app)
+    new Users(options, app),
+    // {
+    //   methods: ['create', 'update', 'patch', 'remove'],
+    //   events: [],
+    //   docs: createSwaggerServiceOptions({
+    //     schemas: {},
+    //     docs: {
+    //       description: 'My custom service description',
+    //       securities: ['all'],
+    //     }
+    //   })
+    // }
   );
   const service = app.service('users');
 

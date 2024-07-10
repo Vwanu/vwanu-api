@@ -54,7 +54,8 @@ export default function (app: Application): void {
           ]
         ),
       ],
-      create: [issueRefreshToken()],
+      // Todo add refresh token back 
+      // create: [issueRefreshToken()],
     },
   });
   app.configure(expressOauth());

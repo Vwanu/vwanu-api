@@ -9,19 +9,27 @@ const config = require('config');
 
 const dbSettings = config.get('dbSettings');
 
+
 const dbs = { ...dbSettings };
 if (process.env.NODE_ENV === 'test') {
   dbs.host = 'localhost';
 }
 
+// console.log('Environment', process.env.NODE_ENV);
+// console.log('dbSettings', dbs);
+
 export default function (app: Application): void {
   const sequelize = dbSettings.url
     ? new Sequelize(dbSettings.url)
     : new Sequelize({
-        logging: false,
-        ...dbs,
-        seederStorge: 'sequelize',
-      });
+      logging: false,
+      ...dbs,
+      seederStorge: 'sequelize',
+    });
+  // sequelize.catch = function (err) {
+  //   console.log('Error', err);
+  //   throw err;
+  // };
 
   // handling sequelize query error
   sequelize.query = async function (...args) {

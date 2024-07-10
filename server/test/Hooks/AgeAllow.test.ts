@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 
 import feathers from '@feathersjs/feathers';
 import AgeAllow from "../../src/Hooks/AgeAllow";
@@ -9,7 +10,11 @@ import AgeAllow from "../../src/Hooks/AgeAllow";
 describe('AgeAllow Hook', () => {
     let app;
 
+
     beforeEach(() => {
+
+
+
         jest.resetModules();
         process.env.MIN_AGE = '14';
         app = feathers();
@@ -26,6 +31,7 @@ describe('AgeAllow Hook', () => {
         });
     });
     it('should return true if the user is over or has age', async () => {
+
 
         const currentYear = new Date().getFullYear();
         const passingYear = currentYear - +process.env.MIN_AGE;

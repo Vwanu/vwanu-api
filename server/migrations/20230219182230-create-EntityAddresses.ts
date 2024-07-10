@@ -45,6 +45,14 @@ module.exports = {
           onUpdate: 'CASCADE',
         },
       },
+      createdAt: {
+        type: Sequelize.DATE,
+        defaultValue: Date.now(),
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        defaultValue: Date.now(),
+      },
     });
   },
   async down(queryInterface) {

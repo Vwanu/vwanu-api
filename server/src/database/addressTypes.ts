@@ -9,15 +9,14 @@ export interface AddressTypeInterface {
 export default (sequelize: any, DataTypes: any) => {
   class AddressType
     extends Model<AddressTypeInterface>
-    implements AddressTypeInterface
-  {
+    implements AddressTypeInterface {
     id: number;
 
     description: string;
 
-    static associate(models: any): void {
-      AddressType.hasMany(models.Address);
-    }
+    // static associate(models: any): void {
+    //   AddressType.hasMany(models.Address);
+    // }
   }
   AddressType.init(
     {

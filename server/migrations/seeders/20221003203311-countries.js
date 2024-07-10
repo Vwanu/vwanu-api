@@ -4,6 +4,7 @@ const path = require('path');
 const { v4 } = require('uuid');
 const { QueryTypes } = require('sequelize');
 const countriesData = require('../data/country-state-cities.min');
+const testCountriesData = require('../data/test-country-state-cities.min');
 
 const findOrSaveStateQuery = fs.readFileSync(
   path.resolve(__dirname, '../queries', 'findOrSaveState.sql'),
@@ -83,7 +84,12 @@ async function saveAndAssociateStatesAndCities(queryInterface, stateDetails) {
   );
 }
 
-const countriesList = countriesData.map((country) => ({
+const list =
+  process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development'
+    ? testCountriesData
+    : countriesData;
+
+const countriesList = list.map((country) => ({
   id: v4(),
   ...country,
   createdAt: new Date(),

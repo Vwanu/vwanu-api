@@ -1,7 +1,7 @@
 {
   "scripts": {
     "test:client": "npm run test --prefix client",
-    "test:server:local": "npm run test:local --prefix server",
+    "test:server:local": "NODE_ENV=test npm run test:local --prefix server",
     "test:server": "npm run test --prefix server",
     "test:local": "concurrently \"npm run test:server\" \"npm run test:client\"",
     "test": "npm run test:server",
@@ -38,12 +38,14 @@
     "@jackywxd/feathers-refresh-token": "^0.2.0",
     "@sendgrid/mail": "^7.7.0",
     "emoji-picker-react": "^3.6.2",
+    "feathers-swagger": "^3.0.0",
     "howler": "^2.2.3",
     "json-query": "^2.2.2",
     "pg-tsquery": "^8.3.0",
     "sequelize": "^6.6.2",
     "sequelize-cli": "^6.6.0",
     "slate-html-serializer": "^0.8.13",
+    "swagger-ui-dist": "^5.17.14",
     "ts-node": "^10.9.1"
   }
 }

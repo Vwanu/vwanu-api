@@ -3,8 +3,8 @@ import type { Config } from '@jest/types';
 const config: Config.InitialOptions = {
   globalSetup: './.jest/setup.ts',
   setupFilesAfterEnv: ['./.jest/setupFilesAfterEnv.ts'],
-  // globalTeardown: './.jest/teardown.js',
-  // testEnvironment: './.jest/environment.js',
+  globalTeardown: './.jest/teardown.ts',
+  testEnvironment: './.jest/environment.ts',
   verbose: true,
   transform: {
     '^.+\\.ts?$': 'ts-jest',
@@ -14,6 +14,5 @@ const config: Config.InitialOptions = {
     localPath: 'global.localPath',
   },
 };
-console.log('jest.config.ts');
-console.log(config);
+
 export default config;

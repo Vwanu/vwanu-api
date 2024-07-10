@@ -1,0 +1,45 @@
+version: '3.8'
+services:
+  api:
+    env_file:
+      - .env
+    container_name: vwanu_api_test
+    image: vwanu_api_test:0.0.1
+
+    build:
+      context: ./server
+      dockerfile: Dockerfile.test
+    ports:
+      - '4000:4000'
+    volumes:
+      - ./server:/app
+    environment:
+      - PORT=4000
+      - PGDATABASE=social_media
+      - PGUSER=vwanu
+      - PGPASSWORD=123456
+      - PGHOST=pg_db
+      - DG_HOST=pg_db
+      - NODE_ENV=development
+      - REDIS_URL=redis://redis:6379/0
+    command: ./docker-entrypoint.testing.sh
+    depends_on:
+      - pg_db
+
+  pg_db:
+    container_name: pg_db
+    image: 'postgres:12'
+    ports:
+      - '5432:5432'
+    restart: always
+
+    environment:
+      - POSTGRES_USER=vwanu
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_DB=social_media
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - test_data:/var/lib/postgresql/data
+
+volumes:
+  test_data: {}

@@ -42,11 +42,15 @@ export default {
     find: [authenticate('jwt'), GetUser],
     get: [authenticate('jwt'), GetUser],
     create: [
-      AssignRole('member'),
+
+      // AssignRole('member'),
       validateResource(schema.createUserSchema),
+
       saveProfilePicture(['profilePicture', 'coverPicture']),
+
       filesToBody,
       hashPassword('password'),
+
     ],
     update: [commonHooks.disallow('external')],
     patch: [
@@ -83,8 +87,9 @@ export default {
   after: {
     all: [MediaStringToMediaObject(['profilePicture', 'coverPicture'])],
     find: [protectkeys],
-    get: [AddVisitor, protectkeys],
+    get: [/*AddVisitor,*/ protectkeys],
     create: [
+
       SaveAddress,
       AutoLogin,
       AddworkPlace,

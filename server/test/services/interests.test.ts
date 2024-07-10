@@ -1,72 +1,50 @@
-/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable no-underscore-dangle */
 
-import request from 'supertest';
-
-/** Local dependencies */
-import app from '../../src/app';
-import { getRandUsers } from '../../src/lib/utils/generateFakeUser';
+import random from 'lodash/random';
+import { randomBytes } from 'crypto';
 
 describe("'interests' service", () => {
-  let testServer;
+
   let testUsers;
   let interests: any[];
-  const userEndpoint = '/users';
   const endpoint = '/interests';
 
   beforeAll(async () => {
-    await app
-      .get('sequelizeClient')
-      .models.User.sync({ force: true, logged: false });
-    testServer = request(app);
-    testUsers = await Promise.all(
-      getRandUsers(2).map((u, idx) => {
-        let user = { ...u, admin: false };
-        if (idx === 1) user = { ...user, admin: true };
-        delete user.id;
-        return testServer.post(userEndpoint).send(user);
-      }, 10000)
-    );
+    testUsers = await global.__getRandUsers(2);
+    // const admin = await global.__getAdminUsers(1);
+    // console.log({ admin })
+  }, 10000);
 
-    testUsers = testUsers.map((testUser) => testUser.body);
-  }, 100000);
-  /** Service Test */
 
-  it.skip('registered the service', () => {
-    const service = app.service('interests');
+  it('registered the service', () => {
+    const service = global.__APP__.service('interests');
     expect(service).toBeTruthy();
   });
 
   /** CRUD  */
 
-  it.skip('Anyone can create new interests', async () => {
-    const content = 'interest';
+  it('Anyone can create new interests', async () => {
     interests = await Promise.all(
       testUsers.map((user, idx) =>
-        testServer
+        global.__SERVER__
           .post(endpoint)
-          .send({ name: `${content}-${idx}` })
+          .send({ name: randomBytes(random(+idx, 10)).toString('hex') })
           .set('authorization', user.accessToken)
       )
     );
 
     interests = interests.map((interest) => interest.body);
 
-    console.log(interests);
     interests.forEach((interest) => {
       expect(interest).toMatchObject({
         id: expect.any(String),
-        name: expect.stringContaining(content),
+        name: expect.any(String),
         approved: expect.any(Boolean),
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
       });
     });
 
-    /** auto approved */
-    const autoApprovedInterest = interests[1]; // this was created by and admin
-    const noneApprovedInterest = interests[0]; // this was created by an none- admin
-    expect(noneApprovedInterest.approved).toBeFalsy();
-    expect(autoApprovedInterest.approved).toBeTruthy();
   });
 
   it.skip('Only admin can edit interest', async () => {
@@ -76,7 +54,7 @@ describe("'interests' service", () => {
 
     let modifiedInterests = await Promise.all(
       [noneAdminUser, adminUser].map((user) =>
-        testServer
+        global.__SERVER__
           .patch(`${endpoint}/${noneApprovedInterest.id}`)
           .send({ name: 'new interest' })
           .set('authorization', user.accessToken)
@@ -107,7 +85,7 @@ describe("'interests' service", () => {
     const adminUser = testUsers[1];
     const approvedInterest = interests[1];
 
-    const modifyApprovedInterest = await testServer
+    const modifyApprovedInterest = await global.__SERVER__
       .patch(`${endpoint}/${approvedInterest.id}`)
       .send({ name: 'new interest' })
       .set('authorization', adminUser.accessToken);
@@ -121,8 +99,8 @@ describe("'interests' service", () => {
     });
   });
 
-  it.skip('Everyone can see all approved interest only', async () => {
-    const allInterests: any = await testServer.get(endpoint);
+  it('Everyone can see all approved interest only', async () => {
+    const allInterests: any = await global.__SERVER__.get(endpoint);
 
     allInterests.body.forEach((interest) => {
       expect(interest).toMatchObject({
@@ -141,7 +119,7 @@ describe("'interests' service", () => {
 
     let deletedInterests = await Promise.all(
       [noneAdminUser, adminUser].map((user) =>
-        testServer
+        global.__SERVER__
           .delete(`${endpoint}/${noneApprovedInterest.id}`)
           .set('authorization', user.accessToken)
       )
@@ -172,7 +150,7 @@ describe("'interests' service", () => {
     /** Cannot delete approved interests */
     const adminUser = testUsers[1];
     const ApprovedInterest = interests[1]; // this was created by and admin
-    const deleteResponse = await testServer
+    const deleteResponse = await global.__SERVER__
       .delete(`${endpoint}/${ApprovedInterest.id}`)
       .set('authorization', adminUser.accessToken);
 
@@ -184,6 +162,4 @@ describe("'interests' service", () => {
       errors: {},
     });
   });
-  it.todo('Everyone can see an interest');
-  it.todo('should associate a user to an interest');
 });

@@ -11,6 +11,7 @@ import { Request, Response, NextFunction } from 'express';
 import feathers, {
   HookContext as FeathersHookContext,
 } from '@feathersjs/feathers';
+import swagger from 'feathers-swagger';
 
 /** Custom dependencies */
 import channels from './channels';
@@ -27,6 +28,17 @@ dotenv.config();
 const { sendErrorResponse } = common;
 
 const app: Application = express(feathers());
+
+app.configure(swagger({
+  docsPath: './doc',
+  specs: {
+    info: {
+      title: 'A test',
+      description: 'A description',
+      version: '1.0.0',
+    },
+  },
+}))
 app.configure(configuration());
 app.use(express.json());
 

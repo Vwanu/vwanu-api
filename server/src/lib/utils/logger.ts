@@ -8,8 +8,7 @@ const { splat, combine, timestamp, printf, colorize, label } = winston.format;
 const myFormat = printf(
   // eslint-disable-next-line no-shadow
   ({ timestamp, level, label, message, meta }) =>
-    `[${level}] ${timestamp}  [from ${label}]: ${message} ${
-      meta ? JSON.stringify(meta) : ''
+    `[${level}] ${timestamp}  [from ${label}]: ${message} ${meta ? JSON.stringify(meta) : ''
     }`
 );
 
@@ -22,7 +21,7 @@ const filename = path.join(logDir, 'server.log');
 const logger = winston.createLogger({
   format: combine(
     timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-    label({ label: path.basename(require.main.filename) }),
+    // label({ label: "path.basename(require.main.filename") }),
     splat(),
     colorize(),
     myFormat
