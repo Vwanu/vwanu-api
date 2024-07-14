@@ -1,8 +1,8 @@
-import config from 'config'
 import request from 'supertest';
+import Sequelize from 'sequelize';
 
-import { IMessenger } from '../src/schema/email.schema';
 import app from '../src/app';
+import { IMessenger } from '../src/schema/email.schema';
 import { getRandUsers } from '../src/lib/utils/generateFakeUser';
 
 
@@ -35,20 +35,32 @@ global.__getRandUsers = async (amount: number = 1) => {
 
 }
 
+global.__cleanup = async (modelName: string, id: string | string[]) => {
+  const model = global.__SEQUELIZE__.models[modelName];
+  const ids = Array.isArray(id) ? id : [id];
+  await model.destroy({ where: { id: { [Sequelize.Op.in]: ids } } });
+}
+
+
 global.__getAdminUsers = async (amount: number = 1) => {
   const users = await global.__getRandUsers(amount);
-
   const { CommunityRoles, User } = global.__SEQUELIZE__.models;
-
-  // get admin role 
   const adminRole = await CommunityRoles
     .findOne({ where: { name: 'admin' } });
 
   const ids = users.map((user) => user.id);
-  // assign admin role to user
 
-  // await User
-  //   .update({ access_role_id: adminRole.id }, { where: { id: { in: ids } } });
+
+  try {
+    await User
+      .update(
+        { access_role: adminRole.id },
+        { where: { id: { [Sequelize.Op.in]: ids } } }
+      );
+
+  } catch (error) {
+    console.log('error', error);
+  }
   return users;
 }
 

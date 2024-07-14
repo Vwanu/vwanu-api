@@ -54,8 +54,8 @@ describe('friend service', () => {
   }, 30000);
 
   afterAll(async () => {
-    const sequelize = app.get('sequelizeClient');
-    await sequelize.models.User.sync({ force: true });
+    // const sequelize = app.get('sequelizeClient');
+    // await sequelize.models.User.sync({ force: true });
   });
 
   it('should see all his friends', async () => {

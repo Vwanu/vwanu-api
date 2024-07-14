@@ -11,7 +11,7 @@ export default (role: string = 'member') => async (context: HookContext): Promis
                 { paginate: false });
 
 
-        context.data.access_role_id = memBerRole.data[0].id;
+        context.data.access_role = memBerRole.data[0].id;
     } catch (error) {
         throw new Error(error);
     }

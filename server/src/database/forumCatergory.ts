@@ -23,9 +23,9 @@ export default (sequelize: any, DataTypes: any) => {
 
     search_vector: string;
 
-    static associate(models: any): void {
-      ForumCategory.hasMany(models.Interest);
-    }
+    // static associate(models: any): void {
+    //   // ForumCategory.hasMany(models.Interest);
+    // }
   }
   ForumCategory.init(
     {

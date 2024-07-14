@@ -10,134 +10,29 @@ export const authorizationEnums = ['public', 'private', 'friend'];
 export default (sequelize: any, DataTypes: any) => {
   class User extends Model<UserInterface> implements UserInterface {
     id: string;
-
     about: string;
-
-    admin: boolean;
-
-    address: string;
-
-    access_role: string;
-
-    active: boolean;
-
-    avatar: string | undefined;
-
-    activationKey?: string | null;
-
-    birthday: string;
-
-    active_status: boolean;
-
-    backgroundImage: string;
-
-    backgroundImageStatus: boolean;
-
-    countryId: number;
-
-    country: string | undefined;
-
-    coverPicture: string | undefined;
-
-    discord: string;
-
     email: string;
-
-    facebook: string;
-
-    firstName: string;
-
-    profilePrivacy: string;
-
-    followPrivacy: string;
-
-    friendPrivacy: string;
-
-    phonePrivacy: boolean;
-
-    friendListPrivacy: string;
-
-    emailPrivacy: boolean;
-
     gender: string;
-
-    google: string;
-
-    instagram: string;
-
     lastSeen: Date;
-
-    lastName: string;
-
-    linkedin: string;
-
-    language: string;
-
-    loginAttempts: number;
-
-    lastSeenPrivacy: boolean;
-
-    mailru: string;
-
-    messagePrivacy: string;
-
+    active: boolean;
     online: boolean;
-
-    postPrivacy: string;
-
-    password: string | undefined;
-
-    profilePicture: string | undefined;
-
-    qq: string;
-
+    birthday: string;
+    lastName: string;
+    firstName: string;
     resetExpires: Date;
-
+    access_role: string;
     resetAttempts: number;
-
-    relationshipId: string;
-
-    resetPasswordKey?: string | undefined;
-
-    resetShortPasswordKey?: string | undefined;
-
-    school: string;
-
+    loginAttempts: number;
     search_vector: string;
-
-    twitter: string;
-
-    username?: string | undefined;
-
-    vk: string;
-
-    tiktok: string;
-
+    relationshipId: string;
+    backgroundImage: string;
+    password: string | undefined;
+    activationKey?: string | null;
     verified?: boolean | undefined;
-
-    wechat: string;
-
-    website: string;
-
-    working: string;
-
-    workingLink: string;
-
-    youtube: string;
-
-    showLastSeen: boolean;
-
-    eVisitedNotified: boolean;
-
-    youtubePrivacy: boolean;
-
-    linkedinPrivacy: boolean;
-
-    twitterPrivacy: boolean;
-
-    faceBookPrivacy: boolean;
-
-    instagramPrivacy: boolean;
+    coverPicture: string | undefined;
+    profilePicture: string | undefined;
+    resetPasswordKey?: string | undefined;
+    resetShortPasswordKey?: string | undefined;
 
     static associate(models: any) {
       User.hasMany(models.Post, {
@@ -159,7 +54,7 @@ export default (sequelize: any, DataTypes: any) => {
         onDelete: 'CASCADE',
       });
 
-      User.hasMany(models.Interest);
+      // User.hasMany(models.Interest);
       User.hasMany(models.Blog, {
         onDelete: 'CASCADE',
       });
@@ -244,8 +139,193 @@ export default (sequelize: any, DataTypes: any) => {
         // @ts-ignore
         level: 'C',
       },
+      amountOfFollower: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+        allowNull: false,
+      },
+      amountOfFollowing: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+        allowNull: false,
+      },
+      amountOfFriend: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+        allowNull: false,
+      },
+      active_status: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      birthday: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      backgroundImage: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true,
+      },
+      backgroundImageStatus: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true,
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
 
-      discord: {
+      lastName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        // @ts-ignore
+        level: 'B',
+      },
+      firstName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        // @ts-ignore
+        level: 'A',
+      },
+
+      gender: {
+        type: DataTypes.STRING,
+        defaultValue: 'Not specified',
+        validate: {
+          customValidator: (value) => {
+            if (!['f', 'm', 'Not specified'].includes(value)) {
+              throw new Error(`${value} is not a valid option for gender`);
+            }
+          },
+        },
+      },
+      about: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      activationKey: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: () => nanoid(),
+      },
+      resetPasswordKey: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      verified: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      emailPrivacy: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      phonePrivacy: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+
+      active: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+      },
+
+      online: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      lastSeen: {
+        type: DataTypes.DATE,
+        defaultValue: new Date(),
+      },
+
+      resetExpires: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+
+      coverPicture: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue:
+          'https://images.unsplash.com/photo-1528464884105-28166ef8edd0?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80',
+      },
+      profilePicture: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue:
+          'https://images.unsplash.com/photo-1528464884105-28166ef8edd0?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80',
+      },
+      website: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      search_vector: {
+        type: DataTypes.TSVECTOR,
+        allowNull: true,
+      },
+    },
+    {
+      sequelize,
+      modelName: 'User',
+    }
+  );
+  return User;
+};
+
+
+/*discord: string;
+    facebook: string;
+    profilePrivacy: string;
+    followPrivacy: string;
+    friendPrivacy: string;
+    phonePrivacy: boolean;
+    friendListPrivacy: string;
+    emailPrivacy: boolean;
+    google: string;
+    instagram: string;
+    linkedin: string;
+    language: string;
+    lastSeenPrivacy: boolean;
+    mailru: string;
+    messagePrivacy: string;
+    postPrivacy: string;
+    qq: string;
+    twitter: string;
+    username?: string | undefined;
+    vk: string;
+    tiktok: string;
+       school: string;
+       wechat: string;
+
+    website: string;
+
+    working: string;
+
+    workingLink: string;
+
+    youtube: string;
+
+    showLastSeen: boolean;
+
+    eVisitedNotified: boolean;
+
+    youtubePrivacy: boolean;
+
+    linkedinPrivacy: boolean;
+
+    twitterPrivacy: boolean;
+
+    faceBookPrivacy: boolean;
+
+    instagramPrivacy: boolean;
+
+
+
+
+    discord: {
         type: DataTypes.STRING,
         allowNull: true,
         unique: true,
@@ -277,27 +357,9 @@ export default (sequelize: any, DataTypes: any) => {
           },
         },
       },
-      amountOfFollower: {
-        type: DataTypes.INTEGER,
-        defaultValue: 0,
-        allowNull: false,
-      },
-      amountOfFollowing: {
-        type: DataTypes.INTEGER,
-        defaultValue: 0,
-        allowNull: false,
-      },
-      amountOfFriend: {
-        type: DataTypes.INTEGER,
-        defaultValue: 0,
-        allowNull: false,
-      },
-      active_status: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-      },
 
-      youtubePrivacy: {
+
+       youtubePrivacy: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
@@ -411,100 +473,25 @@ export default (sequelize: any, DataTypes: any) => {
       },
       avatar: { type: DataTypes.STRING, allowNull: true, unique: true },
       username: { type: DataTypes.STRING, allowNull: true, unique: true },
-      birthday: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      backgroundImage: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        unique: true,
-      },
-      backgroundImageStatus: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        unique: true,
-      },
-      password: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-
-      lastName: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        // @ts-ignore
-        level: 'B',
-      },
-      firstName: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        // @ts-ignore
-        level: 'A',
-      },
-
-      gender: {
-        type: DataTypes.STRING,
-        defaultValue: 'Not specified',
-        validate: {
-          customValidator: (value) => {
-            if (!['f', 'm', 'Not specified'].includes(value)) {
-              throw new Error(`${value} is not a valid option for gender`);
-            }
-          },
-        },
-      },
 
       google: {
         type: DataTypes.STRING,
         allowNull: true,
       },
 
-      country: {
+        country: {
         type: DataTypes.STRING,
         allowNull: true,
-      },
-
-      about: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-
-      language: {
-        type: DataTypes.STRING,
-        defaultValue: 'en',
-      },
-      activationKey: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        defaultValue: () => nanoid(),
-      },
-      resetPasswordKey: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      verified: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-      },
-      emailPrivacy: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-      },
-      phonePrivacy: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-      },
-
-      showLastSeen: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: true,
       },
       eVisitedNotified: {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
       },
-      active: {
+        language: {
+        type: DataTypes.STRING,
+        defaultValue: 'en',
+      },
+      showLastSeen: {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
       },
@@ -518,46 +505,4 @@ export default (sequelize: any, DataTypes: any) => {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
-
-      online: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-      },
-      lastSeen: {
-        type: DataTypes.DATE,
-        defaultValue: new Date(),
-      },
-
-      resetExpires: {
-        type: DataTypes.DATE,
-        allowNull: true,
-      },
-
-      coverPicture: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        defaultValue:
-          'https://images.unsplash.com/photo-1528464884105-28166ef8edd0?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80',
-      },
-      profilePicture: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        defaultValue:
-          'https://images.unsplash.com/photo-1528464884105-28166ef8edd0?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80',
-      },
-      website: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      search_vector: {
-        type: DataTypes.TSVECTOR,
-        allowNull: true,
-      },
-    },
-    {
-      sequelize,
-      modelName: 'User',
-    }
-  );
-  return User;
-};
+*/

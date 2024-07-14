@@ -9,7 +9,7 @@ module.exports = {
         autoIncrement: true,
         primaryKey: true,
       },
-      access_role_id: {
+      access_role: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
@@ -46,10 +46,10 @@ module.exports = {
         allowNull: true,
       },
 
-      language: {
-        type: Sequelize.STRING,
-        defaultValue: 'en',
-      },
+      // language: {
+      //   type: Sequelize.STRING,
+      //   defaultValue: 'en',
+      // },
       activationKey: {
         type: Sequelize.STRING,
         allowNull: true,
@@ -73,10 +73,10 @@ module.exports = {
         defaultValue: true,
       },
 
-      admin: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
-      },
+      // admin: {
+      //   type: Sequelize.BOOLEAN,
+      //   defaultValue: false,
+      // },
 
       cover: {
         type: Sequelize.STRING,

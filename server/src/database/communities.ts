@@ -44,8 +44,7 @@ export const authorizationEnums = ['A', 'M', 'E'];
 export default (sequelize: any, DataTypes: any) => {
   class Community
     extends Model<CommunityInterface>
-    implements CommunityInterface
-  {
+    implements CommunityInterface {
     id: string;
 
     name: string;
@@ -85,6 +84,9 @@ export default (sequelize: any, DataTypes: any) => {
     static associate(models: any): void {
       Community.belongsToMany(models.Interest, {
         through: 'Community_Interest',
+        foreignKey: 'community_id',
+        otherKey: 'interest_id',
+        timestamps: false,
       });
       Community.belongsToMany(models.User, {
         as: 'members',

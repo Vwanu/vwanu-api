@@ -27,11 +27,11 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      active_status: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
-        allowNull: false,
-      },
+      // active_status: {
+      //   type: Sequelize.BOOLEAN,
+      //   defaultValue: false,
+      //   allowNull: false,
+      // },
 
       lastName: {
         type: Sequelize.STRING,
@@ -52,10 +52,10 @@ module.exports = {
         allowNull: true,
       },
 
-      language: {
-        type: Sequelize.STRING,
-        defaultValue: 'en',
-      },
+      // language: {
+      //   type: Sequelize.STRING,
+      //   defaultValue: 'en',
+      // },
       activationKey: {
         type: Sequelize.STRING,
         allowNull: true,
@@ -79,15 +79,15 @@ module.exports = {
         defaultValue: true,
       },
 
-      admin: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
-      },
+      // admin: {
+      //   type: Sequelize.BOOLEAN,
+      //   defaultValue: false,
+      // },
 
-      cover: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
+      // cover: {
+      //   type: Sequelize.STRING,
+      //   allowNull: true,
+      // },
       birthday: {
         type: Sequelize.STRING,
         allowNull: true,

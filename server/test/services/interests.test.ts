@@ -1,5 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-
 import random from 'lodash/random';
 import { randomBytes } from 'crypto';
 
@@ -7,12 +5,12 @@ describe("'interests' service", () => {
 
   let testUsers;
   let interests: any[];
+  let adminUser;
   const endpoint = '/interests';
 
   beforeAll(async () => {
     testUsers = await global.__getRandUsers(2);
-    // const admin = await global.__getAdminUsers(1);
-    // console.log({ admin })
+    // adminUser = await global.__getAdminUsers(1);
   }, 10000);
 
 
@@ -23,7 +21,8 @@ describe("'interests' service", () => {
 
   /** CRUD  */
 
-  it('Anyone can create new interests', async () => {
+  it('Anyone can create new interests but are not aproved', async () => {
+
     interests = await Promise.all(
       testUsers.map((user, idx) =>
         global.__SERVER__
@@ -35,11 +34,13 @@ describe("'interests' service", () => {
 
     interests = interests.map((interest) => interest.body);
 
+
+
     interests.forEach((interest) => {
       expect(interest).toMatchObject({
         id: expect.any(String),
         name: expect.any(String),
-        approved: expect.any(Boolean),
+        approved: false,
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
       });
@@ -50,10 +51,11 @@ describe("'interests' service", () => {
   it.skip('Only admin can edit interest', async () => {
     const noneApprovedInterest = interests[0];
     const noneAdminUser = testUsers[0];
-    const adminUser = testUsers[1];
 
-    let modifiedInterests = await Promise.all(
-      [noneAdminUser, adminUser].map((user) =>
+
+
+    const modifiedInterests = await Promise.all(
+      [noneAdminUser, adminUser[0]].map((user) =>
         global.__SERVER__
           .patch(`${endpoint}/${noneApprovedInterest.id}`)
           .send({ name: 'new interest' })
@@ -61,9 +63,9 @@ describe("'interests' service", () => {
       )
     );
 
-    modifiedInterests = modifiedInterests.map(({ body }) => body);
+    const [firstAttempt, secondAttempt] = modifiedInterests.map(({ body }) => body);
 
-    const firstAttempt = modifiedInterests[0];
+
     expect(firstAttempt).toMatchObject({
       name: 'BadRequest',
       message: 'You are not authorized to modify interest',
@@ -72,7 +74,8 @@ describe("'interests' service", () => {
       errors: {},
     });
 
-    const secondAttempt = modifiedInterests[1];
+
+
     expect(secondAttempt).toMatchObject({
       id: noneApprovedInterest.id,
       name: 'new interest',
@@ -82,7 +85,7 @@ describe("'interests' service", () => {
     });
   });
   it.skip('Approved interest cannot be modified', async () => {
-    const adminUser = testUsers[1];
+
     const approvedInterest = interests[1];
 
     const modifyApprovedInterest = await global.__SERVER__
@@ -115,7 +118,6 @@ describe("'interests' service", () => {
   it.skip('Only admin can delete interest', async () => {
     const noneApprovedInterest = interests[0];
     const noneAdminUser = testUsers[0];
-    const adminUser = testUsers[1];
 
     let deletedInterests = await Promise.all(
       [noneAdminUser, adminUser].map((user) =>
@@ -148,7 +150,7 @@ describe("'interests' service", () => {
 
   it.skip('Approved interest cannot be deleted', async () => {
     /** Cannot delete approved interests */
-    const adminUser = testUsers[1];
+
     const ApprovedInterest = interests[1]; // this was created by and admin
     const deleteResponse = await global.__SERVER__
       .delete(`${endpoint}/${ApprovedInterest.id}`)

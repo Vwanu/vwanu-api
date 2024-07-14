@@ -5,6 +5,7 @@ export type AttachInterest = {
   entityName: string;
   relationTableName: string;
   foreignKey: string;
+  otherKey: string;
 };
 
 export default (attachments: AttachInterest) => async (context: HookContext) => {
@@ -25,7 +26,7 @@ export default (attachments: AttachInterest) => async (context: HookContext) => 
         InterestModel.findOrCreate({
           where: { name },
           defaults: {
-            UserId: params?.User?.id || result?.id,
+            // UserId: params?.User?.id || result?.id,
           },
         })
       )
@@ -34,7 +35,7 @@ export default (attachments: AttachInterest) => async (context: HookContext) => 
     await Promise.all(
       interestList.map((interest) =>
         relationTableModel.findOrCreate({
-          where: { [foreignKey]: result.id, InterestId: interest[0].id },
+          where: { [foreignKey]: result.id, [attachments.otherKey]: interest[0].id },
         })
       )
     );

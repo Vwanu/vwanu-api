@@ -17,6 +17,7 @@ import {
   GetUser,
   SendWelcomeMail /* SendEmail */,
   AddworkPlace,
+  IncludeAddress
 } from './hook';
 import SaveAndAttachInterests from '../../Hooks/SaveAndAttachInterest';
 
@@ -43,11 +44,9 @@ export default {
     get: [authenticate('jwt'), GetUser],
     create: [
 
-      // AssignRole('member'),
+      AssignRole('member'),
       validateResource(schema.createUserSchema),
-
       saveProfilePicture(['profilePicture', 'coverPicture']),
-
       filesToBody,
       hashPassword('password'),
 
@@ -87,7 +86,7 @@ export default {
   after: {
     all: [MediaStringToMediaObject(['profilePicture', 'coverPicture'])],
     find: [protectkeys],
-    get: [/*AddVisitor,*/ protectkeys],
+    get: [AddVisitor, protectkeys],
     create: [
 
       SaveAddress,
@@ -98,6 +97,7 @@ export default {
         entityName: 'User',
         relationTableName: 'User_Interest',
         foreignKey: 'UserId',
+        otherKey: 'InterestId'
       }),
       SendWelcomeMail,
       protectkeys,
@@ -109,6 +109,7 @@ export default {
         entityName: 'User',
         relationTableName: 'User_Interest',
         foreignKey: 'UserId',
+        otherKey: 'InterestId'
       }),
       protectkeys,
     ],

@@ -25,10 +25,12 @@ export default (sequelize: any, DataTypes: any) => {
       Post.belongsTo(models.User);
       Post.belongsTo(models.Community, { onDelete: 'CASCADE' });
       Post.belongsToMany(models.Media, {
-        through: 'Post_Media',
+        through: 'post_media',
+        foreignKey: 'post_id',
+        otherKey: 'media_id',
       });
 
-      Post.belongsTo(models.User, { as: 'wall' });
+      // Post.belongsTo(models.User, { as: 'wall' });
 
       Post.belongsTo(models.Post, {
         foreignKey: 'originalId',
@@ -99,6 +101,8 @@ export default (sequelize: any, DataTypes: any) => {
       // },
       sequelize,
       modelName: 'Post',
+      tableName: 'posts',
+      underscored: true,
     }
   );
   return Post;

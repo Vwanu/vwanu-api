@@ -14,8 +14,7 @@ export interface DiscussionInterface {
 export default (sequelize: any, DataTypes: any) => {
   class Discussion
     extends Model<DiscussionInterface>
-    implements DiscussionInterface
-  {
+    implements DiscussionInterface {
     id: string;
 
     body: string;
@@ -33,7 +32,9 @@ export default (sequelize: any, DataTypes: any) => {
     static associate(models: any): void {
       Discussion.belongsTo(models.User);
       Discussion.belongsToMany(models.Media, {
-        through: 'Discussion_Media',
+        through: 'discussion_media',
+        foreignKey: 'discussion_id',
+        otherKey: 'media_id',
       });
       Discussion.belongsToMany(models.ForumCategory, {
         through: 'Discussion_ForumCategory',
@@ -92,6 +93,8 @@ export default (sequelize: any, DataTypes: any) => {
     {
       sequelize,
       modelName: 'Discussion',
+      tableName: 'discussions',
+      underscored: true,
     }
   );
   return Discussion;

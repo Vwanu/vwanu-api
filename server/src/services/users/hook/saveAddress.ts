@@ -5,24 +5,21 @@ export default async (context) => {
   const { data, result } = context;
   const { address } = data;
   if (!address) return context;
-
-
   if (!isAddressValid(address)) throw new BadRequest('Address is not valid');
 
   const { Address, EntityAddress } =
     context.app.get('sequelizeClient').models;
-  console.log('EntiryAddress and address model retrieved')
+
 
 
   try {
-  const [{ id: addressId }] = await Address.findOrCreate({
-    where: {
-      StateId: address.state,
-      // StreetId: streetId,
-      CityId: address.city,
-      CountryId: address.country,
-    },
-  });
+    const [{ id: addressId }] = await Address.findOrCreate({
+      where: {
+        StateId: address.state,
+        CityId: address.city,
+        CountryId: address.country,
+      },
+    });
 
 
 
@@ -38,7 +35,7 @@ export default async (context) => {
     });
 
   } catch (error) {
-    console.log('Error', error)
+
     throw new BadRequest('Address is not valid');
   }
 

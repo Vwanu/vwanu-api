@@ -21,8 +21,11 @@ export default (sequelize: any, DataTypes: any) => {
     static associate(models: any): void {
       Album.belongsTo(models.User);
       Album.belongsToMany(models.Media, {
-        through: 'Album_Media',
-        as: 'Medias',
+        through: 'album_medias',
+        foreignKey: 'album_id',
+        otherKey: 'media_id',
+
+        // as: 'Medias',
       });
     }
   }
@@ -59,6 +62,8 @@ export default (sequelize: any, DataTypes: any) => {
       // },
       sequelize,
       modelName: 'Album',
+      tableName: 'albums',
+      underscored: true,
     }
   );
   return Album;

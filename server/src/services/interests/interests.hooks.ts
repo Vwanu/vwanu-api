@@ -23,12 +23,12 @@ export default {
     get: [],
     create: [
       authenticate('jwt', 'anonymous'),
-      (context) => {
-        const { data, params } = context;
-        const { User } = params;
+      // (context) => {
+      //   const { data, params } = context;
+      //   const { User } = params;
 
-        data.approved = User.admin;
-      },
+      //   data.approved = User.admin;
+      // },
     ],
     update: [authenticate('jwt')],
     patch: [

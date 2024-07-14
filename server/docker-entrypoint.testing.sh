@@ -2,6 +2,11 @@
 # check if docker is up and running
 # if docker ps  does not have a container runing postgresql then start it
 
+# temporary delete the container and recreate it
+clear
+docker stop test-postgres
+docker container rm --force test-postgres
+
 echo "Checking if the database is up"
 docker ps | grep postgres
 if [ $? -ne 0 ]; then
@@ -16,11 +21,19 @@ sleep 20
 ./wait-for localhost:5432 
 # echo "Database is up"
 
-echo "Migrating database"
-NODE_ENV=test npm run migrate
+#------
+echo "Copying database schema"
+docker cp ./main.sql test-postgres:/docker-entrypoint-initdb.d/main.sql
+echo "Executing database schema"
+# docker exec -u vwanu test-postgres psql social_media vwanu -f /docker-entrypoint-initdb.d/main.sql
+docker exec -u postgres test-postgres psql -U vwanu -d social_media -f /docker-entrypoint-initdb.d/main.sql
 
-echo "Seeding database"
-NODE_ENV=test npm run seed
+
+# echo "Migrating database"
+# NODE_ENV=test npm run migrate
+
+# echo "Seeding database"
+# NODE_ENV=test npm run seed
 
 
 # echo "Starting server"

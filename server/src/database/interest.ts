@@ -20,14 +20,14 @@ export default (sequelize: any, DataTypes: any) => {
     accessible: boolean;
 
     static associate(models: any): void {
-      Interest.belongsToMany(models.User, { through: 'User_Interest' });
-      Interest.belongsToMany(models.ForumCategory, {
-        through: 'CategoryInterests',
-      });
-      Interest.belongsToMany(models.Discussion, {
-        through: 'DiscussionInterests',
-      });
-      Interest.hasMany(models.Blog);
+      Interest.belongsToMany(models.User, { through: 'user_interests', foreignKey: 'interest_id', otherKey: 'user_id' });
+      // Interest.belongsToMany(models.ForumCategory, {
+      //   through: 'CategoryInterests',
+      // });
+      // Interest.belongsToMany(models.Discussion, {
+      //   through: 'DiscussionInterests',
+      // });
+      // Interest.hasMany(models.Blog);
     }
   }
   Interest.init(
@@ -58,7 +58,9 @@ export default (sequelize: any, DataTypes: any) => {
 
     {
       sequelize,
-      modelName: 'Interest',
+      modelName: 'Interests',
+      tableName: 'interests',
+      underscored: true,
     }
   );
   return Interest;

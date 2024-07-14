@@ -30,7 +30,7 @@ export default async (context: HookContext) => {
     `(
   EXISTS(
     SELECT 1 FROM "Interests" AS "I" 
-    INNER JOIN "Community_Interest" AS "CI" ON "CI"."InterestId"="I"."id" AND "CI"."CommunityId"="Community"."id"
+    INNER JOIN "Community_Interest" AS "CI" ON "CI"."interest_id"="I"."id" AND "CI"."community_id"="Community"."id"
     WHERE "I"."name"= '${interest}' )
   
   )`;
@@ -65,8 +65,8 @@ SELECT
       'name',"I"."name",
       'id',"I"."id"
   )) FROM "Interests" AS "I" 
-  INNER JOIN "Community_Interest" AS "CI" ON "CI"."InterestId" = "I"."id"
-  WHERE "CI"."CommunityId"="Community"."id"
+  INNER JOIN "Community_Interest" AS "CI" ON "CI"."interest_id" = "I"."id"
+  WHERE "CI"."community_id"="Community"."id"
 )`;
 
   const members = `(SELECT 

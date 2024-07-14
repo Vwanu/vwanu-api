@@ -12,6 +12,7 @@ import filesToBody from '../../middleware/PassFilesToFeathers/feathers-to-data.m
 import SaveAndAttachInterests from '../../Hooks/SaveAndAttachInterest';
 
 import { FindCommunities } from './hooks';
+import updateTheTSVector from '../search/tsquery-and-search.hook';
 
 const refetch = async (context) => {
   const { app, result } = context;
@@ -26,29 +27,31 @@ const { authenticate } = authentication.hooks;
 export default {
   before: {
     all: [authenticate('jwt'), AgeAllow],
-    find: [FindCommunities],
-    create: [
-      AutoOwn,
-      saveProfilePicture(['profilePicture', 'coverPicture']),
-      filesToBody,
-    ],
-    update: disallow(),
-    patch: [
-      LimitToOwner,
-      saveProfilePicture(['profilePicture', 'coverPicture']),
-    ],
-    remove: [LimitToOwner],
+    // find: [/*FindCommunities*/],
+    // create: [
+    //   AutoOwn,
+    //   saveProfilePicture(['profilePicture', 'coverPicture']),
+    //   filesToBody,
+    // ],
+    // update: disallow(),
+    // patch: [
+    //   LimitToOwner,
+    //   saveProfilePicture(['profilePicture', 'coverPicture']),
+    // ],
+    // remove: [LimitToOwner],
   },
 
   after: {
     create: [
-      // AutoJoin,
-      SaveAndAttachInterests({
-        entityName: 'Community',
-        relationTableName: 'Community_Interest',
-        foreignKey: 'CommunityId',
-      }),
-      refetch,
+
+      //   // AutoJoin,
+      //   SaveAndAttachInterests({
+      //     entityName: 'Community',
+      //     relationTableName: 'Community_Interest',
+      //     foreignKey: 'community_id',
+      //     otherKey: 'interest_id',
+      //   }),
+      //   // refetch,
     ],
   },
 };
