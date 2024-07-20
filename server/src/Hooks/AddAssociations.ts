@@ -1,8 +1,15 @@
+/**
+ * Adds associations to the Sequelize include property in the FeathersJS hook context.
+ * @param options - The options object.
+ * @returns The modified hook context.
+ */
+import { HookContext } from '@feathersjs/feathers';
+
 export default function (options: any = {}) {
   // eslint-disable-next-line no-param-reassign
   options.models = options.models || [];
 
-  return async (context) => {
+  return (context: HookContext): HookContext => {
     const sequelize = context.params.sequelize || {};
     const include = sequelize.include || [];
 
@@ -12,7 +19,7 @@ export default function (options: any = {}) {
         const newModel = { ...model };
 
         newModel.model = context.app.services[model.model].Model;
-       
+
         return newModel;
       })
     );

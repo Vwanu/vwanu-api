@@ -231,7 +231,10 @@ CREATE TABLE IF NOT EXISTS notifications (
     entity_id UUID,
     sound BOOLEAN NOT NULL,
     notification_type VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     view BOOLEAN DEFAULT false,
+    user_id UUID,
+    FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (to_user_id) REFERENCES users(id),
     FOREIGN KEY (notification_type) REFERENCES notification_types(notification_slug)
 );

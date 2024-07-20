@@ -4,7 +4,6 @@ import { StatusCodes } from 'http-status-codes';
 
 describe('Comments services', () => {
     let observerToken;
-    let postMaker;
     let postMakerToken;
     let commenterToken;
     const endpoint = '/comments';
@@ -12,8 +11,6 @@ describe('Comments services', () => {
 
     beforeAll(async () => {
         const testUsers = await global.__getRandUsers(4);
-        postMaker = testUsers[1 as any];
-
         [observerToken, postMakerToken, commenterToken] = testUsers.map(user => user.accessToken)
 
     }, 30000);
@@ -32,7 +29,6 @@ describe('Comments services', () => {
             .post(postEndpoint).send({ postText })
             .set('Authorization', `Bearer ${postMakerToken}`)
             .expect(StatusCodes.CREATED);
-
 
         const comment = await global.__SERVER__
             .post(endpoint)
@@ -87,10 +83,26 @@ describe('Comments services', () => {
             .expect(StatusCodes.CREATED);
 
         const updatedCommentText = "I am a new comment # 1 updated"
-        const updatedComment = await global.__SERVER__
+        await global.__SERVER__
             .patch(`${endpoint}/${comment.body.id}`)
             .send({ postText: updatedCommentText })
             .set('Authorization', `Bearer ${commenterToken}`)
             .expect(StatusCodes.OK);
     });
-});
+
+    it('Should not comment on a locked post', async () => {
+        const postText = "I am a new post # 1"
+        const post = await global.__SERVER__
+            .post(postEndpoint).send({ postText, locked: true })
+            .set('Authorization', `Bearer ${postMakerToken}`)
+            .expect(StatusCodes.CREATED);
+
+        await global.__SERVER__
+            .post(endpoint)
+            .send({ postText, PostId: post.body.id })
+            .set('Authorization', `Bearer ${commenterToken}`)
+            .expect(StatusCodes.BAD_REQUEST);
+    });
+
+
+}); 

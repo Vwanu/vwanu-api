@@ -2,6 +2,7 @@ import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import { Notification } from './notification.class';
 import hooks from './notification.hooks';
+import ServiceNames from '../../lib/utils/servicesNames';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -19,13 +20,13 @@ export default function (app: Application): void {
   };
 
   // Initialize our service with any options it requires
-  app.use('/notification', new Notification(options, app));
+  app.use(`/${ServiceNames.Notifications}`, new Notification(options, app));
 
   // Get our initialized service so that we can register hooks
-  const service = app.service('notification');
-  service.publish('created', (notification) =>
-    app.channel(`userIds-${notification.to}`)
-  );
+  const service = app.service(ServiceNames.Notifications);
+  // service.publish('created', (notification) =>
+  //   app.channel(`userIds-${notification.to}`)
+  // );
 
   service.hooks(hooks);
 }

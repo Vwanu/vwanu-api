@@ -4,7 +4,7 @@ import { Model } from 'sequelize';
 
 export interface NotificationInterface {
   id: string;
-  to: string;
+  ToUserId: string;
   message: string;
   type: string;
   view: boolean;
@@ -18,19 +18,12 @@ export default (sequelize: any, DataTypes: any) => {
     extends Model<NotificationInterface>
     implements NotificationInterface {
     id: string;
-
-    to: string;
-
+    ToUserId: string;
     message: string;
-
     type: string;
-
     view: boolean;
-
     entityId: number;
-
     entityName: string;
-
     notificationType: string;
     sound: boolean;
 
@@ -46,8 +39,13 @@ export default (sequelize: any, DataTypes: any) => {
         defaultValue: DataTypes.UUIDV4,
         allowNull: false,
       },
-      to: {
+      ToUserId: {
         type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+          model: 'users',
+          key: 'id',
+        },
       },
 
       message: {
@@ -93,6 +91,9 @@ export default (sequelize: any, DataTypes: any) => {
       // },
       sequelize,
       modelName: 'Notification',
+      tableName: 'notifications',
+      underscored: true,
+      updatedAt: false,
     }
   );
   return Notification;

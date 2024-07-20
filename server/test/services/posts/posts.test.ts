@@ -150,7 +150,7 @@ describe('Posts services', () => {
 
     const commentText = "I am a new comment # 1"
     const comment = await global.__SERVER__
-      .post(endpoint).send({ postText: commentText, PostId: post.body.id })
+      .post('/comments').send({ postText: commentText, PostId: post.body.id })
       .set('Authorization', `Bearer ${commenterToken}`)
       .expect(StatusCodes.CREATED);
 
@@ -181,7 +181,7 @@ describe('Posts services', () => {
 
     const commentText = "I am a new comment # 2"
     const comment = await global.__SERVER__
-      .post(endpoint).send({ postText: commentText, PostId: post.body.id })
+      .post('/comments').send({ postText: commentText, PostId: post.body.id })
       .set('Authorization', `Bearer ${commenterToken}`)
       .expect(StatusCodes.CREATED);
 
@@ -194,6 +194,22 @@ describe('Posts services', () => {
       .get(`${endpoint}/${comment.body.id}`)
       .set('Authorization', `Bearer ${commenterToken}`)
       .expect(StatusCodes.NOT_FOUND);
+  });
+
+  it('should not create a comment through the post route', async () => {
+    const p = await global.__SERVER__
+      .post(endpoint)
+      .send({ postText: "I am a new comment # 3" })
+      .set('Authorization', `Bearer ${commenterToken}`)
+      .expect(StatusCodes.CREATED);
+
+    await global.__SERVER__
+      .post(endpoint)
+      .send({ postText: "I am a new comment # 3", PostId: p.body.id })
+      .set('Authorization', `Bearer ${commenterToken}`)
+      .expect(StatusCodes.FORBIDDEN);
+
+
   });
 
 });

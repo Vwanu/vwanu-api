@@ -16,7 +16,6 @@ export const createPostSchema = object({
   body: object({
     media: string().optional(),
     mediaType: string().optional(),
-    hashTag: string().optional(),
     private: z.boolean().optional(),
     postText: string({
       invalid_type_error: "You' have not provided a recognizable text",

@@ -1,42 +1,23 @@
 import * as authentication from '@feathersjs/authentication';
-import { HookContext } from '@feathersjs/feathers';
-// Don't remove this comment. It's needed to format import lines nicely.
-import addAssociation from '../../Hooks/AddAssociations';
+import { disallow } from 'feathers-hooks-common';
+
+
 import AgeAllow from '../../Hooks/AgeAllow';
+import associateUser from './hooks/associateUser.hook';
+import CompleteNotificationData from './hooks/notificationDataFiller.hook';
+import OnlyAuthorized from '../../Hooks/OnlyAuthorized.hook';
 
 const { authenticate } = authentication.hooks;
 
 export default {
   before: {
-    all: [authenticate('jwt'), AgeAllow],
-    find: [
-      addAssociation({
-        models: [
-          {
-            model: 'users',
-            attributes: [
-              'firstName',
-              'lastName',
-              'id',
-              'profilePicture',
-              'createdAt',
-            ],
-          },
-        ],
-      }),
-    ],
-    get: [],
-    create: [async (context: HookContext) => {
-      const { data, app } = context;
-      const sequelizeClient = app.get('sequelizeClient');
-      const { notificationType } = data;
-      const dat = (await sequelizeClient.models.UserNotificationTypes.findOne({ where: { user_id: data.to, notification_slug: notificationType } }));
-      context.data.sound = dat?.sound || false;
-      return context;
-    }],
-    update: [],
-    patch: [],
-    remove: [],
+    all: [],
+    find: [authenticate('jwt'), AgeAllow, associateUser],
+    get: [authenticate('jwt'), AgeAllow],
+    create: [disallow('external'), CompleteNotificationData],
+    update: [disallow()],
+    patch: [OnlyAuthorized('ToUserId')],
+    remove: [OnlyAuthorized('ToUserId')],
   },
 
   after: {

@@ -9,7 +9,7 @@ import * as schema from '../../schema/post';
 import GetTimeline from '../timeline/hooks/getTimeline';
 import validateResource from '../../middleware/validateResource';
 import CanPostInCommunity from '../../Hooks/CanDoInCommunity.hook';
-import CanComment from '../../Hooks/NoCommentOnLockParents';
+import noComment from './hooks/noComment.hook';
 
 const { authenticate } = feathersAuthentication.hooks;
 
@@ -22,7 +22,7 @@ export default {
       AutoOwn,
       validateResource(schema.createPostSchema),
       CanPostInCommunity,
-      CanComment,
+      noComment,
     ],
     update: [CanPostInCommunity],
     patch: [LimitToOwner],
