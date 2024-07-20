@@ -2,11 +2,11 @@
 import { Op } from '@sequelize/core';
 
 const UserAttributes = [
-  'firstName',
-  'lastName',
+  'first_name',
+  'last_name',
   'id',
-  'profilePicture',
-  'createdAt',
+  'profile_picture',
+  'created_at',
 ];
 export default (context) => {
   const { app, params } = context;
@@ -15,105 +15,104 @@ export default (context) => {
   const amountOfComments = `(
       SELECT 
       COUNT(*) 
-      FROM "Posts" AS "Pt"
-      WHERE "Pt"."PostId" = "Post"."id"
+      FROM posts WHERE posts.post_id = posts.id
     )::int`;
-  const amountOfReactions = `(
-      SELECT 
-      COUNT("R"."id") 
-      FROM "Reactions" AS "R"
-      WHERE "R"."entityId" = "Post"."id" AND "R"."entityType"='Post'
-    )::int`;
-  const isReactor = `(
-SELECT 
-  json_agg(
-    json_build_object(
-     'id', "R"."id",
-     'content',"R"."content",
-     'createdAt',"R"."createdAt",
-     'updatedAt',"R"."updatedAt"
-    ) 
-    ) 
-    FROM "Reactions" AS "R"
-    WHERE "R"."entityId"="Post"."id" AND  "R"."entityType"='Post' AND "R"."UserId"='${context.params.User.id}'
-  )`;
+  // const amountOfReactions = `(
+  //     SELECT 
+  //     COUNT("R"."id") 
+  //     FROM "Reactions" AS "R"
+  //     WHERE "R"."entityId" = "Post"."id" AND "R"."entityType"='Post'
+  //   )::int`;
+  //   const isReactor = `(
+  // SELECT 
+  //   json_agg(
+  //     json_build_object(
+  //      'id', "R"."id",
+  //      'content',"R"."content",
+  //      'created_at',"R"."created_at",
+  //      'updated_at',"R"."updated_at"
+  //     ) 
+  //     ) 
+  //     FROM "Reactions" AS "R"
+  //     WHERE "R"."entityId"="Post"."id" AND  "R"."entityType"='Post' AND "R"."user_id"='${context.params.User.id}'
+  //   )`;
   const friends = `(
      EXISTS(
-      SELECT 1 FROM "User_friends" WHERE "User_friends"."UserId" = "Post"."UserId" AND "User_friends"."friendId" = '${params.User.id}'
+      SELECT 1 FROM "friends" WHERE "friends"."user_one_id" = "posts"."user_id" AND "friends"."user_two_id" = '${params.User.id}'
      )
     )`;
 
-  const WallUser = `(
-  SELECT 
-  json_build_object(
-   'firstName', "U"."firstName",
-   'lastName', "U"."lastName",
-   'id', "U"."id",
-   'profilePicture', "U"."profilePicture",
-   'createdAt' ,"U"."createdAt"
-   )
-  FROM "Users" AS "U"
-  WHERE  "Post"."wallId" IS NOT NULL AND "U"."id" = "Post"."wallId"
-  )`;
+  // const WallUser = `(
+  // SELECT 
+  // json_build_object(
+  //  'first_name', "U"."first_name",
+  //  'last_name', "U"."last_name",
+  //  'id', "U"."id",
+  //  'profile_picture', "U"."profile_picture",
+  //  'created_at' ,"U"."created_at"
+  //  )
+  // FROM "Users" AS "U"
+  // WHERE  "Post"."wallId" IS NOT NULL AND "U"."id" = "Post"."wallId"
+  // )`;
 
   const Original = `(
   SELECT
   CASE 
-  WHEN "Post"."originalId" IS NULL THEN NULL
-  WHEN "Post"."originalType" = 'Post' THEN
+  WHEN "Post"."original_id" IS NULL THEN NULL
+  WHEN "Post"."original_type" = 'Post' THEN
   (
   SELECT 
   json_build_object(
     'id', "P"."id",
-    'content', "P"."postText",
-    'createdAt', "P"."createdAt",
-    'updatedAt', "P"."updatedAt",
-    'firstName', "U"."firstName",
-    'lastName', "U"."lastName",
+    'content', "P"."post_text",
+    'createdAt', "P"."created_at",
+    'updatedAt', "P"."updated_at",
+    'firstName', "U"."first_name",
+    'lastName', "U"."last_name",
     'UserId', "U"."id",
-    'profilePicture', "U"."profilePicture"
+    'profilePicture', "U"."profile_picture"
   )
-    FROM "Posts" AS "P" 
-    INNER JOIN "Users" AS "U" ON "U"."id" = "P"."UserId"
-    WHERE "P"."id" = "Post"."originalId"
+    FROM "posts" AS "P" 
+    INNER JOIN "users" AS "U" ON "U"."id" = "P"."user_id"
+    WHERE "P"."id" = "Post"."original_id"
     LIMIT 1
     )
-  WHEN "Post"."originalType" = 'Blogs' THEN
-  (
-  SELECT 
-  json_build_object(
-    'id', "B"."id",
-    'content', "B"."blogText",
-    'createdAt', "B"."createdAt",
-    'updatedAt', "B"."updatedAt",
-    'coverPicture', "B"."coverPicture",
-    'firstName', "U"."firstName",
-    'lastName', "U"."lastName",
-    'UserId', "U"."id",
-    'profilePicture', "U"."profilePicture",
-    'title', "B"."blogTitle"
-  )
-    FROM "Blogs" AS "B"
-    INNER JOIN "Users" AS "U" ON "U"."id" = "B"."UserId"
-    WHERE "B"."id" = "Post"."originalId"
-    LIMIT 1
-  )
-  WHEN "Post"."originalType" = 'Discussion' THEN
+  -- WHEN "Post"."original_type" = 'Blogs' THEN
+  -- (
+  -- SELECT
+  -- json_build_object(
+  --  'id', "B"."id",
+  --  'content', "B"."blog_text",
+  --  'created_at', "B"."created_at",
+  --  'updated_at', "B"."updated_at",
+  --  'coverPicture', "B"."coverPicture",
+  --  'firstName', "U"."first_name",
+  --  'lastName', "U"."last_name",
+  --  'UserId', "U"."id",
+  --  'profile_picture', "U"."profile_picture",
+  --  'title', "B"."blogTitle"
+  --)
+  --  FROM "blogs" AS "B"
+  --  INNER JOIN "users" AS "U" ON "U"."id" = "B"."user_id"
+  --  WHERE "B"."id" = "Post"."original_id"
+  --  LIMIT 1
+  --)
+  WHEN "Post"."original_type" = 'Discussion' THEN
   (
   SELECT
   json_build_object(
     'id', "D"."id",
     'content', "D"."body",
-    'createdAt', "D"."createdAt",
-    'updatedAt', "D"."updatedAt",
-    'firstName', "U"."firstName",
-    'lastName', "U"."lastName",
-    'UserId', "U"."id",
-    'profilePicture', "U"."profilePicture"
+    'created_at', "D"."created_at",
+    'updated_at', "D"."updated_at",
+    'first_name', "U"."first_name",
+    'last_name', "U"."last_name",
+    'user_id', "U"."id",
+    'profile_picture', "U"."profile_picture"
   )
-    FROM "Discussions" AS "D"
-    INNER JOIN "Users" AS "U" ON "U"."id" = "D"."UserId"
-    WHERE "D"."id" = "Post"."originalId"
+    FROM "discussions" AS "D"
+    INNER JOIN "users" AS "U" ON "U"."id" = "D"."user_id"
+    WHERE "D"."id" = "Post"."original_id"
     LIMIT 1
   )
   END
@@ -121,13 +120,13 @@ SELECT
 
   const CanDelete = `(
     CASE 
-    WHEN "Post"."UserId" = '${params.User.id}' THEN true
-    WHEN "Post"."wallId" = '${params.User.id}' THEN true
-    WHEN "Post"."PostId" IS NOT NULL 
+    WHEN "Post"."user_id" = '${params.User.id}' THEN true
+    -- WHEN "Post"."wallId" = '${params.User.id}' THEN true
+    WHEN "Post"."post_id" IS NOT NULL 
     AND  EXISTS( 
      Select 1
-     FROM "Posts" as "P"
-     WHERE "P"."id" = "Post"."PostId" AND "P"."UserId" = '${params.User.id}')
+     FROM "posts" as "P"
+     WHERE "P"."id" = "Post"."post_id" AND "P"."user_id" = '${params.User.id}')
     THEN true
     ELSE false
     END)`;
@@ -144,10 +143,10 @@ SELECT
     [Op.and]: {
       [Op.or]: [
         { privacyType: 'public' },
-        { UserId: params.User.id },
-        {
-          [Op.and]: [{ privacyType: 'friends' }, Sequelize.literal(friends)],
-        },
+        { user_id: params.User.id },
+        // {
+        //   [Op.and]: [{ privacyType: 'friends' }, Sequelize.literal(friends)],
+        // },
       ],
     },
   };
@@ -161,13 +160,13 @@ SELECT
     attributes: {
       include: [
         [Sequelize.literal(amountOfComments), 'amountOfComments'],
-        [Sequelize.literal(amountOfReactions), 'amountOfReactions'],
-        [Sequelize.literal(isReactor), 'isReactor'],
-        [Sequelize.literal(WallUser), 'WallUser'],
+        // [Sequelize.literal(amountOfReactions), 'amountOfReactions'],
+        // [Sequelize.literal(isReactor), 'isReactor'],
+        // [Sequelize.literal(WallUser), 'WallUser'],
         [Sequelize.literal(Original), 'Original'],
         [Sequelize.literal(CanDelete), 'canDelete'],
       ],
-      exclude: ['UserId'],
+      exclude: ['user_id'],
     },
 
     include: [
@@ -176,9 +175,9 @@ SELECT
         attributes: UserAttributes,
         required: true,
       },
-      {
-        model: Sequelize.models.Community,
-      },
+      // {
+      //   model: Sequelize.models.Community,
+      // },
       {
         model: Sequelize.models.Media,
         include: {

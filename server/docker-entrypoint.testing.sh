@@ -23,18 +23,16 @@ sleep 20
 
 #------
 echo "Copying database schema"
-docker cp ./main.sql test-postgres:/docker-entrypoint-initdb.d/main.sql
+docker cp ./main2.sql test-postgres:/docker-entrypoint-initdb.d/main2.sql
 echo "Executing database schema"
-# docker exec -u vwanu test-postgres psql social_media vwanu -f /docker-entrypoint-initdb.d/main.sql
-docker exec -u postgres test-postgres psql -U vwanu -d social_media -f /docker-entrypoint-initdb.d/main.sql
+docker exec -u postgres test-postgres psql -U vwanu -d social_media -f /docker-entrypoint-initdb.d/main2.sql
+
+echo "Migrating database"
+NODE_ENV=test npm run migrate
+
+echo "Seeding database"
+NODE_ENV=test npm run seed
 
 
-# echo "Migrating database"
-# NODE_ENV=test npm run migrate
-
-# echo "Seeding database"
-# NODE_ENV=test npm run seed
-
-
-# echo "Starting server"
+echo "Starting tests"
 # npm run "test:local" 

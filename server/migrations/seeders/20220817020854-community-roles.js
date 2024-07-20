@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 /* eslint-disable import/no-extraneous-dependencies */
-const { v4 } = require('uuid');
+// const { v4 } = require('uuid');
 
 const roles = [
   { name: 'admin', role_access_level: 0 },
@@ -9,20 +9,19 @@ const roles = [
 ];
 module.exports = {
   async up(queryInterface) {
-    await queryInterface.bulkDelete('CommunityRoles', null, {});
+    await queryInterface.bulkDelete('roles', null, {});
     return queryInterface.bulkInsert(
-      'CommunityRoles',
+      'roles',
       roles.map(({ name, role_access_level }) => ({
         name,
         role_access_level,
-        id: v4(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        created_at: new Date(),
+        updated_at: new Date(),
       }))
     );
   },
 
   async down(queryInterface) {
-    return queryInterface.bulkDelete('CommunityRoles', null, {});
+    return queryInterface.bulkDelete('roles', null, {});
   },
 };

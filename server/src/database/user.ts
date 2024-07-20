@@ -124,14 +124,14 @@ export default (sequelize: any, DataTypes: any) => {
           key: 'id',
         }
       },
-      resetAttempts: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-      },
-      loginAttempts: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-      },
+      // resetAttempts: {
+      //   type: DataTypes.INTEGER,
+      //   allowNull: true,
+      // },
+      // loginAttempts: {
+      //   type: DataTypes.INTEGER,
+      //   allowNull: true,
+      // },
       email: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -154,24 +154,15 @@ export default (sequelize: any, DataTypes: any) => {
         defaultValue: 0,
         allowNull: false,
       },
-      active_status: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-      },
+      // active_status: {
+      //   type: DataTypes.BOOLEAN,
+      //   defaultValue: false,
+      // },
       birthday: {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      backgroundImage: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        unique: true,
-      },
-      backgroundImageStatus: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        unique: true,
-      },
+
       password: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -191,15 +182,17 @@ export default (sequelize: any, DataTypes: any) => {
       },
 
       gender: {
-        type: DataTypes.STRING,
-        defaultValue: 'Not specified',
-        validate: {
-          customValidator: (value) => {
-            if (!['f', 'm', 'Not specified'].includes(value)) {
-              throw new Error(`${value} is not a valid option for gender`);
-            }
-          },
-        },
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+        allowNull: false,
+
+        // validate: {
+        //   customValidator: (value) => {
+        //     if (!['f', 'm', 'Not specified'].includes(value)) {
+        //       throw new Error(`${value} is not a valid option for gender`);
+        //     }
+        //   },
+        // },
       },
       about: {
         type: DataTypes.STRING,
@@ -210,27 +203,27 @@ export default (sequelize: any, DataTypes: any) => {
         allowNull: true,
         defaultValue: () => nanoid(),
       },
-      resetPasswordKey: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
+      // resetPasswordKey: {
+      //   type: DataTypes.STRING,
+      //   allowNull: true,
+      // },
       verified: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
-      emailPrivacy: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-      },
-      phonePrivacy: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-      },
+      // emailPrivacy: {
+      //   type: DataTypes.BOOLEAN,
+      //   defaultValue: false,
+      // },
+      // phonePrivacy: {
+      //   type: DataTypes.BOOLEAN,
+      //   defaultValue: false,
+      // },
 
-      active: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: true,
-      },
+      // active: {
+      //   type: DataTypes.BOOLEAN,
+      //   defaultValue: true,
+      // },
 
       online: {
         type: DataTypes.BOOLEAN,
@@ -241,10 +234,10 @@ export default (sequelize: any, DataTypes: any) => {
         defaultValue: new Date(),
       },
 
-      resetExpires: {
-        type: DataTypes.DATE,
-        allowNull: true,
-      },
+      // resetExpires: {
+      //   type: DataTypes.DATE,
+      //   allowNull: true,
+      // },
 
       coverPicture: {
         type: DataTypes.STRING,
@@ -258,10 +251,10 @@ export default (sequelize: any, DataTypes: any) => {
         defaultValue:
           'https://images.unsplash.com/photo-1528464884105-28166ef8edd0?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80',
       },
-      website: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
+      // website: {
+      //   type: DataTypes.STRING,
+      //   allowNull: true,
+      // },
       search_vector: {
         type: DataTypes.TSVECTOR,
         allowNull: true,
@@ -270,6 +263,9 @@ export default (sequelize: any, DataTypes: any) => {
     {
       sequelize,
       modelName: 'User',
+      tableName: 'users',
+      underscored: true,
+      timestamps: true,
     }
   );
   return User;

@@ -20,8 +20,8 @@ export default (sequelize: any, DataTypes: any) => {
     accepted: boolean;
 
     static associate(models: any): void {
-      Friend.hasOne(models.User, { as: 'Requester' });
-      Friend.hasOne(models.User, { as: 'User' });
+      // Friend.hasOne(models.User, { as: 'Requester' });
+      // Friend.hasOne(models.User, { as: 'User' });
     }
   }
   Friend.init(

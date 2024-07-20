@@ -6,22 +6,22 @@ CREATE OR REPLACE FUNCTION fn_update_followers_counts()
   BEGIN
   IF TG_OP = 'INSERT' THEN
       -- Increment the followers count for the user being followed
-       UPDATE "Users"
-       SET "amountOfFollower" = "amountOfFollower" + 1
-       WHERE id = NEW."UserId";
+       UPDATE users
+       SET amount_of_follower = amount_of_follower + 1
+       WHERE id = NEW.user_id;
       -- Increment the following count for the follower
-       UPDATE "Users"
-       SET "amountOfFollowing" = "amountOfFollowing" + 1
-       WHERE id = NEW."FollowerId";
+       UPDATE users
+       SET amount_of_following = amount_of_following + 1
+       WHERE id = NEW.follower_id;
   ELSIF TG_OP = 'DELETE' THEN
       -- Decrement the followers count for the user being unfollowed
-       UPDATE "Users"
-       SET "amountOfFollower" = "amountOfFollower" - 1
-       WHERE id = OLD."UserId";
+       UPDATE users
+       SET amount_of_follower = amount_of_follower - 1
+       WHERE id = OLD.user_id;
       -- Decrement the following count for the follower
-       UPDATE "Users"
-       SET "amountOfFollowing" = "amountOfFollowing" - 1
-       WHERE id = OLD."FollowerId";
+       UPDATE users
+       SET amount_of_following = amount_of_following - 1
+       WHERE id = OLD.follower_id;
    END IF;
     
     RETURN null;

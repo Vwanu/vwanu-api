@@ -82,17 +82,17 @@ export default (sequelize: any, DataTypes: any) => {
     defaultInvitationEmail: string;
 
     static associate(models: any): void {
-      Community.belongsToMany(models.Interest, {
-        through: 'Community_Interest',
-        foreignKey: 'community_id',
-        otherKey: 'interest_id',
-        timestamps: false,
-      });
-      Community.belongsToMany(models.User, {
-        as: 'members',
-        through: 'CommunityUsers',
-      });
-      Community.hasOne(models.User);
+      // Community.belongsToMany(models.Interest, {
+      //   through: 'community_interests',
+      //   foreignKey: 'community_id',
+      //   otherKey: 'interest_id',
+      //   timestamps: false,
+      // });
+      // Community.belongsToMany(models.User, {
+      //   as: 'members',
+      //   through: 'CommunityUsers',
+      // });
+      // Community.hasOne(models.User); -- this is wrong
       // Community.belongsToMany(models.User, {
       //   as: 'moderators',
       //   through: 'community-moderators',

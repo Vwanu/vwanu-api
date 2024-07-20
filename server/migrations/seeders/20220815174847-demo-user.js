@@ -12,8 +12,6 @@ const query = fs.readFileSync(
 const HASHING_SALT_ROUNDS = parseInt(config.get('HASHING_SALT_ROUNDS'), 10);
 const appUsers = [
   {
-    id: v4(),
-    admin: true,
     updatedAt: new Date(),
     createdAt: new Date(),
     email: config.get('ROOT_USER_EMAIL'),
@@ -29,10 +27,8 @@ module.exports = {
       appUsers.map((appUser) =>
         queryInterface.sequelize.query(query, {
           replacements: [
-            v4(),
             appUser.firstName,
             appUser.lastName,
-            appUser.admin,
             appUser.email,
             bcrypt.hashSync(appUser.password, HASHING_SALT_ROUNDS),
           ],

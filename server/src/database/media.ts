@@ -31,9 +31,11 @@ export default (sequelize: any, DataTypes: any) => {
     tiny: string | undefined;
 
     static associate(models: any): void {
-      Media.belongsTo(models.User);
+      Media.belongsTo(models.User, { foreignKey: 'user_id' });
       Media.belongsToMany(models.Post, {
-        through: 'Post_Media',
+        through: 'post_medias',
+        foreignKey: 'media_id',
+        otherKey: 'post_id',
       });
       // Media.hasMany(models.Post, {
       //   onDelete: 'CASCADE',
@@ -91,6 +93,9 @@ export default (sequelize: any, DataTypes: any) => {
 
       sequelize,
       modelName: 'Media',
+      tableName: 'medias',
+      underscored: true,
+      updatedAt: false,
     }
   );
   return Media;

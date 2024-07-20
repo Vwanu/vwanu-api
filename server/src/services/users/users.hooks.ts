@@ -20,6 +20,9 @@ import {
   IncludeAddress
 } from './hook';
 import SaveAndAttachInterests from '../../Hooks/SaveAndAttachInterest';
+import { HookContext } from '../../app';
+
+
 
 const { hashPassword, protect } = local.hooks;
 const { authenticate } = feathersAuthentication.hooks;
@@ -38,13 +41,27 @@ const protectkeys = protect(
     'search_vector',
   ]
 );
+
+const sanitizeUser = (context: HookContext) => {
+  const genderType = typeof context.data.gender
+  if (genderType === 'boolean') return context;
+
+  if (genderType === 'string')
+    if (context.data.gender.toLowerCase === 'm')
+      context.data.gender = true;
+    else context.data.gender = false;
+
+  return context;
+
+};
 export default {
   before: {
     find: [authenticate('jwt'), GetUser],
     get: [authenticate('jwt'), GetUser],
     create: [
+      sanitizeUser,
 
-      AssignRole('member'),
+
       validateResource(schema.createUserSchema),
       saveProfilePicture(['profilePicture', 'coverPicture']),
       filesToBody,

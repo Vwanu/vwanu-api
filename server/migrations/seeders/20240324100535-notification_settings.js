@@ -8,6 +8,6 @@ module.exports = {
     );
   },
   async down(queryInterface) {
-    await queryInterface.bulkDelete('notification_settings', null, {});
+    await queryInterface.bulkDelete('notification_types', null, {});
   },
 };

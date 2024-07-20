@@ -4,15 +4,13 @@ const { QueryTypes } = require('sequelize');
 
 module.exports = {
   async up(queryInterface) {
-    const env = config.util.getEnv('NODE_ENV');
-    // select all cities in the database 
+    // const env = config.util.getEnv('NODE_ENV');
+    // select all cities in the database
     const query = ` 
-      SELECT name FROM "Cities" AS cities
-      ${env === 'development' && 'LIMIT 10'}
-      `;
-      
+      SELECT name FROM cities`;
+    // ${env === 'development' && 'LIMIT 10'}
 
-    const defaultUserQuery = `SELECT id FROM "Users" WHERE email = '${config.get(
+    const defaultUserQuery = `SELECT id FROM users WHERE email = '${config.get(
       'ROOT_USER_EMAIL'
     )}'`;
 
@@ -37,10 +35,10 @@ module.exports = {
       updatedAt: new Date(),
     }));
 
-    await queryInterface.bulkInsert('Communities', communities);
+    await queryInterface.bulkInsert(communities, communities);
   },
 
   async down(queryInterface) {
-    return queryInterface.bulkDelete('Communities', null, {});
+    return queryInterface.bulkDelete('communities', null, {});
   },
 };

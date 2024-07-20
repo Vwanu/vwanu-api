@@ -1,5 +1,5 @@
 CREATE TYPE user_result AS (
-  data "Users",
+  data users,
   total INTEGER
 );
 CREATE OR REPLACE FUNCTION get_followers_or_following(
@@ -7,23 +7,23 @@ CREATE OR REPLACE FUNCTION get_followers_or_following(
     is_followers BOOLEAN DEFAULT TRUE,
     OUT result user_result 
 )
--- RETURNS SETOF "Users"
+-- RETURNS SETOF users
 AS $$
 BEGIN
     IF is_followers THEN
         --RETURN QUERY
         result.data:=(SELECT u.*
-        FROM "Users" u
-        INNER JOIN "User_Follower" uf ON u.id = uf."FollowerId"
-        WHERE uf."UserId" = user_id);
-        result.total:=(SELECT COUNT(*) FROM "Users");
+        FROM users u
+        INNER JOIN followers uf ON u.id = uf.follower_id
+        WHERE uf.user_id = user_id);
+        result.total:=(SELECT COUNT(*) FROM users);
     ELSE
         --RETURN QUERY
         result.data:=(SELECT u.*
-        FROM "Users" u
-        INNER JOIN "User_Follower" uf ON u.id = uf."UserId"
-        WHERE uf."FollowerId" = user_id);
-        result.total:=(SELECT COUNT(*) FROM "Users");
+        FROM users u
+        INNER JOIN followers uf ON u.id = uf.user_id
+        WHERE uf.follower_id = user_id);
+        result.total:=(SELECT COUNT(*) FROM users);
     END IF;
 END;
 $$ LANGUAGE plpgsql;

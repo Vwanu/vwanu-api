@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { QueryTypes } = require('sequelize');
-const templates = require('../data/template');
+const templates = require('../../data/template');
 
 const query = fs.readFileSync(
   path.resolve(__dirname, '../queries', 'template.sql'),

@@ -6,12 +6,12 @@ const { QueryTypes } = require('sequelize');
 const { v4 } = require('uuid');
 
 const addressTypes = [
-  'Work',
-  'Home',
-  'Billing',
-  'Shipping',
-  'School',
-  'Other',
+  { name: 'Work', description: 'some description' },
+  { name: 'Home', description: 'some description' },
+  { name: 'Billing', description: 'some description' },
+  { name: 'Shipping', description: 'some description' },
+  { name: 'School', description: 'some description' },
+  { name: 'Other', description: 'some description' },
 ];
 
 const upsertAddressTypeQuery = fs.readFileSync(
@@ -22,9 +22,9 @@ module.exports = {
   async up(queryInterface) {
     // await queryInterface.bulkDelete('AddressTypes', null, {});
     await Promise.all(
-      addressTypes.map((description) =>
+      addressTypes.map(({ name, description }) =>
         queryInterface.sequelize.query(upsertAddressTypeQuery, {
-          replacements: [v4(), description],
+          replacements: [v4(), name, description],
           type: QueryTypes.SELECT,
         })
       )

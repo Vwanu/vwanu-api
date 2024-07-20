@@ -3,8 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const { v4 } = require('uuid');
 const { QueryTypes } = require('sequelize');
-const countriesData = require('../data/country-state-cities.min');
-const testCountriesData = require('../data/test-country-state-cities.min');
+const countriesData = require('../../data/country-state-cities.min');
+const testCountriesData = require('../../data/test-country-state-cities.min');
 
 const findOrSaveStateQuery = fs.readFileSync(
   path.resolve(__dirname, '../queries', 'findOrSaveState.sql'),

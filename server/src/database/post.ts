@@ -25,7 +25,7 @@ export default (sequelize: any, DataTypes: any) => {
       Post.belongsTo(models.User);
       Post.belongsTo(models.Community, { onDelete: 'CASCADE' });
       Post.belongsToMany(models.Media, {
-        through: 'post_media',
+        through: 'post_medias',
         foreignKey: 'post_id',
         otherKey: 'media_id',
       });

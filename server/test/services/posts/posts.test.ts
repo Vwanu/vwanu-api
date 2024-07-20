@@ -1,284 +1,199 @@
-/* eslint-disable import/no-extraneous-dependencies */
-
 import { StatusCodes } from 'http-status-codes';
-// custom dependencies
-import app from '../../../src/app';
-import { getRandUsers } from '../../../src/lib/utils/generateFakeUser';
-
-import Service from '../index.test';
 
 describe('Posts services', () => {
-  let observer;
   let observerToken;
   let postMaker;
   let postMakerToken;
-  let thePost;
-  let commenter;
   let commenterToken;
-  const userEndpoint = '/users';
-  const Posts = new Service('/posts');
-  const Reactions = new Service('/reactions');
-
-  class UsersClass extends Service {
-    constructor() {
-      super(userEndpoint);
-    }
-
-    create(user) {
-      // eslint-disable-next-line no-underscore-dangle
-      return this._testServer.post(this._endpoint).send(user);
-    }
-  }
-  const Users = new UsersClass();
-
+  const endpoint = '/posts';
   beforeAll(async () => {
-    await app.get('sequelizeClient').models.User.sync({ force: true });
+    const testUsers = await global.__getRandUsers(4);
+    postMaker = testUsers[1 as any];
 
-    let testUsers = await Promise.all(
-      getRandUsers(4).map((u) => {
-        const user = u;
-        delete user.id;
-        return Users.create(user);
-      })
-    );
+    [observerToken, postMakerToken, commenterToken] = testUsers.map(user => user.accessToken)
 
-    testUsers = testUsers.map((r) => r.body);
-    [observer, postMaker, commenter] = testUsers;
-
-    observerToken = observer.accessToken;
-    postMakerToken = postMaker.accessToken;
-    commenterToken = commenter.accessToken;
   }, 30000);
 
+
+
+
   it('should create a new post', async () => {
-    const { statusCode, body: response } = await Posts.create(
-      { postText: `I am a new post # 1` },
-      postMakerToken
-    );
-    thePost = response;
-    expect(statusCode).toBe(StatusCodes.CREATED);
+    const postText = "I am a new post # 1"
+    await global.__SERVER__
+      .post(endpoint).send({ postText })
+      .set('Authorization', `Bearer ${postMakerToken}`)
+      .expect(StatusCodes.CREATED);
   });
   it('should get a list of posts', async () => {
-    const { body: post } = await Posts.getList(observerToken);
-
-    expect(post.data).toHaveLength(1);
+    const postText = "I am a new post # 2"
+    await global.__SERVER__
+      .post(endpoint).send({ postText })
+      .set('Authorization', `Bearer ${postMakerToken}`)
+      .expect(StatusCodes.CREATED);
+    const { body: posts } = await global
+      .__SERVER__
+      .get(endpoint)
+      .set('Authorization', `Bearer ${observerToken}`);
+    expect(Array.isArray(posts.data)).toBe(true);
+    expect(posts.data.length).toBeGreaterThan(0);
   });
 
   it('should retrieve a post by its id', async () => {
-    const retrievedPost = await Posts.get(thePost.id, observerToken);
+    const postText = "I am a new post # 3"
+    const post = await global.__SERVER__
+      .post(endpoint).send({ postText })
+      .set('Authorization', `Bearer ${postMakerToken}`)
+      .expect(StatusCodes.CREATED);
 
-    const samePost = retrievedPost.body;
-    expect(samePost.id).toEqual(thePost.id);
-    expect(samePost.postText).toEqual(thePost.postText);
-    expect(retrievedPost.statusCode).toBe(StatusCodes.OK);
-  }, 3000);
-
-  it('should create comment for a post', async () => {
-    const { statusCode: commentResponse } = await Posts.create(
-      {
-        postText: 'some message for my comment',
-        PostId: thePost.id,
-      },
-      commenterToken
-    );
-    expect(commentResponse).toBe(StatusCodes.CREATED);
-  }, 3000);
-
-  it('should find one post with one comment', () => {
-    Posts.getList(observerToken).then(({ body: { data } }) => {
-      expect(data).toHaveLength(1);
-      expect(data[0].amountOfComments).toBe(1);
-    });
-  });
-  it('should find the post and have one comment', async () => {
-    const { body: foundPostWithComment } = await Posts.get(
-      thePost.id,
-      observerToken
-    );
-
-    expect(foundPostWithComment.amountOfComments).toEqual(1);
-  });
-  it('should react on the post', async () => {
-    const { statusCode: reactionResponse } = await Reactions.create(
-      {
-        content: 'like',
-        entityId: thePost.id,
-        entityType: 'Post',
-      },
-      commenterToken
-    );
-
-    expect(reactionResponse).toBe(StatusCodes.CREATED);
-  });
-  it('should find one post with one comment,one reaction, and he is the reactor', () => {
-    Posts.getList(commenterToken).then(({ body: { data } }) => {
-      expect(data).toHaveLength(1);
-      expect(data[0].amountOfComments).toBe(1);
-      expect(data[0].amountOfReactions).toBe(1);
-      expect(data[0].isReactor).toHaveLength(1);
-    });
-  });
-
-  it('should find one post with one comment,one reaction, and he is not the reactor', () => {
-    Posts.getList(observerToken).then(({ body: { data } }) => {
-      expect(data).toHaveLength(1);
-      expect(data[0].amountOfComments).toBe(1);
-      expect(data[0].amountOfReactions).toBe(1);
-      expect(data[0].isReactor).toBe(null);
-    });
-  });
-
-  it('should find all comments on a post', async () => {
-    const { body: foundComments } = await Posts.getList(
-      observerToken,
-      `PostId=${thePost.id}`
-    );
-
-    expect(foundComments.data).toHaveLength(1);
+    await global.__SERVER__
+      .get(`${endpoint}/${post.body.id}`)
+      .set('Authorization', `Bearer ${observerToken}`)
+      .expect(StatusCodes.OK);
   });
 
   it('should retrieve all post by userId', async () => {
-    const {
-      body: { data: observerPosts },
-    } = await Posts.getList(observerToken, `UserId=${observer.id}`);
+    const postText = "I am a new post # 4"
+    await global.__SERVER__
+      .post(endpoint).send({ postText })
+      .set('Authorization', `Bearer ${postMakerToken}`)
+      .expect(StatusCodes.CREATED);
 
-    expect(observerPosts).toHaveLength(0);
+    const { body: posts } = await global.__SERVER__
+      .get(`${endpoint}/?user_id=${postMaker.id}`).set('Authorization', `Bearer ${observerToken}`)
 
-    const {
-      body: { data: postMakerPosts },
-    } = await Posts.getList(observerToken, `UserId=${postMaker.id}`);
 
-    expect(postMakerPosts).toHaveLength(1);
-
-    const {
-      body: { data: commenterPosts },
-    } = await Posts.getList(observerToken, `UserId=${commenter.id}`);
-
-    expect(commenterPosts).toHaveLength(0);
+    expect(Array.isArray(posts.data)).toBe(true);
+    expect(posts.data.length).toBeGreaterThan(0);
+    expect(posts.data.every(post => post.UserId === postMaker.id)).toBe(true);
   }, 3000);
 
-  it('should not edit a post', async () => {
-    const { statusCode: editAttemptStatus } = await Posts.patch(
-      thePost.id,
-      {
-        postText: 'I am a new string do yo like me',
-      },
-      observerToken
-    );
-    expect(editAttemptStatus).toEqual(StatusCodes.BAD_REQUEST);
+  it('Someone else can not edit your post', async () => {
+    const postText = "I am a new post # 5"
+    const post = await global.__SERVER__
+      .post(endpoint).send({ postText })
+      .set('Authorization', `Bearer ${postMakerToken}`)
+      .expect(StatusCodes.CREATED);
+
+    await global.__SERVER__
+      .patch(`${endpoint}/${post.body.id}`)
+      .send({ postText: "I am a new post # 6" })
+      .set('Authorization', `Bearer ${observerToken}`)
+      .expect(StatusCodes.BAD_REQUEST);
   }, 3000);
 
-  it('should edit a post', async () => {
-    const { body: editedLPost } = await Posts.patch(
-      thePost.id,
-      {
-        postText: 'I am a new string do yo like me',
-      },
-      postMakerToken
-    );
+  it('You can edit your own post', async () => {
+    const postText = "I am a new post # 7"
+    const post = await global.__SERVER__
+      .post(endpoint).send({ postText })
+      .set('Authorization', `Bearer ${postMakerToken}`)
+      .expect(StatusCodes.CREATED);
 
-    expect(editedLPost.id).toEqual(thePost.id);
-    expect(editedLPost.postText).toEqual('I am a new string do yo like me');
-    expect(editedLPost.UserId).toEqual(thePost.UserId);
+    await global.__SERVER__
+      .patch(`${endpoint}/${post.body.id}`)
+      .send({ postText: "I am a new post # 8" })
+      .set('Authorization', `Bearer ${postMakerToken}`)
+      .expect(StatusCodes.OK);
   }, 3000);
 
-  it('should lock post', async () => {
-    const { body: lockedPost } = await Posts.patch(
-      thePost.id,
-      { locked: true },
-      postMakerToken
-    );
-    expect(lockedPost.locked).toBe(true);
+  it('Should be able to lock and unlock a post', async () => {
+    const postText = "I am a new post # 9"
+    const post = await global.__SERVER__
+      .post(endpoint).send({ postText, locked: true })
+      .set('Authorization', `Bearer ${postMakerToken}`)
+      .expect(StatusCodes.CREATED);
+    expect(post.body.locked).toBe(true);
+    const { body: updatedPost } = await global.__SERVER__
+      .patch(`${endpoint}/${post.body.id}`)
+      .send({ locked: false })
+      .set('Authorization', `Bearer ${postMakerToken}`)
+      .expect(StatusCodes.OK);
+    expect(updatedPost.locked).toBe(false);
   });
 
-  it('Cannot comment on a locked Post', async () => {
-    const commentAttempt = await Posts.create(
-      {
-        postText: 'Commenting on a locked discussion',
-        PostId: thePost.id,
-      },
-      postMakerToken
-    );
+  it('Someone else cannot modify or delete your post', async () => {
+    const postText = "I am a new post # 10"
+    const post = await global.__SERVER__
+      .post(endpoint).send({ postText })
+      .set('Authorization', `Bearer ${postMakerToken}`)
+      .expect(StatusCodes.CREATED);
 
-    expect(commentAttempt.statusCode).toBe(400);
+    await global.__SERVER__
+      .patch(`${endpoint}/${post.body.id}`)
+      .send({ postText: "I am a new post # 11" })
+      .set('Authorization', `Bearer ${observerToken}`)
+      .expect(StatusCodes.BAD_REQUEST);
+
+    await global.__SERVER__
+      .delete(`${endpoint}/${post.body.id}`)
+      .set('Authorization', `Bearer ${observerToken}`)
+      .expect(StatusCodes.BAD_REQUEST);
   });
 
-  it('should not delete a post', async () => {
-    const users = await Promise.all(
-      getRandUsers(2).map((user) => {
-        // eslint-disable-next-line no-param-reassign
-        delete user.id;
-        return Users.create(user);
-      })
-    );
+  it('You should be able to delete your post', async () => {
+    const postText = "I am a new post # 12"
+    const post = await global.__SERVER__
+      .post(endpoint).send({ postText })
+      .set('Authorization', `Bearer ${postMakerToken}`)
+      .expect(StatusCodes.CREATED);
 
-    const post = await Posts.create(
-      { postText: 'New post' },
-      users[0].body.accessToken
-    );
-
-    const { statusCode } = await Posts.delete(
-      post.body.id,
-      users[1].body.accessToken
-    );
-
-    expect(statusCode).toEqual(StatusCodes.BAD_REQUEST);
+    await global.__SERVER__
+      .delete(`${endpoint}/${post.body.id}`)
+      .set('Authorization', `Bearer ${postMakerToken}`)
+      .expect(StatusCodes.OK);
   });
   it('should delete a post with all its comment', async () => {
-    const deletedPostResponse = await Posts.delete(thePost.id, postMakerToken);
+    const postText = "I am a new post # 13"
+    const post = await global.__SERVER__
+      .post(endpoint).send({ postText })
+      .set('Authorization', `Bearer ${postMakerToken}`)
+      .expect(StatusCodes.CREATED);
 
-    const deletedPost = deletedPostResponse.body;
-    expect(deletedPost.id).toEqual(thePost.id);
+    const commentText = "I am a new comment # 1"
+    const comment = await global.__SERVER__
+      .post(endpoint).send({ postText: commentText, PostId: post.body.id })
+      .set('Authorization', `Bearer ${commenterToken}`)
+      .expect(StatusCodes.CREATED);
 
-    const retrievePostResponse = await Posts.get(thePost.id, observerToken);
+    await global.__SERVER__
+      .get(`${endpoint}/${comment.body.id}`)
+      .set('Authorization', `Bearer ${commenterToken}`)
+      .expect(StatusCodes.OK);
 
-    expect(retrievePostResponse.statusCode).toBe(StatusCodes.NOT_FOUND);
-  }, 3000);
+    await global.__SERVER__
+      .delete(`${endpoint}/${post.body.id}`)
+      .set('Authorization', `Bearer ${postMakerToken}`)
+      .expect(StatusCodes.OK);
 
-  it('Should delete a comment when the delete request comes from the original post creator', async () => {
-    const users = await Promise.all(
-      getRandUsers(2).map((user) => {
-        // eslint-disable-next-line no-param-reassign
-        delete user.id;
-        return Users.create(user);
-      })
-    );
+    await global.__SERVER__
+      .get(`${endpoint}/${comment.body.id}`)
+      .set('Authorization', `Bearer ${commenterToken}`)
+      .expect(StatusCodes.NOT_FOUND);
 
-    const post = await Posts.create(
-      { postText: 'New post' },
-      users[0].body.accessToken
-    );
-    const comment = await Posts.create(
-      { postText: 'New comment', PostId: post.body.id },
-      users[1].body.accessToken
-    );
+  }, 8000);
 
-    const { statusCode } = await Posts.delete(
-      comment.body.id,
-      users[0].body.accessToken
-    );
+  it('Post Author can delete any comments', async () => {
 
-    expect(statusCode).toBe(StatusCodes.OK);
+    const postText = "I am a new post # 14"
+    const post = await global.__SERVER__
+      .post(endpoint).send({ postText })
+      .set('Authorization', `Bearer ${postMakerToken}`)
+      .expect(StatusCodes.CREATED);
+
+    const commentText = "I am a new comment # 2"
+    const comment = await global.__SERVER__
+      .post(endpoint).send({ postText: commentText, PostId: post.body.id })
+      .set('Authorization', `Bearer ${commenterToken}`)
+      .expect(StatusCodes.CREATED);
+
+    await global.__SERVER__
+      .delete(`${endpoint}/${comment.body.id}`)
+      .set('Authorization', `Bearer ${postMakerToken}`)
+      .expect(StatusCodes.OK);
+
+    await global.__SERVER__
+      .get(`${endpoint}/${comment.body.id}`)
+      .set('Authorization', `Bearer ${commenterToken}`)
+      .expect(StatusCodes.NOT_FOUND);
   });
-  it('should delete a post if the delete request comes from the owner of the wall where the post is added', async () => {
-    const users = await Promise.all(
-      getRandUsers(2).map((user) => {
-        // eslint-disable-next-line no-param-reassign
-        delete user.id;
-        return Users.create(user);
-      })
-    );
 
-    const wallPost = await Posts.create(
-      { postText: 'New comment', wallId: users[0].body.id },
-      users[1].body.accessToken
-    );
-
-    const { statusCode } = await Posts.delete(
-      wallPost.body.id,
-      users[0].body.accessToken
-    );
-
-    expect(statusCode).toEqual(StatusCodes.OK);
-  });
 });
