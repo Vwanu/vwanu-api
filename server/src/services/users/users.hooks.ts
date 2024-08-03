@@ -116,7 +116,7 @@ export default {
         foreignKey: 'UserId',
         otherKey: 'InterestId'
       }),
-      SendWelcomeMail,
+      // SendWelcomeMail,
       protectkeys,
     ],
     patch: [

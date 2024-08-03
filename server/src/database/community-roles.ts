@@ -46,6 +46,9 @@ export default (sequelize: any, DataTypes: any) => {
     {
       sequelize,
       modelName: 'CommunityRoles',
+      tableName: 'roles',
+      underscored: true,
+      timestamps: false,
     }
   );
   return CommunityRoles;

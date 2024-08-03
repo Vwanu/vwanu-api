@@ -14,8 +14,7 @@ export interface CommunityInvitationRequestInterface {
 export default (sequelize: any, DataTypes: any) => {
   class CommunityInvitationRequest
     extends Model<CommunityInvitationRequestInterface>
-    implements CommunityInvitationRequestInterface
-  {
+    implements CommunityInvitationRequestInterface {
     id: string;
 
     email: string;
@@ -72,6 +71,9 @@ export default (sequelize: any, DataTypes: any) => {
     {
       sequelize,
       modelName: 'CommunityInvitationRequest',
+      tableName: 'community_invitation_requests',
+      underscored: true,
+      
     }
   );
   return CommunityInvitationRequest;

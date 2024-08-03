@@ -5,10 +5,10 @@ export const AreFriends = (UserId, Sequelize) => {
   const friends = `(
     EXISTS(
     SELECT 1 
-    FROM "User_friends" 
+    FROM friends 
     WHERE 
-    ("User_friends"."UserId" = "User"."id" AND "User_friends"."friendId" = '${UserId}')
-    OR ("User_friends"."friendId" = "User"."id" AND "User_friends"."UserId" = '${UserId}')
+    (friends.user_one_id = "User"."id" AND friends.user_two_id = '${UserId}')
+    OR (friends.user_two_id = "User"."id" AND friends.user_one_id = '${UserId}')
     ))`;
   return Sequelize.literal(friends);
 };
@@ -146,32 +146,39 @@ SELECT
 
   const isFriend = `(
         EXISTS(
-          SELECT 1 FROM "User_friends" WHERE ("User_friends"."UserId" = '${UserId}' AND "User_friends"."friendId" = "User"."id") OR ("User_friends"."UserId" = "User"."id" AND "User_friends"."friendId" = '${UserId}')
+          SELECT 1 FROM friends WHERE (friends.user_one_id = '${UserId}' AND friends.user_two_id = "User"."id") OR (friends.user_one_id = "User"."id" AND friends.user_two_id = '${UserId}')
         )
   )`;
 
   const iFollow = `(
         EXISTS(
-          SELECT 1 FROM "User_Follower"  WHERE "User_Follower"."UserId" = "User"."id" AND "User_Follower"."FollowerId" = '${UserId}' 
+          SELECT 1 FROM "followers"  
+          WHERE followers.user_id = "User"."id" 
+          AND followers.follower_id = '${UserId}' 
         )
   )`;
   const isAFollower = `(
         EXISTS(
-          SELECT 1 FROM "User_Follower" WHERE "User_Follower"."UserId" = '${UserId}' AND "User_Follower"."FollowerId" = "User"."id" 
+          SELECT 1 FROM followers
+           WHERE followers.user_id = '${UserId}' 
+           AND followers.follower_id = "User"."id" 
         )
   )`;
   const hasReceivedFriendRequest = `(
     EXISTS(
-    SELECT  1 FROM "User_friends_request" WHERE "User_friends_request"."UserId" ='${UserId}' AND "User_friends_request"."friendsRequestId" =  "User"."id" 
+    SELECT  1 
+    FROM friend_requests 
+    WHERE friend_requests.requester_id ='${UserId}' 
+    AND friend_requests.receiver_id =  "User"."id"
       ))`;
 
   const hasSentFriendRequest = `(
     EXISTS(
-    SELECT  1 FROM "User_friends_request" WHERE ("User_friends_request"."friendsRequestId" = '${UserId}' AND "User_friends_request"."UserId" = "User"."id" )
+    SELECT  1 FROM friend_requests WHERE (friend_requests.requester_id = '${UserId}' AND friend_requests.receiver_id = "User"."id" )
       ))`;
 
   const amountOfFriendRequest = `(
-    SELECT COUNT(*) FROM "User_friends_request" WHERE "User_friends_request"."UserId" = "User"."id"
+    SELECT COUNT(*) FROM friend_requests WHERE friend_requests.receiver_id = "User"."id"
   )::int`;
 
   const exclude = ex || [
@@ -194,10 +201,10 @@ SELECT
       // [Sequelize.literal(amountOfFollower), 'amountOfFollower'],
       // [Sequelize.literal(amountOfFollowing), 'amountOfFollowing'],
       // [Sequelize.literal(amountOfFriend), 'amountOfFriend'],
-      [Sequelize.literal(Interests), 'Interests'],
-      [Sequelize.literal(Addresses), 'Addresses'],
-      [Sequelize.literal(WorkPlaces), 'WorkPlaces'],
-      [Sequelize.literal(amountOfFriendRequest), 'amountOfFriendRequest'],
+      // [Sequelize.literal(Interests), 'Interests'],
+      // [Sequelize.literal(Addresses), 'Addresses'],
+      // [Sequelize.literal(WorkPlaces), 'WorkPlaces'],
+      // [Sequelize.literal(amountOfFriendRequest), 'amountOfFriendRequest'],
     ],
     exclude,
   };

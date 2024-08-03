@@ -17,81 +17,84 @@ export class FriendRequest extends Service {
     this.app = app;
   }
 
-  async create(data, params) {
-    const requesterId = params.User.id;
-    const friendId = data.UserID;
+  // async create(data, params) {
+  //   console.log('*********Friend Request Service*********');
+  //   const requesterId = params.User.id;
 
-    if (requesterId.toString() === friendId.toString())
-      throw new BadRequest('It is not permitted to be your own friend');
-    const { models } = this.app.get('sequelizeClient');
+  //   console.log('Requester ID:', requesterId);
+  //   const friendId = data.UserID;
 
-    const people = await models.User.findAll({
-      where: { id: { [Op.or]: [requesterId, friendId] } },
-      attributes: ['id'],
-      include: [
-        {
-          model: models.User,
-          as: 'friendsRequest',
-          attributes: userAttributes,
-        },
-      ],
-    });
+  //   if (requesterId.toString() === friendId.toString())
+  //     throw new BadRequest('It is not permitted to be your own friend');
+  //   const { models } = this.app.get('sequelizeClient');
 
-    const requester = people.find(
-      (person) => person.id.toString() === requesterId.toString()
-    );
+  //   const people = await models.User.findAll({
+  //     where: { id: { [Op.or]: [requesterId, friendId] } },
+  //     attributes: ['id'],
+  //     include: [
+  //       {
+  //         model: models.User,
+  //         as: 'friendsRequest',
+  //         attributes: userAttributes,
+  //       },
+  //     ],
+  //   });
 
-    const friend = people.find(
-      (person) => person.id.toString() === friendId.toString()
-    );
+  //   const requester = people.find(
+  //     (person) => person.id.toString() === requesterId.toString()
+  //   );
 
-    if (!requester || !friend)
-      throw new NotFound(
-        'Your profile or the person you want to be friend with was not found'
-      );
+  //   const friend = people.find(
+  //     (person) => person.id.toString() === friendId.toString()
+  //   );
 
-    const previouslyDeniedFriendRequest = await requester.hasUndesiredFriends(
-      friend
-    );
+  //   if (!requester || !friend)
+  //     throw new NotFound(
+  //       'Your profile or the person you want to be friend with was not found'
+  //     );
 
-    if (previouslyDeniedFriendRequest)
-      await requester.removeUndesiredFriends(friend);
+  //   const previouslyDeniedFriendRequest = await requester.hasUndesiredFriends(
+  //     friend
+  //   );
 
-    const isUndesiredFriend = await friend.hasUndesiredFriends(requester);
-    if (isUndesiredFriend)
-      throw new BadRequest('Your previous friend request was denied');
+  //   if (previouslyDeniedFriendRequest)
+  //     await requester.removeUndesiredFriends(friend);
 
-    let alreadyFiends = await Promise.all([
-      friend.hasFriend(requester),
-      requester.hasFriend(friend),
-    ]);
+  //   const isUndesiredFriend = await friend.hasUndesiredFriends(requester);
+  //   if (isUndesiredFriend)
+  //     throw new BadRequest('Your previous friend request was denied');
 
-    alreadyFiends = alreadyFiends[0] || alreadyFiends[1];
-    if (alreadyFiends) throw new BadRequest('You are already friends');
-    const requestedFriendship = await friend.hasFriendsRequest(requester);
+  //   let alreadyFiends = await Promise.all([
+  //     friend.hasFriend(requester),
+  //     requester.hasFriend(friend),
+  //   ]);
 
-    if (requestedFriendship)
-      throw new BadRequest('You already requested to be friends');
-    await Promise.all([
-      friend.addFriendsRequest(requester),
-      // requester.addFriendshipRequested(friend),
-    ]);
+  //   alreadyFiends = alreadyFiends[0] || alreadyFiends[1];
+  //   if (alreadyFiends) throw new BadRequest('You are already friends');
+  //   const requestedFriendship = await friend.hasFriendsRequest(requester);
 
-    const user2 = await requester.reload();
+  //   if (requestedFriendship)
+  //     throw new BadRequest('You already requested to be friends');
+  //   await Promise.all([
+  //     friend.addFriendsRequest(requester),
+  //     // requester.addFriendshipRequested(friend),
+  //   ]);
 
-    await friend.reload();
+  //   const user2 = await requester.reload();
 
-    const friendRequest = {
-      id: friend.id,
-      firstName: friend.firstName,
-      lastName: friend.lastName,
-      profilePicture: UrlToMedia(friend.profilePicture),
-      createdAt: friend.createdAt,
-      updatedAt: friend.updatedAt,
-    };
+  //   await friend.reload();
 
-    return Promise.resolve([friendRequest]);
-  }
+  //   const friendRequest = {
+  //     id: friend.id,
+  //     firstName: friend.firstName,
+  //     lastName: friend.lastName,
+  //     profilePicture: UrlToMedia(friend.profilePicture),
+  //     createdAt: friend.createdAt,
+  //     updatedAt: friend.updatedAt,
+  //   };
+
+  //   return Promise.resolve([friendRequest]);
+  // }
 
   async patch(id: Id, data, params: Params) {
     return this.app.service('friends').create(data, params);

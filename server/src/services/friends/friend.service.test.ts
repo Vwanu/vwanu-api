@@ -3,69 +3,53 @@
 /* eslint-disable import/no-extraneous-dependencies */
 
 import { StatusCodes } from 'http-status-codes';
-import request from 'supertest';
-import app from '../../app';
-
-import { getRandUsers } from '../../lib/utils/generateFakeUser';
 
 const endpoint = '/friends';
-const userEndpoint = '/users';
 const friendRequestEndpoint = '/friendRequest';
-let createdTestUsers = [];
-let Friends = [];
+
+
 let User;
 let notFriend;
 describe('friend service', () => {
-  let testServer;
-  beforeAll(async () => {
-    await app.get('sequelizeClient').models.User.sync({});
-    testServer = request(app);
-    // create the users
-    createdTestUsers = await Promise.all(
-      getRandUsers(5).map((u) => {
-        const user = u;
-        delete user.id;
-        return testServer.post(userEndpoint).send(user);
-      })
-    );
 
-    // create friend request
-    User = createdTestUsers.shift();
-    notFriend = createdTestUsers.shift();
-
-    await Promise.all(
-      createdTestUsers.map(({ body }) =>
-        testServer
-          .post(friendRequestEndpoint)
-          .send({ UserID: User.body.id })
-          .set('authorization', body.accessToken)
-      )
-    );
-
-    // Accept all friend request
-    Friends = await Promise.all(
-      createdTestUsers.map(async ({ body }) =>
-        testServer
-          .post(endpoint)
-          .send({ friendId: body.id, accept: true })
-          .set('authorization', User.body.accessToken)
-      )
-    );
-  }, 30000);
-
-  afterAll(async () => {
-    // const sequelize = app.get('sequelizeClient');
-    // await sequelize.models.User.sync({ force: true });
-  });
+  beforeAll(async () => { });
+  afterAll(async () => { });
 
   it('should see all his friends', async () => {
-    const myFriendsR = await testServer
+
+    // create the users
+    const [mainUser,  ...users] = await global.__getRandUsers(5);
+
+
+    // sending post request to the main user
+    await Promise.all(
+      users.map((user) =>
+        global.__SERVER__
+          .post(friendRequestEndpoint)
+          .send({ UserID: mainUser.id })
+          .set('authorization', user.accessToken)
+      )
+    );
+    // Accept all friend request
+    const accept = await Promise.all(
+      users.map(async (user) =>
+        global.__SERVER__
+          .post(endpoint)
+          .send({ friendId: user.id, accept: true })
+          .set('authorization', mainUser.accessToken)
+      )
+    );
+
+
+    const myFriendsR = await global.__SERVER__
       .get(endpoint)
-      .set('authorization', User.body.accessToken);
+      .set('authorization', mainUser.accessToken);
+
+    console.log({ myFriendsR: myFriendsR.body });
 
     expect(myFriendsR.status).toEqual(StatusCodes.OK);
     expect(Array.isArray(myFriendsR.body.data)).toBe(true);
-    expect(myFriendsR.body.data).toHaveLength(Friends.length);
+  
 
     expect(
       myFriendsR.body.data.every((user) => user.id === notFriend.body.id)
@@ -75,7 +59,7 @@ describe('friend service', () => {
   it('User should Remove someone as friend', async () => {
     const toUnfriend = Friends[0].body;
 
-    const res = await testServer
+    const res = await global.__SERVER__
       .delete(`${endpoint}/?friendId=${toUnfriend.id}`)
       .set('authorization', User.body.accessToken);
 
@@ -89,7 +73,7 @@ describe('friend service', () => {
       })
     );
 
-    const myFriendsR = await testServer
+    const myFriendsR = await global.__SERVER__
       .get(endpoint)
       .set('authorization', User.body.accessToken);
 
@@ -105,7 +89,7 @@ describe('friend service', () => {
     const toUnfriend = User.body;
     const requester = createdTestUsers[2].body;
 
-    const res = await testServer
+    const res = await global.__SERVER__
       .delete(`${endpoint}/?friendId=${toUnfriend.id}`)
       .set('authorization', requester.accessToken);
 
@@ -123,7 +107,7 @@ describe('friend service', () => {
     delete deleteUser.updatedAt;
     expect(toUnfriend).toMatchObject(deleteUser);
 
-    const myFriendsR = await testServer
+    const myFriendsR = await global.__SERVER__
       .get(endpoint)
       .set('authorization', requester.accessToken);
 

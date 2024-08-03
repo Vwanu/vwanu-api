@@ -1,52 +1,35 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import request from 'supertest';
-
-/** Local dependencies */
-import app from '../../../src/app';
-import { getRandUsers } from '../../../src/lib/utils/generateFakeUser';
-
+import { StatusCodes } from 'http-status-codes';
 describe("'discussion ' service", () => {
   let testUsers;
-  let testServer;
+  const server = global.__SERVER__;
   let discussion;
   let comment;
-  const userEndpoint = '/users';
   const endpoint = '/discussion';
 
   beforeAll(async () => {
-    testServer = request(app);
-    await app.get('sequelizeClient').models.User.sync({ force: true });
+    testUsers = await global.__getRandUsers(3);
 
-    // Creating test users
-    testUsers = await Promise.all(
-      getRandUsers(3).map((u) => {
-        const user = u;
-        delete user.id;
-        return testServer.post(userEndpoint).send(user);
-      })
-    );
-    testUsers = testUsers.map((testUser) => testUser.body);
+
   });
-  it.skip('registered the service', () => {
-    const service = app.service('discussion');
-
+  it('registered the service', () => {
+    const service = global.__APP__.service('discussion');
     expect(service).toBeTruthy();
   });
 
-  it.skip('Should create a discussion', async () => {
-    discussion = await testServer
+  it('Should create a discussion', async () => {
+    discussion = await server
       .post(endpoint)
       .send({
         title: 'Test Discussion',
         body: 'Test Discussion Body',
       })
-      .set('authorization', `Bearer ${testUsers[0].accessToken}`);
-    discussion = discussion.body;
+      .set('authorization', `Bearer ${testUsers[0].accessToken}`)
+      .expect(StatusCodes.CREATED);
 
-    expect(discussion).toHaveProperty('id');
   });
   it.skip('should get a discussion', async () => {
-    const { body: fetched } = await testServer
+    const { body: fetched } = await server
       .get(`${endpoint}/${discussion.id}`)
       .set('authorization', `Bearer ${testUsers[0].accessToken}`);
 
@@ -68,7 +51,7 @@ describe("'discussion ' service", () => {
     });
   });
   it.skip('should create a comment on a discussion', async () => {
-    comment = await testServer
+    comment = await server
       .post(endpoint)
       .send({
         title: '',
@@ -84,7 +67,7 @@ describe("'discussion ' service", () => {
   });
 
   it.skip('discussion should show one comment and 1 participant', async () => {
-    const { body: discussionWithComment } = await testServer
+    const { body: discussionWithComment } = await server
       .get(`${endpoint}/${discussion.id}`)
       .set('authorization', testUsers[1].accessToken);
 
@@ -118,7 +101,7 @@ describe("'discussion ' service", () => {
   });
 
   it.skip('Same user should create a comment on a discussion', async () => {
-    const { body: comment2 } = await testServer
+    const { body: comment2 } = await server
       .post(endpoint)
       .send({
         title: '',
@@ -131,7 +114,7 @@ describe("'discussion ' service", () => {
   });
 
   it.skip('discussion should show 2 comment and 1 participant', async () => {
-    const { body: discussionWithComment } = await testServer
+    const { body: discussionWithComment } = await server
       .get(`${endpoint}/${discussion.id}`)
       .set('authorization', testUsers[1].accessToken);
 
@@ -164,7 +147,7 @@ describe("'discussion ' service", () => {
   });
 
   it.skip('Different user should create a comment on a discussion', async () => {
-    const { body: comment3 } = await testServer
+    const { body: comment3 } = await server
       .post(endpoint)
       .send({
         title: '',
@@ -177,7 +160,7 @@ describe("'discussion ' service", () => {
   });
 
   it.skip('discussion should show 3 comment and 2 participant and 0 reactions', async () => {
-    const { body: discussionWithComment } = await testServer
+    const { body: discussionWithComment } = await server
       .get(`${endpoint}/${discussion.id}`)
       .set('authorization', testUsers[1].accessToken);
 
@@ -210,7 +193,7 @@ describe("'discussion ' service", () => {
     });
   });
   it.skip('should react on a Discussion', async () => {
-    const { statusCode: reactionStatus } = await testServer
+    const { statusCode: reactionStatus } = await server
       .post('/reactions')
       .send({
         entityId: discussion.id,
@@ -223,7 +206,7 @@ describe("'discussion ' service", () => {
   });
 
   it.skip('discussion should show 3 comment and 2 participant and 1 reactions but not reactor', async () => {
-    const { body: discussionWithCommentAndReaction } = await testServer
+    const { body: discussionWithCommentAndReaction } = await server
       .get(`${endpoint}/${discussion.id}`)
       .set('authorization', testUsers[1].accessToken);
 
@@ -258,7 +241,7 @@ describe("'discussion ' service", () => {
   });
 
   it.skip('discussion should show 3 comment and 2 participant and 1 reactions and is reactor', async () => {
-    const { body: discussionWithCommentAndReaction } = await testServer
+    const { body: discussionWithCommentAndReaction } = await server
       .get(`${endpoint}/${discussion.id}`)
       .set('authorization', testUsers[2].accessToken);
 
@@ -293,7 +276,7 @@ describe("'discussion ' service", () => {
   });
 
   it.skip('should get all first 50 discussion', async () => {
-    const { body: discussionsList } = await testServer
+    const { body: discussionsList } = await server
       .get(endpoint)
       .set('authorization', testUsers[0].accessToken);
 
@@ -301,7 +284,7 @@ describe("'discussion ' service", () => {
     expect(discussionsList.data[0].id).toEqual(discussion.id);
   });
   it.skip('Should create a second discussion', async () => {
-    const { body: discussion2 } = await testServer
+    const { body: discussion2 } = await server
       .post(endpoint)
       .send({
         title: 'Test Discussion',
@@ -313,7 +296,7 @@ describe("'discussion ' service", () => {
   });
 
   it.skip('should get all first 50 discussion 2 this time', async () => {
-    const { body: discussionsList } = await testServer
+    const { body: discussionsList } = await server
       .get(endpoint)
       .set('authorization', testUsers[0].accessToken);
     expect(discussionsList.data).toHaveLength(2);
@@ -344,7 +327,7 @@ describe("'discussion ' service", () => {
     });
   });
   it.skip('should update a discussion', async () => {
-    const { body: updatedDis } = await testServer
+    const { body: updatedDis } = await server
       .patch(`${endpoint}/${discussion.id}`)
       .send({ body: 'New Body' })
       .set('authorization', testUsers[0].accessToken);
@@ -352,7 +335,7 @@ describe("'discussion ' service", () => {
     expect(updatedDis.body).toEqual(expect.stringContaining('Body'));
   });
   it.skip('should get comments on a discussion', async () => {
-    const { body: comments } = await testServer
+    const { body: comments } = await server
       .get(`${endpoint}?DiscussionId=${discussion.id}`)
       .set('authorization', testUsers[0].accessToken);
 
@@ -365,7 +348,7 @@ describe("'discussion ' service", () => {
   });
 
   it.skip('Only discussion creator can update a discussion', async () => {
-    const response = await testServer
+    const response = await server
       .patch(`${endpoint}/${discussion.id}`)
       .send({
         title: 'Attempt to modify',
@@ -376,14 +359,14 @@ describe("'discussion ' service", () => {
   });
 
   it.skip('should lock discussion', async () => {
-    const { body: lockedDiscussion } = await testServer
+    const { body: lockedDiscussion } = await server
       .patch(`${endpoint}/${discussion.id}`)
       .send({ locked: true })
       .set('authorization', testUsers[0].accessToken);
     expect(lockedDiscussion.locked).toBe(true);
   });
   it.skip('Cannot comment on a discussion if it is locked', async () => {
-    const commentAttempt = await testServer
+    const commentAttempt = await server
       .post(endpoint)
       .send({
         title: '',
@@ -396,13 +379,13 @@ describe("'discussion ' service", () => {
   });
 
   it.skip('Only discussion owner can delete a discussion', async () => {
-    const response = await testServer
+    const response = await server
       .delete(`${endpoint}/${discussion.id}`)
       .set('authorization', testUsers[1].accessToken);
     expect(response.statusCode).toBe(400);
   });
   it.skip('should delete a discussion', async () => {
-    const response = await testServer
+    const response = await server
       .delete(`${endpoint}/${discussion.id}`)
       .set('authorization', testUsers[0].accessToken);
     expect(response.statusCode).toBe(200);

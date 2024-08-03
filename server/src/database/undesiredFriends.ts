@@ -4,19 +4,19 @@
 import { Id } from '@feathersjs/feathers';
 import { Model } from 'sequelize';
 
-export interface FriendInterface {
-  user_one_id: Id;
-  user_two_id: Id;
+export interface UndesiredFriendInterface {
+  user_id: Id;
+  undesired_user_id: Id;
 }
 export default (sequelize: any, DataTypes: any) => {
-  class Friend extends Model<FriendInterface> implements FriendInterface {
-    user_one_id: Id;
-    user_two_id: Id;
+  class UndesiredFriend extends Model<UndesiredFriendInterface> implements UndesiredFriendInterface {
+    user_id: Id;
+    undesired_user_id: Id;
   }
-  Friend.init(
+  UndesiredFriend.init(
     {
 
-      user_one_id: {
+      user_id: {
         type: DataTypes.UUID,
         primaryKey: true,
         references: {
@@ -24,7 +24,7 @@ export default (sequelize: any, DataTypes: any) => {
           key: 'id',
         },
       },
-      user_two_id: {
+      undesired_user_id: {
         type: DataTypes.UUID,
         primaryKey: true,
         references: {
@@ -37,11 +37,10 @@ export default (sequelize: any, DataTypes: any) => {
 
     {
       sequelize,
-      modelName: 'Friend',
-      tableName: 'friends',
+      modelName: 'UndesiredFriends',
+      tableName: 'undesired_friends',
       underscored: true,
-      updatedAt: false,
     }
   );
-  return Friend;
+  return UndesiredFriend;
 };

@@ -6,6 +6,7 @@
 clear
 docker stop test-postgres
 docker container rm --force test-postgres
+docker volume rm $(docker volume ls)
 
 echo "Checking if the database is up"
 docker ps | grep postgres

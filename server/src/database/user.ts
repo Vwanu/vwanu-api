@@ -10,6 +10,7 @@ export const authorizationEnums = ['public', 'private', 'friend'];
 export default (sequelize: any, DataTypes: any) => {
   class User extends Model<UserInterface> implements UserInterface {
     id: string;
+    profilePrivacy: string;
     about: string;
     email: string;
     gender: string;
@@ -74,11 +75,13 @@ export default (sequelize: any, DataTypes: any) => {
         as: 'friends',
         onDelete: 'CASCADE',
       });
-      User.belongsToMany(models.User, {
-        through: 'User_friends_request',
-        as: 'friendsRequest',
-        onDelete: 'CASCADE',
-      });
+      // User.belongsToMany(models.User, {
+      //   through: 'FriendRequests',
+      //   foreignKey: 'requester_id',
+      //   otherKey: 'receiver_id',
+      //   as: 'friendsRequest',
+      //   onDelete: 'CASCADE',
+      // });
 
       User.belongsToMany(models.Community, {
         through: 'CommunityUsers',
@@ -86,7 +89,9 @@ export default (sequelize: any, DataTypes: any) => {
       });
 
       User.belongsToMany(models.User, {
-        through: 'User_friends_undesired',
+        through: 'UndesiredFriends',
+        foreignKey: 'user_id',
+        otherKey: 'undesired_user_id',
         as: 'undesiredFriends',
         onDelete: 'CASCADE',
       });
@@ -123,6 +128,19 @@ export default (sequelize: any, DataTypes: any) => {
           model: 'CommunityRoles',
           key: 'id',
         }
+      },
+      profilePrivacy: {
+        type: DataTypes.STRING,
+        defaultValue: 'public',
+        validate: {
+          customValidator: (value) => {
+            if (!authorizationEnums.includes(value)) {
+              throw new Error(
+                `${value} is not a valid option for profilePrivacy`
+              );
+            }
+          },
+        },
       },
       // resetAttempts: {
       //   type: DataTypes.INTEGER,

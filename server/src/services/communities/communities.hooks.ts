@@ -27,13 +27,13 @@ const { authenticate } = authentication.hooks;
 export default {
   before: {
     all: [authenticate('jwt'), AgeAllow],
-    // find: [/*FindCommunities*/],
-    // create: [
-    //   AutoOwn,
-    //   saveProfilePicture(['profilePicture', 'coverPicture']),
-    //   filesToBody,
-    // ],
-    // update: disallow(),
+    find: [FindCommunities],
+    create: [
+      AutoOwn,
+      saveProfilePicture(['profilePicture', 'coverPicture']),
+      filesToBody,
+    ],
+    update: disallow(),
     // patch: [
     //   LimitToOwner,
     //   saveProfilePicture(['profilePicture', 'coverPicture']),
@@ -45,13 +45,21 @@ export default {
     create: [
 
       //   // AutoJoin,
-      //   SaveAndAttachInterests({
-      //     entityName: 'Community',
-      //     relationTableName: 'Community_Interest',
-      //     foreignKey: 'community_id',
-      //     otherKey: 'interest_id',
-      //   }),
+      SaveAndAttachInterests({
+        // entityName: 'communities',
+        // relationTableName: 'community_interests',
+        // foreignKey: 'community_id',
+        // otherKey: 'interest_id',
+
+
+        entityName: 'Community',
+        relationTableName: 'CommunityInterests',
+        foreignKey: 'CommunityId',
+        otherKey: 'InterestId'
+
+
+      }),
       //   // refetch,
     ],
   },
-};
+};  

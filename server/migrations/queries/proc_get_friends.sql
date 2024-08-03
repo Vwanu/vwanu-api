@@ -4,7 +4,7 @@ AS $$
 BEGIN
 RETURN QUERY
 SELECT
- (SELECT "amountOfFriend" 
+ (SELECT amount_of_friend 
   FROM "Users" 
   WHERE "Users"."id"= p_user_id
   ) as "total",
@@ -13,24 +13,24 @@ SELECT
 json_agg(
   json_build_object(
     'id', "U"."id",
-    'firstName', "U"."firstName",
-    'lastName', "U"."lastName",
-    'profilePicture', "U"."profilePicture",
+    'firstName', "U".first_name,
+    'lastName', "U".last_name,
+    'profilePicture', "U".profile_picture,
     'email', "U"."email",
-    'amountOfFollower',"U"."amountOfFollower",
-    'amountOfFollowing',"U"."amountOfFollowing",
-    'amountOfFriend',"U"."amountOfFriend",
+    'amountOfFollower',"U".amount_of_follower,
+    'amountOfFollowing',"U".amount_of_following,
+    'amountOfFriend',"U".amount_of_friend,
     'isFriend', "U"."isFriend",
     'iFollow',"U"."iFollow"
 --     'IsAFollower',"IsAFollower"
     )) AS data
   FROM ( 
-  SELECT DISTINCT "Us"."id", "Us"."firstName", "Us"."lastName", "Us"."profilePicture", "Us"."email","Us"."amountOfFollower","Us"."amountOfFollowing" ,"Us"."amountOfFriend" ,
+  SELECT DISTINCT "Us"."id", "Us".first_name, "Us".last_name, "Us"..profile_picture, "Us"."email","Us".amount_of_follower,"Us".amount_of_following ,"Us".amount_of_friend ,
    
    (
     EXISTS
     (
-     SELECT 1 FROM "User_friends" 
+     SELECT 1 FROM "friends" 
      WHERE ("User_friends"."UserId" = p_req_id AND "User_friends"."friendId" = "Us"."id") 
      OR ("User_friends"."UserId" = "Us"."id" AND "User_friends"."friendId" = p_req_id)
      )

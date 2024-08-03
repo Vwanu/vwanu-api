@@ -9,7 +9,7 @@ export type AttachInterest = {
 };
 
 export default (attachments: AttachInterest) => async (context: HookContext) => {
-  const { data, result, app, params } = context;
+  const { data, result, app } = context;
   if (!data.interests || !result) return context;
 
   try {
@@ -21,25 +21,35 @@ export default (attachments: AttachInterest) => async (context: HookContext) => 
       Interest: InterestModel,
     } = app.get('sequelizeClient').models;
 
-    const interestList = await Promise.all(
-      data.interests.map((name) =>
-        InterestModel.findOrCreate({
-          where: { name },
-          defaults: {
-            // UserId: params?.User?.id || result?.id,
-          },
-        })
-      )
-    );
 
-    await Promise.all(
-      interestList.map((interest) =>
-        relationTableModel.findOrCreate({
-          where: { [foreignKey]: result.id, [attachments.otherKey]: interest[0].id },
-        })
-      )
-    );
 
+    try {
+      const interestList = await Promise.all(
+        data.interests.map((name) =>
+          InterestModel.findOrCreate({
+            where: { name },
+            defaults: {
+              // UserId: params?.User?.id || result?.id,
+            },
+          })
+        )
+      );
+
+
+      await Promise.all(
+        interestList.map((interest) =>
+          relationTableModel.findOrCreate({
+            where: { [foreignKey]: result.id, [attachments.otherKey]: interest[0].id },
+          })
+
+        )
+      );
+
+
+    } catch (error) {
+      // TODO: handle error
+      // console.log({ error });
+    }
     // const att =
     //   UserModel !== entityModel
     //     ? {

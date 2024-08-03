@@ -4,81 +4,48 @@ import { Model } from 'sequelize';
 
 export interface CommunityInterface {
   id: string;
-
   name: string;
-
   coverPicture: string;
-
   description: string;
-
   search_vector: string;
-
   profilePicture: string;
-
   UserId: number;
-
   numMembers: number;
-
   numAdmins: number;
-
   privacyType: string; // public, hidden , private
-
   canInvite: string; // all-member, organizers && Mods, org-only
-
   canInPost: string; // all-member, organizers && Mods, org-only
-
   canInUploadPhotos: string; // all-member, organizers && Mods, org-only
-
   canInUploadDoc: string; // all-member, organizers && Mods, org-only
-
   canInUploadVideo: string; // all-member, organizers && Mods, org-only
-
   canMessageInGroup: string; // all-member, organizers && Mods, org-only
-
   haveDiscussionForum: boolean;
-
   defaultInvitationEmail: string;
 }
 
 export const authorizationEnums = ['A', 'M', 'E'];
+
 export default (sequelize: any, DataTypes: any) => {
   class Community
     extends Model<CommunityInterface>
     implements CommunityInterface {
     id: string;
-
     name: string;
-
     coverPicture: string;
-
     search_vector: string;
-
     description: string;
-
     profilePicture: string;
-
     UserId: number;
-
     numMembers: number;
-
     numAdmins: number;
-
     privacyType: string; // public, hidden , private
-
     canInvite: string; // all-member, organizers && Mods, org-only
-
     canInPost: string; // all-member, organizers && Mods, org-only
-
     canInUploadPhotos: string; // all-member, organizers && Mods, org-only
-
     canInUploadDoc: string; // all-member, organizers && Mods, org-only
-
     canInUploadVideo: string; // all-member, organizers && Mods, org-only
-
     canMessageInGroup: string; // all-member, organizers && Mods, org-only
-
     haveDiscussionForum: boolean;
-
     defaultInvitationEmail: string;
 
     static associate(models: any): void {
@@ -89,9 +56,13 @@ export default (sequelize: any, DataTypes: any) => {
       //   timestamps: false,
       // });
       // Community.belongsToMany(models.User, {
-      //   as: 'members',
-      //   through: 'CommunityUsers',
+      //   through: 'community_users',
+      //   onDelete: 'CASCADE',
+      //   foreignKey: 'community_id',
+      //   otherKey: 'user_id',
       // });
+
+      Community.hasMany(models.CommunityUsers, {});
       // Community.hasOne(models.User); -- this is wrong
       // Community.belongsToMany(models.User, {
       //   as: 'moderators',
@@ -101,12 +72,13 @@ export default (sequelize: any, DataTypes: any) => {
       //   as: 'administrators',
       //   through: 'community-administrators',
       // });
-      Community.hasMany(models.CommunityInvitationRequest);
-      Community.hasMany(models.CommunityUsers, {
-        foreignKey: 'CommunityId',
-        sourceKey: 'id',
-        onDelete: 'CASCADE',
-      });
+      // _____
+      // Community.hasMany(models.CommunityInvitationRequest);
+      // Community.hasMany(models.CommunityUsers, {
+      //   foreignKey: 'CommunityId',
+      //   sourceKey: 'id',
+      //   onDelete: 'CASCADE',
+      // });
     }
   }
   Community.init(
@@ -271,6 +243,8 @@ export default (sequelize: any, DataTypes: any) => {
     {
       sequelize,
       modelName: 'Community',
+      tableNme: 'communities',
+      underscored: true,
     }
   );
   return Community;

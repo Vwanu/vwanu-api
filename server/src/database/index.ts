@@ -51,6 +51,8 @@ import expiryTime from './expiryTime'
 import templateMessages from './templateMessages';
 import userNotificationTypes from './user_notification_types';
 import accessLevelLogs from './access_level_logs'
+import communityInterests from './community_interests';
+import friendRequests from './friendRequests'
 
 const tables = [
   call,
@@ -97,7 +99,9 @@ const tables = [
   expiryTime,
   templateMessages,
   userNotificationTypes,
-  accessLevelLogs
+  accessLevelLogs,
+  communityInterests,
+  friendRequests
 ];
 
 export default function (app: Application): void {

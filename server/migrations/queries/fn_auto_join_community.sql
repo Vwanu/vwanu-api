@@ -5,11 +5,11 @@ DECLARE
 BEGIN
     SELECT id 
     INTO admin_role_id 
-    FROM "CommunityRoles"
+    FROM roles
     WHERE "name" = 'admin';
 
     INSERT INTO community_users (user_id, community_id, community_role_id, created_at)
-    VALUES (NEW."UserId", NEW.id, admin_role_id, CURRENT_TIMESTAMP);
+    VALUES (NEW.user_id, NEW.id, admin_role_id, CURRENT_TIMESTAMP);
     RETURN NEW;
   
 END;

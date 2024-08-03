@@ -15,7 +15,7 @@ export default {
     all: [authenticate('jwt'), AgeAllow],
     find: [includeUserAndLastComment(false)],
     get: [includeUserAndLastComment(true)],
-    create: [AutoOwn, CanDiscussInCommunity, NoCommentOnLockParents],
+    create: [AutoOwn, /*CanDiscussInCommunity, NoCommentOnLockParents*/],
     update: [LimitToOwner],
     patch: [LimitToOwner],
     remove: [LimitToOwner],

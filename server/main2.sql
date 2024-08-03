@@ -102,6 +102,7 @@ CREATE TABLE IF NOT EXISTS users (
     cover_picture VARCHAR(255) DEFAULT
           'https://images.unsplash.com/photo-1528464884105-28166ef8edd0?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80',
     about VARCHAR(255),
+    profile_privacy VARCHAR(255) DEFAULT 'public',
     activation_key VARCHAR(255),
     reset_password_key VARCHAR(255),
     verified BOOLEAN DEFAULT false,
@@ -174,7 +175,6 @@ CREATE TABLE IF NOT EXISTS friends (
     user_one_id UUID NOT NULL,
     user_two_id UUID NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     PRIMARY KEY (user_one_id, user_two_id),
     FOREIGN KEY (user_one_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (user_two_id) REFERENCES users(id) ON DELETE CASCADE
@@ -253,7 +253,7 @@ CREATE TABLE IF NOT EXISTS forums (
 
 CREATE TABLE IF NOT EXISTS communities (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    creator_id UUID NOT NULL,
+    user_id UUID NOT NULL,
     num_members INTEGER DEFAULT 0,
     num_admins INTEGER DEFAULT 0,
     name VARCHAR(255) NOT NULL UNIQUE,
@@ -263,10 +263,16 @@ CREATE TABLE IF NOT EXISTS communities (
     profile_picture VARCHAR(255),
     default_invitation_email TEXT,
     have_discussion_forum BOOLEAN DEFAULT true,
+    can_invite VARCHAR(255) DEFAULT 'E',
+    can_in_post VARCHAR(255) DEFAULT 'E',
+    can_in_upload_photos VARCHAR(255) DEFAULT 'E',
+    can_in_upload_doc VARCHAR(255) DEFAULT 'E',
+    can_in_upload_video VARCHAR(255) DEFAULT 'E',
+    can_message_in_group VARCHAR(255) DEFAULT 'E',
     search_vector TSVECTOR,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    FOREIGN KEY (creator_id) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 CREATE TABLE IF NOT EXISTS community_interests (
@@ -288,6 +294,7 @@ CREATE TABLE IF NOT EXISTS community_invitation_requests (
     community_id UUID NOT NULL,
     community_role_id UUID NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     UNIQUE (guest_id, community_id, community_role_id),
     FOREIGN KEY (guest_id) REFERENCES users(id),
     FOREIGN KEY (host_id) REFERENCES users(id),
