@@ -7,27 +7,36 @@ import { Model } from 'sequelize';
 export interface FriendRequestInterface {
   requester_id: Id;
   receiver_id: Id;
+  accept: boolean;
+  response_date: Date;
 }
 export default (sequelize: any, DataTypes: any) => {
   class FriendRequest extends Model<FriendRequestInterface> implements FriendRequestInterface {
     requester_id: Id;
     receiver_id: Id;
+    accept: boolean;
+    response_date: Date;
 
     static associate(models: any) {
 
-
-      FriendRequest.hasMany(models.User, {
-        as: 'requester',
+      FriendRequest.belongsTo(models.User, {
         foreignKey: 'requester_id',
         onDelete: 'CASCADE',
       });
+
+
+      // FriendRequest.hasMany(models.User, {
+      //   as: 'requester',
+      //   // foreignKey: 'requester_id',
+      //   onDelete: 'CASCADE',
+      // });
       // FriendRequest.hasMany(models.User, {
       //   as: 'receiver',
       //   foreignKey: 'receiver_id',
       //   onDelete: 'CASCADE',
       // });
 
-      
+
     }
   }
   FriendRequest.init(
@@ -48,6 +57,16 @@ export default (sequelize: any, DataTypes: any) => {
           model: 'users',
           key: 'id',
         },
+      },
+
+      accept: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+
+      },
+      response_date: {
+        type: DataTypes.DATE,
+
       },
 
     },

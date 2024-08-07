@@ -59,6 +59,8 @@ export default (sequelize: any, DataTypes: any) => {
       // },
       sequelize,
       modelName: 'AddressTypes',
+      timestamps: false,
+      tableName: 'address_types',
     }
   );
   return AddressType;

@@ -11,7 +11,7 @@ export default async (context: HookContext) => {
     [...data.userIds, context.params.User.id].map((userId) =>
       context.app
         .get('sequelizeClient')
-        .models.Conversation_Users.findOrCreate({
+        .models.ConversationUsers.findOrCreate({
           where: {
             UserId: userId,
             ConversationId: context.result.id,

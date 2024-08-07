@@ -17,7 +17,7 @@ export default function (app: Application): void {
   const options = {
     Model: sequelize.models.FriendRequests,
     paginate: app.get('paginate'),
-    multi: ['remove'],
+    multi: ['remove','patch'],
   };
 
   app.use('/friendRequest', new FriendRequest(options, app));

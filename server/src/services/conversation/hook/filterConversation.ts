@@ -12,7 +12,7 @@ export default async (context: HookContext) => {
 
   const isParticipant = `(
     EXISTS (
-    SELECT 1 FROM "Conversation_Users" AS "CU" 
+    SELECT 1 FROM "ConversationUsers" AS "CU" 
     WHERE "CU"."UserId"='${context.params.User.id}' AND "CU"."ConversationId"= "Conversation"."id"
     )
   )`;
@@ -33,7 +33,7 @@ export default async (context: HookContext) => {
   const amountOfPeople = `(
     SELECT 
     COUNT(DISTINCT "CU"."UserId")
-    FROM "Conversation_Users" AS "CU"
+    FROM "ConversationUsers" AS "CU"
     WHERE "CU"."ConversationId"="Conversation"."id")::int`;
 
   const Users = `(
@@ -48,7 +48,7 @@ export default async (context: HookContext) => {
       'profilePicture',"U"."profilePicture"
     )
       )
-     FROM "Conversation_Users" AS "CU" 
+     FROM "ConversationUsers" AS "CU" 
      INNER JOIN "Users" AS "U" ON "U"."id" = "CU"."UserId"
      WHERE "CU"."ConversationId"="Conversation"."id"
   )`;
@@ -89,7 +89,7 @@ export default async (context: HookContext) => {
   //     'profilePicture',"U"."profilePicture"
   //   )
   //     )
-  //    FROM "Conversation_Users" AS "CU"
+  //    FROM "ConversationUsers" AS "CU"
   //    INNER JOIN "Users" AS "U" ON "U"."id" = "CU"."UserId"
   //    WHERE "CU"."ConversationId"="Conversations"."id"
   //    L
@@ -120,7 +120,7 @@ export default async (context: HookContext) => {
 
     // include: [
     //   {
-    //     model: Sequelize.models.Conversation_Users,
+    //     model: Sequelize.models.ConversationUsers,
     //     attribute: [],
     //     // required: true,
     //   },

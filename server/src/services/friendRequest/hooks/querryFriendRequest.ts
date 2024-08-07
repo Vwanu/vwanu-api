@@ -19,7 +19,7 @@ export default (context: HookContext): HookContext => {
 
   const { params } = context;
 
-  console.log('queryFriendRequest.ts', params.query);
+
   const { receiver_id, requester_id, action } = params.query;
   if (
     (!action || !receiver_id || !requester_id) &&

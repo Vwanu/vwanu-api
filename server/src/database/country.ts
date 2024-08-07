@@ -1,19 +1,16 @@
 /* eslint-disable import/no-import-module-exports */
 
 import { Model } from 'sequelize';
+import { Id } from '@feathersjs/feathers';
 
 export interface CountryInterface {
-  id: number;
+  id: Id;
   name: string;
-  initials: string;
 }
 export default (sequelize: any, DataTypes: any) => {
   class Country extends Model<CountryInterface> implements CountryInterface {
-    id: number;
-
+    id: Id;
     name: string;
-
-    initials: string;
 
     static associate(models: any): void {
       Country.hasMany(models.State);
@@ -33,10 +30,6 @@ export default (sequelize: any, DataTypes: any) => {
         allowNull: false,
         unique: true,
       },
-      initials: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
     },
 
     {
@@ -48,6 +41,9 @@ export default (sequelize: any, DataTypes: any) => {
       // },
       sequelize,
       modelName: 'Country',
+      tableName: 'countries',
+      createdAt: false,
+      updatedAt: false,
     }
   );
   return Country;

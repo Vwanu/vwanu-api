@@ -1,12 +1,7 @@
-import isNill from 'lodash/isNil';
 import { randomBytes } from 'crypto';
 import { StatusCodes } from 'http-status-codes';
 
-/** Local dependencies */
-
-
-
-describe("'communities ' service", () => {
+describe("Communities service", () => {
   // eslint-disable-next-line no-unused-vars
 
   let testUsers;
@@ -25,11 +20,7 @@ describe("'communities ' service", () => {
       .set('authorization', testUsers[0].accessToken);
   }, 100000);
 
-  afterAll(async () => {
-    // await Promise.all(
-    //   distinctCommunities.map((c) =>
-    //     cleanup(global.__SERVER__)(endpoint, c.id, firstCreator.accessToken)));
-  });
+
 
   it('registered the service', () => {
     const service = global.__APP__.service('communities');
@@ -76,7 +67,6 @@ describe("'communities ' service", () => {
   });
 
   it('Public community can be seen but only user can interact', async () => {
-    //   // testers = await global.__getRandUsers(2)
     const [firstTester, secondTester] = testUsers;
 
     const publicCommunity =
@@ -117,7 +107,6 @@ describe("'communities ' service", () => {
       canmessageuseringroup: false,
     });
   });
-
 
   it('Community creator can edit the community details', async () => {
 

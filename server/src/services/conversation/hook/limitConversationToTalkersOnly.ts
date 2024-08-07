@@ -13,10 +13,10 @@ export default async (context: HookContext) => {
     throw new Error('Only authenticated users can access this service.');
 
   // eslint-disable-next-line camelcase
-  const { Conversation_Users } = app.get('sequelizeClient').models;
+  const { ConversationUsers } = app.get('sequelizeClient').models;
 
   // eslint-disable-next-line camelcase
-  const result = await Conversation_Users.findOne({
+  const result = await ConversationUsers.findOne({
     where: { UserId: params.User.id, ConversationId: context.id },
   });
   if (!result)

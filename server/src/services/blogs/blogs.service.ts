@@ -15,8 +15,8 @@ declare module '../../declarations' {
 }
 
 export default function (app: Application): void {
-   const sequelize = app.get('sequelizeClient');
-   const BlogModel = sequelize.models.Blog;
+  const sequelize = app.get('sequelizeClient');
+  const BlogModel = sequelize.models.Blog;
   const options = {
     Model: BlogModel,
     paginate: app.get('paginate'),
@@ -36,7 +36,7 @@ export default function (app: Application): void {
     after: {
       ...hooks.after,
       create: [
-        ...hooks.after.create,
+        // ...hooks.after.create,
         updateTheTSVector({
           model: BlogModel,
           searchColumn: 'search_vector',
@@ -48,12 +48,12 @@ export default function (app: Application): void {
           searchColumn: 'search_vector',
         }),
       ],
-      patch: [
-        updateTheTSVector({
-          model: BlogModel,
-          searchColumn: 'search_vector',
-        }),
-      ],
+      // patch: [
+      //   updateTheTSVector({
+      //     model: BlogModel,
+      //     searchColumn: 'search_vector',
+      //   }),
+      // ],
     },
   });
 }

@@ -17,6 +17,7 @@ export default function (app: Application): void {
   const options = {
     Model: sequelize.models.User,
     paginate: app.get('paginate'),
+    multi: ['remove'],
   };
 
   app.use('/followers', new Followers(options, app));

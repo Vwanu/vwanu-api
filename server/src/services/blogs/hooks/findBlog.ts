@@ -116,17 +116,18 @@ SELECT
   }
 
   params.sequelize = {
+    // logging: console.log,
     where: clause,
 
     attributes: {
-      include: [
-        [Sequelize.literal(isAReactor), 'isAReactor'],
-        [Sequelize.literal(isAResponder), 'isAResponder'],
-        [Sequelize.literal(Interests), 'Interests'],
-        [Sequelize.literal(amountOfReactions), 'amountOfReactions'],
-        [Sequelize.literal(amountOfComments), 'amountOfComments'],
-        [Sequelize.literal(lastResponse), 'lastResponse'],
-      ],
+      // include: [
+      // [Sequelize.literal(isAReactor), 'isAReactor'],
+      // [Sequelize.literal(isAResponder), 'isAResponder'],
+      // [Sequelize.literal(Interests), 'Interests'],
+      // [Sequelize.literal(amountOfReactions), 'amountOfReactions'],
+      // [Sequelize.literal(amountOfComments), 'amountOfComments'],
+      // [Sequelize.literal(lastResponse), 'lastResponse'],
+      // ],
     },
     include: [
       {

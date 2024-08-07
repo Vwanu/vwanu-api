@@ -96,121 +96,81 @@ export class FriendRequest extends Service {
   //   return Promise.resolve([friendRequest]);
   // }
 
-  async patch(id: Id, data, params: Params) {
-    return this.app.service('friends').create(data, params);
-    //   const { accept, friendsRequestId } = data;
-    //   if (friendsRequestId === params.User.id) {
-    //     throw new BadRequest('You cannot accept your own friendShip');
-    //   }
+  // async patch(id: Id, data, params: Params) {
+  //   return this.app.service('friends').create(data, params);
+  //   //   const { accept, friendsRequestId } = data;
+  //   //   if (friendsRequestId === params.User.id) {
+  //   //     throw new BadRequest('You cannot accept your own friendShip');
+  //   //   }
 
-    //   if (
-    //     accept === null ||
-    //     accept === undefined ||
-    //     friendsRequestId === undefined
-    //   )
-    //     throw new BadRequest('Please provide the details ');
+  //   //   if (
+  //   //     accept === null ||
+  //   //     accept === undefined ||
+  //   //     friendsRequestId === undefined
+  //   //   )
+  //   //     throw new BadRequest('Please provide the details ');
 
-    //   const Model = this.app.get('sequelizeClient').models.User_friends_request;
+  //   //   const Model = this.app.get('sequelizeClient').models.User_friends_request;
 
-    //   // find it in the
-    //   let response;
-    //   try {
-    //     const requestRecord = await Model.findOne({
-    //       where: { friendsRequestId, UserId: params.User.id },
-    //     });
-    //     // then delete it from
-    //     if (requestRecord) await requestRecord.destroy();
+  //   //   // find it in the
+  //   //   let response;
+  //   //   try {
+  //   //     const requestRecord = await Model.findOne({
+  //   //       where: { friendsRequestId, UserId: params.User.id },
+  //   //     });
+  //   //     // then delete it from
+  //   //     if (requestRecord) await requestRecord.destroy();
 
-    //     switch (accept) {
-    //       case true:
-    //         try {
-    //           response = await this.app
-    //             .service('friends')
-    //             .create({ UserId: params.User.id, friendId: friendsRequestId });
-    //         } catch (error) {
-    //           throw new Error(error);
-    //         }
-    //         break;
+  //   //     switch (accept) {
+  //   //       case true:
+  //   //         try {
+  //   //           response = await this.app
+  //   //             .service('friends')
+  //   //             .create({ UserId: params.User.id, friendId: friendsRequestId });
+  //   //         } catch (error) {
+  //   //           throw new Error(error);
+  //   //         }
+  //   //         break;
 
-    //       case false:
-    //         response = await this.app
-    //           .get('sequelizeClient')
-    //           .models.User_friends_undesired.create({
-    //             UserId: params.User.id,
-    //             undesiredFriendId: friendsRequestId,
-    //           });
+  //   //       case false:
+  //   //         response = await this.app
+  //   //           .get('sequelizeClient')
+  //   //           .models.User_friends_undesired.create({
+  //   //             UserId: params.User.id,
+  //   //             undesiredFriendId: friendsRequestId,
+  //   //           });
 
-    //         break;
+  //   //         break;
 
-    //       default:
-    //         throw new BadRequest('Parameters provided are not accepted');
-    //     }
-    //   } catch (err) {
-    //     throw new BadRequest(err.message || `could not accept your request`);
-    //   }
+  //   //       default:
+  //   //         throw new BadRequest('Parameters provided are not accepted');
+  //   //     }
+  //   //   } catch (err) {
+  //   //     throw new BadRequest(err.message || `could not accept your request`);
+  //   //   }
 
-    //   return Promise.resolve(response);
-    // }
-  }
+  //   //   return Promise.resolve(response);
+  //   // }
+  // }
 
   async remove(id, params) {
+
     const requesterId = params.User.id;
     const { friendId } = params.query;
-    const { models } = this.app.get('sequelizeClient');
 
-    if (requesterId.toString() === friendId.toString())
-      throw new BadRequest(
-        'You are not able to delete a friend request to yourself'
-      );
-
-    const people = await models.User.findAll({
-      where: { id: { [Op.or]: [requesterId, friendId] } },
-      attributes: userAttributes,
-      include: [
-        {
-          model: models.User,
-          as: 'friendsRequest',
-          attributes: userAttributes,
-        },
-        {
-          model: models.User,
-          as: 'FriendshipRequested',
-          attributes: userAttributes,
-        },
-      ],
+    const hasRequestedFriendship = await this.app.get('sequelizeClient').models.FriendRequests.findOne({
+      where: { requester_id: requesterId, receiver_id: friendId },
     });
 
-    const requester = people.find(
-      (person) => person.id.toString() === requesterId.toString()
-    );
-    const friend = people.find(
-      (person) => person.id.toString() === friendId.toString()
-    );
-
-    if (!friend || !requester)
-      throw new BadRequest('This person was not found');
-    const hasRequestedFriendship = await requester.hasFriendshipRequested(
-      friend
-    );
 
     if (!hasRequestedFriendship)
-      throw new NotFound('No friendship records found');
+      throw new NotFound('You have not requested to be friends with this person');
 
-    await Promise.all([
-      friend.removeFriendsRequest(requester),
-      requester.removeFriendshipRequested(friend),
-    ]);
+    await hasRequestedFriendship.destroy();
 
-    const user = {
-      id: friend.id,
-      firstName: friend.firstName,
-      lastName: friend.lastName,
-      updatedAt: new Date(),
-      profilePicture: UrlToMedia(friend.profilePicture),
-      createdAt: friend.createdAt,
-    };
 
-    return Promise.resolve(user);
+
+    return Promise.resolve(hasRequestedFriendship);
   }
 
   // async find(params) {

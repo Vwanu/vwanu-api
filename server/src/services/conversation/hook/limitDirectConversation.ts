@@ -13,7 +13,7 @@ export default async (context: HookContext) => {
 
   try {
     const existingConversation = await Sequelize.query(
-      `SELECT "ConversationId" FROM "Conversation_Users" WHERE "UserId" IN (${[
+      `SELECT "ConversationId" FROM "ConversationUsers" WHERE "UserId" IN (${[
         ...userIds,
         User.id,
       ].map((id) => `'${id}'`)}) 

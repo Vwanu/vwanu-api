@@ -47,32 +47,29 @@ export class Followers extends Service {
    * @returns - response from the api
    */
   async remove(id: Id, params: Params) {
-    const { User_Follower } = this.app.get('sequelizeClient').models;
+
 
     try {
-      const res = await User_Follower.destroy({
-        where: { UserId: id, FollowerId: params.User.id },
-      });
+      const res = await this
+        .app
+        .get('sequelizeClient')
+        .models
+        .Followers
+        .destroy({
+          where: { user_id: id, follower_id: params.User.id },
+        });
+
       if (res === 0)
         throw new BadRequest(`You are not following ${params.User.id}`);
       return Promise.resolve({ message: 'Unfollowed successfully' });
     } catch (error) {
+
       if (error.type === 'FeathersError') throw new BadRequest(error);
       else throw new GeneralError('Could not unfollow');
     }
-    // try {
-    //   const sequelize = this.app.get('sequelizeClient');
 
-    //   await sequelize.query(
-    //     `call proc_remove_follower( '${id}', '${params.User.id}')`
-    //   );
-
-    //   return Promise.resolve({ message: 'Unfollowed successfully' });
-    // } catch (err) {
-    //   console.log(err);
-    //   throw new BadRequest('Could not unfollow');
   }
-  // },
+
 
   // async find(params: Params): Promise<{
   //   total: number;

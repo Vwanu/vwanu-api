@@ -17,38 +17,38 @@ export class Friends extends Service {
     this.app = app;
   }
 
-  async find(params: Params) {
-    const id = params.query.UserId || params.User.id;
-    const { $limit, $skip } = params.query;
-    try {
-      const limit = $limit || this.options.paginate.default;
-      const skip =
-        $skip || this.options.paginate.default * (params.query.page - 1) || 0;
+  // async find(params: Params) {
+  //   const id = params.query.UserId || params.User.id;
+  //   const { $limit, $skip } = params.query;
+  //   try {
+  //     const limit = $limit || this.options.paginate.default;
+  //     const skip =
+  //       $skip || this.options.paginate.default * (params.query.page - 1) || 0;
 
-      const sequelize = this.app.get('sequelizeClient');
-      const friendList = await sequelize.query(
-        `SELECT * FROM proc_get_friends(:id,:requester,:limit, :skip)`,
-        {
-          type: QueryTypes.SELECT,
-          replacements: { limit, skip, id, requester: params.User.id },
-        }
-      );
+  //     const sequelize = this.app.get('sequelizeClient');
+  //     const friendList = await sequelize.query(
+  //       `SELECT * FROM proc_get_friends(:id,:requester,:limit, :skip)`,
+  //       {
+  //         type: QueryTypes.SELECT,
+  //         replacements: { limit, skip, id, requester: params.User.id },
+  //       }
+  //     );
 
-      const response = Object.assign(
-        friendList[0],
-        {},
-        {
-          limit,
-          skip,
-          data: friendList[0]?.data || [],
-        }
-      );
+  //     const response = Object.assign(
+  //       friendList[0],
+  //       {},
+  //       {
+  //         limit,
+  //         skip,
+  //         data: friendList[0]?.data || [],
+  //       }
+  //     );
 
-      return Promise.resolve(response);
-    } catch (err) {
-      return Promise.reject(err);
-    }
-  }
+  //     return Promise.resolve(response);
+  //   } catch (err) {
+  //     return Promise.reject(err);
+  //   }
+  // }
 
   async create(data, params) {
     const sequelize = this.app.get('sequelizeClient');

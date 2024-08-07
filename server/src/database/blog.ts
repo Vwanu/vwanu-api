@@ -39,7 +39,7 @@ export default (sequelize: any, DataTypes: any) => {
       // Blog.belongsToMany(models.Media, {
       //   through: 'Blog_Media',
       // });
-      // Blog.belongsToMany(models.Interest, { through: 'blog_interests', foreignKey: 'blogId', otherKey: 'interestId' });
+      Blog.belongsToMany(models.Interest, { through: 'blog_interests', foreignKey: 'blogId', otherKey: 'interestId' });
 
       Blog.hasMany(models.Reaction, {
         foreignKey: 'entityId',

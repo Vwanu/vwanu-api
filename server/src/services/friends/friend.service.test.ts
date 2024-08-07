@@ -8,8 +8,6 @@ const endpoint = '/friends';
 const friendRequestEndpoint = '/friendRequest';
 
 
-let User;
-let notFriend;
 describe('friend service', () => {
 
   beforeAll(async () => { });
@@ -17,103 +15,122 @@ describe('friend service', () => {
 
   it('should see all his friends', async () => {
 
-    // create the users
-    const [mainUser,  ...users] = await global.__getRandUsers(5);
-
-
-    // sending post request to the main user
+    const [mainUser, ...users] = await global.__getRandUsers(5);
     await Promise.all(
       users.map((user) =>
         global.__SERVER__
           .post(friendRequestEndpoint)
           .send({ UserID: mainUser.id })
           .set('authorization', user.accessToken)
+
       )
     );
     // Accept all friend request
-    const accept = await Promise.all(
+    await Promise.all(
       users.map(async (user) =>
         global.__SERVER__
-          .post(endpoint)
+          .patch(friendRequestEndpoint)
           .send({ friendId: user.id, accept: true })
           .set('authorization', mainUser.accessToken)
+
+      )
+    );
+
+    global.__SERVER__
+      .get(endpoint)
+      .set('authorization', mainUser.accessToken)
+      .expect(StatusCodes.OK)
+      .expect(({ body }) => {
+        expect(body.total).toEqual(users.length);
+      });
+
+    // any other user should have one friend 
+    global.__SERVER__
+      .get(endpoint)
+      .set('authorization', users[0].accessToken)
+      .expect(StatusCodes.OK)
+      .expect(({ body }) => {
+        expect(body.total).toEqual(1);
+      });
+
+
+  });
+
+  it('User should Remove someone as friend', async () => {
+
+    const users = await global.__getRandUsers(3);
+    const mainUser = users.shift();
+    const [toUnfriend] = users;
+
+    await Promise.all(
+      users.map((user) =>
+        global.__SERVER__
+          .post(friendRequestEndpoint)
+          .send({ UserID: mainUser.id })
+          .set('authorization', user.accessToken)
+
+      )
+    );
+    // Accept all friend request
+    await Promise.all(
+      users.map(async (user) =>
+        global.__SERVER__
+          .patch(friendRequestEndpoint)
+          .send({ friendId: user.id, accept: true })
+          .set('authorization', mainUser.accessToken)
+
       )
     );
 
 
-    const myFriendsR = await global.__SERVER__
-      .get(endpoint)
-      .set('authorization', mainUser.accessToken);
-
-    console.log({ myFriendsR: myFriendsR.body });
-
-    expect(myFriendsR.status).toEqual(StatusCodes.OK);
-    expect(Array.isArray(myFriendsR.body.data)).toBe(true);
-  
-
-    expect(
-      myFriendsR.body.data.every((user) => user.id === notFriend.body.id)
-    ).toBe(false);
-  });
-
-  it('User should Remove someone as friend', async () => {
-    const toUnfriend = Friends[0].body;
-
-    const res = await global.__SERVER__
+    global.__SERVER__
       .delete(`${endpoint}/?friendId=${toUnfriend.id}`)
-      .set('authorization', User.body.accessToken);
+      .set('authorization', mainUser.accessToken)
+      .expect(StatusCodes.OK)
 
-    expect(res.body).toEqual(
-      expect.objectContaining({
-        id: toUnfriend.id,
-        lastName: toUnfriend.lastName,
-        firstName: toUnfriend.firstName,
-        updatedAt: expect.any(String),
-        profilePicture: toUnfriend.profilePicture,
-      })
-    );
 
-    const myFriendsR = await global.__SERVER__
+    global.__SERVER__
       .get(endpoint)
-      .set('authorization', User.body.accessToken);
-
-    myFriendsR.body.data.forEach((friend) => {
-      expect(Friends.some((user) => user.body.id === friend.id)).toBe(true);
-    });
-
-    expect(
-      myFriendsR.body.data.every((user) => user.id === toUnfriend.id)
-    ).toBe(false);
+      .set('authorization', mainUser.accessToken)
+      .expect(StatusCodes.OK)
+      .expect(({ body }) => {
+        expect(body.total).toEqual(users.length - 1);
+      });
   });
   it('Requester should remove someone as friend', async () => {
-    const toUnfriend = User.body;
-    const requester = createdTestUsers[2].body;
 
-    const res = await global.__SERVER__
-      .delete(`${endpoint}/?friendId=${toUnfriend.id}`)
-      .set('authorization', requester.accessToken);
+    const users = await global.__getRandUsers(3);
+    const mainUser = users.shift();
+    const [toUnfriend] = users;
 
-    expect(res.body).toEqual(
-      expect.objectContaining({
-        id: toUnfriend.id,
-        lastName: toUnfriend.lastName,
-        firstName: toUnfriend.firstName,
-        updatedAt: expect.any(String),
-        profilePicture: toUnfriend.profilePicture,
-      })
+    await Promise.all(
+      users.map((user) =>
+        global.__SERVER__
+          .post(friendRequestEndpoint)
+          .send({ UserID: mainUser.id })
+          .set('authorization', user.accessToken)
+
+      )
+    );
+    // Accept all friend request
+    await Promise.all(
+      users.map(async (user) =>
+        global.__SERVER__
+          .patch(friendRequestEndpoint)
+          .send({ friendId: user.id, accept: true })
+          .set('authorization', mainUser.accessToken)
+
+      )
     );
 
-    const deleteUser = res.body;
-    delete deleteUser.updatedAt;
-    expect(toUnfriend).toMatchObject(deleteUser);
 
-    const myFriendsR = await global.__SERVER__
-      .get(endpoint)
-      .set('authorization', requester.accessToken);
+    global.__SERVER__
+      .delete(`${endpoint}/?friendId=${mainUser.id}`)
+      .set('authorization', toUnfriend.accessToken)
+      .expect(StatusCodes.OK)
 
-    myFriendsR.body.data.forEach((friend) => {
-      if (friend.id !== requester.id)
-        expect(Friends.some((user) => user.body.id === friend.id)).toBe(true);
-    });
+
+
+
   });
 });

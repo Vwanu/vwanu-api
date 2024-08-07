@@ -13,10 +13,9 @@ export default (context: HookContext): HookContext => {
   const friends = `(
     EXISTS(
     SELECT 1
-    FROM "User_friends" AS "UF"
-    WHERE "UF"."UserId"='${
-      UserId || params.User.id
-    }' AND "UF"."friendId"="User"."id"
+    FROM friends
+    WHERE (friends.user_one_id='${UserId || params.User.id}' AND friends.user_two_id="User"."id")
+    OR (friends.user_two_id='${UserId || params.User.id}' AND friends.user_one_id="User"."id")
   ))`;
 
   const clause = {
@@ -25,8 +24,10 @@ export default (context: HookContext): HookContext => {
   };
   params.sequelize = {
     where: clause,
+    logging: console.log,
 
-    attributes: userQuery(UserId || params.User.id, Sequelize),
+    attributes: ['firstName', 'lastName', 'id', 'profilePicture', 'createdAt', 'updatedAt']
+
 
     // [
     //   'firstName',

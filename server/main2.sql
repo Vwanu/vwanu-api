@@ -155,6 +155,8 @@ CREATE TABLE IF NOT EXISTS access_level_logs (
 CREATE TABLE IF NOT EXISTS friend_requests (
     requester_id UUID NOT NULL,
     receiver_id UUID NOT NULL,
+    accept BOOLEAN ,
+    response_date TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     FOREIGN KEY (requester_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -350,6 +352,15 @@ CREATE TABLE IF NOT EXISTS conversations (
     name VARCHAR(255)
 );
 
+CREATE TABLE IF NOT EXISTS conversation_users (
+    conversation_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (conversation_id, user_id),
+    FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
 CREATE TABLE IF NOT EXISTS messages (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     message_text TEXT,
@@ -385,6 +396,7 @@ CREATE TABLE IF NOT EXISTS posts (
 
 CREATE TABLE IF NOT EXISTS discussions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    discussion_id UUID,
     body TEXT NOT NULL,
     title TEXT NOT NULL,
     user_id UUID NOT NULL,
@@ -394,7 +406,8 @@ CREATE TABLE IF NOT EXISTS discussions (
     locked BOOLEAN DEFAULT false,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (discussion_id) REFERENCES discussions(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS korems (
@@ -415,6 +428,8 @@ CREATE TABLE IF NOT EXISTS blogs (
     slug TEXT,
     amount_of_likes INTEGER DEFAULT 0,
     amount_of_comments INTEGER DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     search_vector TSVECTOR,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
@@ -549,3 +564,177 @@ CREATE TABLE IF NOT EXISTS user_companies (
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (company_id) REFERENCES companies(id)
 );
+
+
+-- Functions and Triggers
+
+
+CREATE OR REPLACE FUNCTION fn_check_friend_request()
+RETURNS TRIGGER AS $$
+DECLARE
+    p_requester_id UUID;
+    p_receiver_id UUID;
+    already_friends BOOLEAN;
+    requested_friendship BOOLEAN;
+BEGIN
+
+    -- Assign the values from the NEW record
+    p_requester_id := NEW.requester_id;
+    p_receiver_id := NEW.receiver_id;
+
+    -- Check if requester is trying to friend themselves
+    IF p_requester_id = p_receiver_id THEN
+        RAISE EXCEPTION 'It is not permitted to be your own friend';
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM users WHERE id = p_receiver_id) THEN
+        RAISE EXCEPTION 'The person you want to be friends with was not found';
+    END IF;
+   
+
+    -- Check if there is a previously denied friend request
+    IF EXISTS (
+        SELECT 1 FROM undesired_friends 
+        WHERE user_id = p_requester_id AND undesired_user_id = p_receiver_id
+    ) THEN
+        -- Remove the previous denial if any
+        DELETE FROM undesired_friends WHERE user_id = p_requester_id AND undesired_user_id = p_receiver_id;
+    END IF;
+
+    -- Check if the friend has previously denied the request
+    IF EXISTS (
+        SELECT 1 FROM undesired_friends 
+        WHERE user_id = p_receiver_id AND undesired_user_id = p_requester_id
+    ) THEN
+        RAISE EXCEPTION 'Your previous connection request was denied';
+    END IF;
+
+    -- Check if they are already friends
+    SELECT EXISTS (
+        SELECT 1 FROM friends 
+        WHERE (user_one_id = p_requester_id AND user_two_id = p_receiver_id) 
+           OR (user_two_id = p_requester_id AND user_one_id = p_receiver_id)
+    ) INTO already_friends;
+
+    IF already_friends THEN
+        RAISE EXCEPTION 'You are already friends';
+    END IF;
+
+    -- Check if a friend request has already been sent
+    SELECT EXISTS (
+        SELECT 1 FROM friend_requests 
+        WHERE requester_id = p_requester_id AND receiver_id = p_receiver_id
+    ) INTO requested_friendship;
+
+    IF requested_friendship THEN
+        RAISE EXCEPTION 'You already requested to be friends';
+    END IF;
+
+    -- Proceed with the insert operation
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER 
+before_insert_friend_request
+BEFORE INSERT ON friend_requests
+FOR EACH ROW
+EXECUTE FUNCTION fn_check_friend_request();
+
+
+CREATE OR REPLACE FUNCTION fn_handle_friend_request_update()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.accept = TRUE THEN
+        -- Insert into the friends table if the request is accepted
+        INSERT INTO friends (user_one_id, user_two_id)
+        VALUES (NEW.requester_id, NEW.receiver_id);
+    ELSE
+        -- Insert into the undesired_friends table if the request is not accepted
+        INSERT INTO undesired_friends (user_id, undesired_user_id)
+        VALUES (NEW.receiver_id, NEW.requester_id);
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER after_update_friend_request
+AFTER UPDATE ON friend_requests
+FOR EACH ROW
+EXECUTE FUNCTION fn_handle_friend_request_update();
+
+
+
+------
+
+-- Function to get friends
+---------
+
+CREATE OR REPLACE FUNCTION proc_get_friends (p_user_id UUID, p_req_id UUID, p_limit INT, p_offSet INT) RETURNS TABLE (total INT, data JSON)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+RETURN QUERY
+SELECT
+ (SELECT amount_of_friend 
+  FROM users
+  WHERE users.id= p_user_id
+  ) as total,
+(
+SELECT 
+json_agg(
+  json_build_object(
+    'id', _users.id,
+    'firstName', _users.first_name,
+    'lastName', _users.last_name,
+    'profilePicture', _users.profile_picture,
+    'email', _users.email,
+    'amountOfFollower',_users.amount_of_follower,
+    'amountOfFollowing',_users.amount_of_following,
+    'amountOfFriend',_users.amount_of_friend,
+    --'isFriend', "U".isFriend,
+    --'iFollow',"U".iFollow
+--     'IsAFollower',"IsAFollower"
+    )) AS data
+  FROM ( 
+  SELECT DISTINCT users.id, users.first_name, users.last_name, users.profile_picture, users.email,users.amount_of_follower,users.amount_of_following ,users.amount_of_friend ,
+   
+   (
+    EXISTS
+    (
+     SELECT 1 FROM friends 
+     WHERE (friends.user_one_id = p_req_id AND friends.user_two_id = users.id) 
+     OR (friends.user_one_id = users.id AND friends.user_two_id = p_req_id)
+     )
+    ) AS "isFriend", 
+    (
+      EXISTS
+      (
+        SELECT 1 
+        FROM followers  
+        WHERE followers.user_id = users.id 
+        AND followers.follower_id = p_req_id 
+       )
+    ) AS "iFollow"
+
+   
+  FROM users
+  
+  WHERE users.id IN 
+	( 
+		SELECT user_one_id AS id
+		FROM friends
+		WHERE friends.user_two_id = p_user_id  -- Parameterized user ID
+		
+		UNION DISTINCT
+		SELECT user_two_id AS id
+		FROM friends
+		WHERE friends.user_one_id = p_user_id
+		OFFSET p_offSet
+		LIMIT p_limit
+/* OFFSET p_offSet */
+	)) as _users);
+
+END;
+$$;

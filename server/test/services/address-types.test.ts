@@ -10,6 +10,8 @@ describe('\'addressTypes\' service', () => {
 
     const addressTypes = await global.__SERVER__.get('/address-types').set('authorization', authenticatedUser.accessToken);
 
+
+
     expect(addressTypes.body.data).toBeInstanceOf(Array);
     expect(addressTypes.body.data.length).toBeGreaterThan(0);
 

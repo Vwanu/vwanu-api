@@ -75,6 +75,17 @@ export default (sequelize: any, DataTypes: any) => {
         as: 'friends',
         onDelete: 'CASCADE',
       });
+      User.hasMany(models.FriendRequests, {
+        as: 'requester',
+        foreignKey: 'requester_id',
+        onDelete: 'CASCADE',
+      });
+
+      User.hasMany(models.FriendRequests, {
+        as: 'receiver',
+        foreignKey: 'receiver_id',
+        onDelete: 'CASCADE',
+      });
       // User.belongsToMany(models.User, {
       //   through: 'FriendRequests',
       //   foreignKey: 'requester_id',

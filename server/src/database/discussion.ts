@@ -32,7 +32,7 @@ export default (sequelize: any, DataTypes: any) => {
     static associate(models: any): void {
       Discussion.belongsTo(models.User);
       Discussion.belongsToMany(models.Media, {
-        through: 'discussion_media',
+        through: 'discussion_medias',
         foreignKey: 'discussion_id',
         otherKey: 'media_id',
       });
@@ -40,7 +40,7 @@ export default (sequelize: any, DataTypes: any) => {
         through: 'Discussion_ForumCategory',
         as: 'forum_discussion',
       });
-      Discussion.belongsTo(models.Community);
+      // Discussion.belongsTo(models.Community);
       Discussion.hasMany(models.Discussion, { as: 'Comments' });
       Discussion.hasMany(models.Reaction, {
         foreignKey: 'entityId',
@@ -94,6 +94,7 @@ export default (sequelize: any, DataTypes: any) => {
       sequelize,
       modelName: 'Discussion',
       tableName: 'discussions',
+      updatedAt: false,
       underscored: true,
     }
   );

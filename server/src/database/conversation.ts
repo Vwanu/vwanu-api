@@ -1,8 +1,9 @@
 /* eslint-disable no-param-reassign */
 import { Model } from 'sequelize';
+import { Id } from '@feathersjs/feathers';
 
 export interface ConversationInterface {
-  id: string;
+  id: Id;
   amountOfPeople: number;
   amountOfMessages: number;
   amountOfUnreadMessages: number;
@@ -12,9 +13,8 @@ export interface ConversationInterface {
 export default (sequelize: any, DataTypes: any) => {
   class Conversation
     extends Model<ConversationInterface>
-    implements ConversationInterface
-  {
-    id: string;
+    implements ConversationInterface {
+    id: Id;
 
     amountOfPeople: number;
 
@@ -28,7 +28,7 @@ export default (sequelize: any, DataTypes: any) => {
 
     static associate(models: any): void {
       Conversation.belongsToMany(models.User, {
-        through: 'Conversation_Users',
+        through: 'ConversationUsers',
       });
       Conversation.hasMany(models.Message);
     }
@@ -69,6 +69,8 @@ export default (sequelize: any, DataTypes: any) => {
       hooks: {},
       sequelize,
       modelName: 'Conversation',
+      tableName: 'conversations',
+      underscored: true,
     }
   );
   return Conversation;

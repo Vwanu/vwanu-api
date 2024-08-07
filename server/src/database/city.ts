@@ -1,19 +1,18 @@
 /* eslint-disable import/no-import-module-exports */
 
 import { Model } from 'sequelize';
+import { Id } from '@feathersjs/feathers'
 
 export interface CityInterface {
-  id: number;
+  id: Id;
   name: string;
 }
 export default (sequelize: any, DataTypes: any) => {
   class City extends Model<CityInterface> implements CityInterface {
-    id: number;
-
+    id: Id;
     name: string;
 
     static associate(models: any): void {
-      City.hasMany(models.Street);
       City.belongsTo(models.State);
     }
   }
@@ -42,6 +41,11 @@ export default (sequelize: any, DataTypes: any) => {
       // },
       sequelize,
       modelName: 'City',
+      tableName: 'cities',
+      timestamps: true,
+      createdAt: false,
+      updatedAt: false,
+      underscored: true,
     }
   );
   return City;

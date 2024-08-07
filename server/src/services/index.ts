@@ -37,7 +37,7 @@ import convesationUsers from './convesation-users/convesation-users.service';
 import country from './country/country.service';
 import state from './state/state.service';
 import city from './city/city.service';
-import street from './street/street.service';
+
 import address from './address/address.service';
 import addressTypes from './address-types/address-types.service';
 import userAddress from './user-address/user-address.service';
@@ -95,7 +95,6 @@ export default function (app: Application): void {
   app.configure(country);
   app.configure(state);
   app.configure(city);
-  app.configure(street);
   app.configure(address);
   app.configure(addressTypes);
   app.configure(userAddress);

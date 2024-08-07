@@ -5,6 +5,7 @@ import Sequelize from 'sequelize';
 
 /** Local dependencies */
 import { Application } from '../declarations';
+
 /** Tables */
 
 import call from './call';
@@ -16,7 +17,6 @@ import album from './album';
 import Media from './media';
 import state from './state';
 import Korem from './korem';
-import street from './street';
 import friend from './Friends';
 import address from './address';
 import country from './country';
@@ -31,6 +31,7 @@ import discussion from './discussion';
 import addressType from './addressTypes';
 import userAddress from './userAddresses';
 import conversation from './conversation';
+import conversationUsers from './conversation-users';
 import notification from './notification';
 import BlogResponse from './blog-response';
 import refreshToken from './refresh-token';
@@ -53,6 +54,7 @@ import userNotificationTypes from './user_notification_types';
 import accessLevelLogs from './access_level_logs'
 import communityInterests from './community_interests';
 import friendRequests from './friendRequests'
+import followers from './follower'
 
 const tables = [
   call,
@@ -65,7 +67,6 @@ const tables = [
   state,
   Korem,
   Media,
-  street,
   friend,
   address,
   message,
@@ -101,7 +102,9 @@ const tables = [
   userNotificationTypes,
   accessLevelLogs,
   communityInterests,
-  friendRequests
+  friendRequests,
+  followers,
+  conversationUsers
 ];
 
 export default function (app: Application): void {

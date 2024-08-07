@@ -17,16 +17,16 @@ const IncludeLast = (single: boolean) => async (context) => {
 
   const activeParticipants = ` ( 
       SELECT 
-      COUNT(DISTINCT "DCM"."UserId")
-      FROM "Discussions" AS "DCM"
-      WHERE "DCM"."DiscussionId" = "Discussion"."id"
+      COUNT(DISTINCT "DCM"."user_id")
+      FROM "discussions" AS "DCM"
+      WHERE "DCM"."discussion_id" = "Discussion"."id"
       )::int
     `;
 
   const amountOfComments = `(   SELECT 
       COUNT(*) 
-      FROM "Discussions" AS "DCC"
-      WHERE "DCC"."DiscussionId" = "Discussion"."id"
+      FROM "discussions" AS "DCC"
+      WHERE "DCC"."discussion_id" = "Discussion"."id"
     )::int`;
 
   const amountOfReactions = `(
@@ -43,16 +43,16 @@ const IncludeLast = (single: boolean) => async (context) => {
         'body',"DC"."body", 
         'createdAt',"DC"."createdAt",
         'updatedAt',"DC"."updatedAt",
-        'UserId',"DC"."UserId",
+        'UserId',"DC"."user_id",
         'commenterFirstName',"UC"."firstName",
         'commenterLastName',"UC"."lastName",
         'commenterProfilePicture',"UC"."profilePicture"
        )
-      From "Discussions" AS "DC" 
-      INNER JOIN "Users" AS "UC" ON "DC"."UserId" = "UC"."id"
+      From "discussions" AS "DC" 
+      INNER JOIN "Users" AS "UC" ON "DC"."user_id" = "UC"."id"
       
-      WHERE "DC"."DiscussionId"="Discussion"."id"
-      ORDER BY "DC"."createdAt" ASC
+      WHERE "DC"."discussion_id"="Discussion"."id"
+      ORDER BY "DC"."created_at" ASC
       LIMIT 1
     ) `;
 
@@ -87,8 +87,8 @@ SELECT
   const clause = single
     ? { id: context.id }
     : isEmpty(where)
-    ? { DiscussionId: null }
-    : { ...where, [Op.and]: [] };
+      ? { DiscussionId: null }
+      : { ...where, [Op.and]: [] };
 
   if (where.categoryId) {
     const { categoryId } = where;
@@ -102,11 +102,11 @@ SELECT
     where: clause,
     attributes: {
       include: [
-        [Sequelize.literal(activeParticipants), 'activeParticipants'],
-        [Sequelize.literal(amountOfComments), 'amountOfComments'],
-        [Sequelize.literal(lastComment), 'lastComment'],
-        [Sequelize.literal(amountOfReactions), 'amountOfReactions'],
-        [Sequelize.literal(isReactor), 'isReactor'],
+        // [Sequelize.literal(activeParticipants), 'activeParticipants'],
+        // [Sequelize.literal(amountOfComments), 'amountOfComments'],
+        // [Sequelize.literal(lastComment), 'lastComment'],
+        // [Sequelize.literal(amountOfReactions), 'amountOfReactions'],
+        // [Sequelize.literal(isReactor), 'isReactor'],
       ],
       exclude: ['DiscussionId', 'UserId', 'CommunityId'],
     },

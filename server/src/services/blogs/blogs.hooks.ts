@@ -31,16 +31,16 @@ export default {
     all: [
       authenticate('jwt'),
       AgeAllow,
-      IncludeAssociations({
-        include: [
-          {
-            model: 'blogs',
-            as: 'User',
-            attributes: UserAttributes,
-          },
-          { model: 'blogs', as: 'Interests' },
-        ],
-      }),
+      // IncludeAssociations({
+      //   include: [
+      //     {
+      //       model: 'blogs',
+      //       as: 'User',
+      //       attributes: UserAttributes,
+      //     },
+      //     { model: 'blogs', as: 'Interests' },
+      //   ],
+      // }),
     ],
     find: [QueryBlogs],
     get: [QueryBlogs],
@@ -68,9 +68,9 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [SaveInterest],
+    // create: [SaveInterest],
     update: [],
-    patch: [SaveInterest],
+    // patch: [SaveInterest],
     remove: [],
   },
 
