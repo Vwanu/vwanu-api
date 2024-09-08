@@ -232,10 +232,10 @@ export default (sequelize: any, DataTypes: any) => {
         allowNull: true,
         defaultValue: () => nanoid(),
       },
-      // resetPasswordKey: {
-      //   type: DataTypes.STRING,
-      //   allowNull: true,
-      // },
+      resetPasswordKey: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       verified: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,

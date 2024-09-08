@@ -10,8 +10,9 @@ BEGIN
 	-- Check if the community the user is trying to join is public 
 	IF NOT EXISTS(
 		SELECT 1
-		FROM "Communities" 
-		WHERE "Communities"."id"= p_community_id AND "Communities"."privacyType"='public') THEN
+		FROM communities 
+		WHERE communities.id= p_community_id 
+        AND communities.privacy_type='public') THEN
 		
         RAISE EXCEPTION 'Only public community can be joind without an invitation';
     END IF;
@@ -28,7 +29,7 @@ BEGIN
     -- Get the member role id
     SELECT id
     INTO v_member_role  
-    FROM "CommunityRoles" AS r
+    FROM roles AS r
     WHERE r.name = 'member';
     
     IF v_member_role IS NULL THEN

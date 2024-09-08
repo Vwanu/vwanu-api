@@ -11,9 +11,9 @@ DECLARE
     v_existing_ban_until TIMESTAMP;
 BEGIN
     -- Check if the user trying to insert the ban (by_user_id) has the correct role
-    SELECT name
+    SELECT name 
     INTO v_role 
-    FROM "CommunityRoles" AS roles
+    FROM roles
     INNER JOIN community_users ON community_users.community_role_id = roles.id
     WHERE user_id = p_by_user_id;
     
@@ -27,7 +27,7 @@ BEGIN
     
     -- Check if a ban already exists for this user and community with 'until' date in the future
     SELECT until INTO v_existing_ban_until
-    FROM community_bans
+    FROM  community_bans
     WHERE user_id = p_user_id AND community_id = p_community_id AND until > NOW();
     
     IF v_existing_ban_until IS NOT NULL THEN
@@ -43,6 +43,8 @@ BEGIN
     IF p_comment IS NULL THEN
         p_comment := v_role || ' banned this user for 200 years';
     END IF;
+
+
     
     -- Insert the new ban
     INSERT INTO community_bans (user_id, community_id, by_user_id, comment, until, created_at)

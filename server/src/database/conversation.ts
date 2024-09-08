@@ -15,15 +15,10 @@ export default (sequelize: any, DataTypes: any) => {
     extends Model<ConversationInterface>
     implements ConversationInterface {
     id: Id;
-
     amountOfPeople: number;
-
     amountOfMessages: number;
-
     amountOfUnreadMessages: number;
-
     type: string;
-
     name: string;
 
     static associate(models: any): void {

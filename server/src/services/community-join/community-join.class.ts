@@ -14,6 +14,7 @@ export class CommunityJoin extends Service {
   }
 
   async create(data: any, params: any) {
+
     const seq = this.app.get('sequelizeClient');
 
     try {

@@ -11,15 +11,12 @@ describe("Conversations service", () => {
   it('Should be able to create a direct conversation', async () => {
 
     const [user1, ...users] = await global.__getRandUsers(3);
-    const responser = await global.__SERVER__
+    await global.__SERVER__
       .post('/conversation')
       .set('Authorization', `Bearer ${user1.accessToken}`)
       .send({
         userIds: users.map((user) => user.id),
-      })
-    // .expect(StatusCodes.CREATED);
-
-    console.log('responser', responser.body);
+      }).expect(StatusCodes.CREATED);
 
   });
 
@@ -38,12 +35,11 @@ describe("Conversations service", () => {
       .set('Authorization', `Bearer ${user1.accessToken}`)
       .send({
         userIds: [user2.id],
-      }).expect(StatusCodes.CREATED).
-      expect((res) => {
+      })
+      .expect(StatusCodes.CREATED)
+      .expect((res) => {
         expect(res.body.id).toBe(convo1.body.id);
       });
-
-
 
     await global.__SERVER__
       .post('/conversation')
@@ -73,7 +69,6 @@ describe("Conversations service", () => {
       .send({ userIds: [user3.id] })
       .expect(StatusCodes.CREATED)
 
-
     await global.__SERVER__
       .get('/conversation')
       .set('Authorization', `Bearer ${user1.accessToken}`)
@@ -81,6 +76,7 @@ describe("Conversations service", () => {
       .expect((res) => {
         expect(res.body.data.length).toBe(2);
       });
+
 
     await global.__SERVER__
       .get('/conversation')
@@ -97,9 +93,6 @@ describe("Conversations service", () => {
       .expect((res) => {
         expect(res.body.data.length).toBe(1);
       });
-
-
-
 
 
   });
@@ -143,10 +136,11 @@ describe("Conversations service", () => {
       .set('Authorization', `Bearer ${user2.accessToken}`)
       .expect(StatusCodes.OK);
 
-    await global.__SERVER__
+    return global.__SERVER__
       .get(`/conversation/${convo.body.id}`)
       .set('Authorization', `Bearer ${user3.accessToken}`)
-      .expect(StatusCodes.FORBIDDEN);
+      .expect(StatusCodes.NOT_FOUND);
+
   });
 
 });

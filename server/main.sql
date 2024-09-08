@@ -464,6 +464,7 @@ CREATE TABLE IF NOT EXISTS  message_medias (
     message_id INTEGER NOT NULL,
     media_id INTEGER NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     PRIMARY KEY (message_id, media_id),
     FOREIGN KEY (message_id) REFERENCES messages(id),
     FOREIGN KEY (media_id) REFERENCES medias(id)

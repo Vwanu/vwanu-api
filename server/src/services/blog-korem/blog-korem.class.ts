@@ -1,6 +1,7 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { Application } from '../../declarations';
 
+let serviceId = null;
 // eslint-disable-next-line import/prefer-default-export
 export class BlogKorem extends Service {
   app;
@@ -13,20 +14,39 @@ export class BlogKorem extends Service {
   }
 
   async create(data) {
+    serviceId = serviceId ||
+      (await this.
+        app
+        .get('sequelizeClient')
+        .models
+        .services
+        .findOrCreate(
+          { where: { name: 'Blog' }, defaults: { name: 'Blog' } }
+        ))[0].id;
     const { UserId, entityId } = data;
     const { Korem } = this.app.get('sequelizeClient').models;
-    const [result, created] = await Korem.findOrCreate({
-      where: { UserId, entityId },
-      default: { ...data },
-    });
+    console.log({UserId, entityId, serviceId});
 
-    if (!created) await result.destroy();
+    try {
+      const [result, created] = await Korem.findOrCreate({
+        where: { UserId, entityId },
+        default: { ...data },
+      });
 
-    return Promise.resolve({
-      entityId: result.entityId,
-      createdAt: result.createdAt,
-      UserId: result.UserId,
-      created,
-    });
+      console.log('Result', result);
+      console.log('Created', created);
+
+      if (!created) await result.destroy();
+
+      return Promise.resolve({
+        entityId: result.entityId,
+        createdAt: result.createdAt,
+        UserId: result.UserId,
+        created,
+      });
+    } catch (e) {
+      console.log('Error', e);
+      return Promise.reject(e);
+    }
   }
 }

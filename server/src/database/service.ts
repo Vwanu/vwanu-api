@@ -1,20 +1,16 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-shadow */
-/* eslint-disable import/no-import-module-exports */
-
+import { Id } from '@feathersjs/feathers'
 import { Model } from 'sequelize';
 
 export interface ServiceInterface {
-  id: string;
+  id: Id;
   name: string;
 }
 export default (sequelize: any, DataTypes: any) => {
   class Service extends Model<ServiceInterface> implements ServiceInterface {
-    id: string;
-
+    id: Id;
     name: string;
 
-    static associate(models: any): void {}
+    // static associate(models: any): void { }
   }
   Service.init(
     {
@@ -34,6 +30,8 @@ export default (sequelize: any, DataTypes: any) => {
     {
       sequelize,
       modelName: 'Service',
+      tableName: 'services',
+      underscored: true,
     }
   );
   return Service;

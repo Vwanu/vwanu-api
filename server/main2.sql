@@ -41,6 +41,14 @@ CREATE TABLE IF NOT EXISTS error_codes (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS services (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+
 CREATE TABLE IF NOT EXISTS expiry_times (
     request_type VARCHAR(255) PRIMARY KEY,
     description VARCHAR(255) NOT NULL,
@@ -330,7 +338,7 @@ CREATE TABLE IF NOT EXISTS community_bans (
     user_id UUID NOT NULL,
     community_id UUID NOT NULL,
     by_user_id UUID NOT NULL,
-    moderation_reason_id UUID NOT NULL,
+    /* moderation_reason_id UUID NOT NULL, */
     comment TEXT,
     until TIMESTAMP NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -338,7 +346,7 @@ CREATE TABLE IF NOT EXISTS community_bans (
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (community_id) REFERENCES communities(id),
     FOREIGN KEY (by_user_id) REFERENCES users(id),
-    FOREIGN KEY (moderation_reason_id) REFERENCES moderation_reasons(id)
+    /* FOREIGN KEY (moderation_reason_id) REFERENCES moderation_reasons(id) */
 );
 /* End of interactions */
 
@@ -348,6 +356,8 @@ CREATE TABLE IF NOT EXISTS conversations (
     amount_of_people INTEGER DEFAULT 0,
     amount_of_messages INTEGER DEFAULT 0,
     amount_of_unread_messages INTEGER DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     type VARCHAR(255) NOT NULL DEFAULT 'direct',
     name VARCHAR(255)
 );
@@ -369,8 +379,12 @@ CREATE TABLE IF NOT EXISTS messages (
     read_date TIMESTAMP,
     received_date TIMESTAMP,
     sender_id UUID,
+    user_id UUID,
     conversation_id UUID,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     FOREIGN KEY (sender_id) REFERENCES users(id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (conversation_id) REFERENCES conversations(id)
 );
 /* End of chat */
@@ -410,12 +424,20 @@ CREATE TABLE IF NOT EXISTS discussions (
     FOREIGN KEY (discussion_id) REFERENCES discussions(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS services (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+);
 CREATE TABLE IF NOT EXISTS korems (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     entity_id UUID NOT NULL,
     user_id UUID,
+    service_id UUID,
     entity_name VARCHAR(255) NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (service_id) REFERENCES services(id)
 );
 
 CREATE TABLE IF NOT EXISTS blogs (
@@ -442,8 +464,12 @@ CREATE TABLE IF NOT EXISTS blog_responses (
     banned_by UUID,
     user_id UUID,
     blog_id UUID,
+    blog_response_id UUID,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
-    FOREIGN KEY (blog_id) REFERENCES blogs(id) ON DELETE CASCADE
+    FOREIGN KEY (blog_id) REFERENCES blogs(id) ON DELETE CASCADE,
+    FOREIGN KEY (blog_response_id) REFERENCES blog_responses(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS blog_interests (
@@ -487,6 +513,7 @@ CREATE TABLE IF NOT EXISTS message_medias (
     message_id UUID NOT NULL,
     media_id UUID NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     PRIMARY KEY (message_id, media_id),
     FOREIGN KEY (message_id) REFERENCES messages(id),
     FOREIGN KEY (media_id) REFERENCES medias(id)
@@ -670,7 +697,7 @@ EXECUTE FUNCTION fn_handle_friend_request_update();
 
 -- Function to get friends
 ---------
-
+/**
 CREATE OR REPLACE FUNCTION proc_get_friends (p_user_id UUID, p_req_id UUID, p_limit INT, p_offSet INT) RETURNS TABLE (total INT, data JSON)
 LANGUAGE plpgsql
 AS $$
@@ -692,7 +719,7 @@ json_agg(
     'email', _users.email,
     'amountOfFollower',_users.amount_of_follower,
     'amountOfFollowing',_users.amount_of_following,
-    'amountOfFriend',_users.amount_of_friend,
+    'amountOfFriend',_users.amount_of_friend
     --'isFriend', "U".isFriend,
     --'iFollow',"U".iFollow
 --     'IsAFollower',"IsAFollower"
@@ -733,8 +760,10 @@ json_agg(
 		WHERE friends.user_one_id = p_user_id
 		OFFSET p_offSet
 		LIMIT p_limit
-/* OFFSET p_offSet */
+--OFFSET p_offSet 
 	)) as _users);
 
 END;
 $$;
+
+**/

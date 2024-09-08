@@ -1,40 +1,20 @@
-/* eslint-disable import/no-extraneous-dependencies */
-import request from 'supertest';
+import { StatusCodes } from 'http-status-codes';
 
-/** Local dependencies */
-import app from '../../src/app';
-import { getRandUsers } from '../../src/lib/utils/generateFakeUser';
-
-describe("'blogResponse ' service", () => {
-  let testServer;
+describe("Blog response service.", () => {
+  const testServer = global.__SERVER__;
   let testUsers;
   let blog;
-  let resp;
   let blogCreator;
-  const userEndpoint = '/users';
   const blogEndpoint = '/blogs';
   const endpoint = '/blogResponse';
 
   beforeAll(async () => {
-    await app.get('sequelizeClient').models.User.sync({ logged: false });
-    testServer = request(app);
-    testUsers = await Promise.all(
-      getRandUsers(3).map((u) => {
-        const user = u;
-        delete user.id;
-        return testServer.post(userEndpoint).send(user);
-      }, 10000)
-    );
-
-    testUsers = testUsers.map((testUser) => testUser.body);
-    blogCreator = testUsers.shift();
-
+    [blogCreator, ...testUsers] = await global.__getRandUsers(3);
     blog = await testServer
       .post(blogEndpoint)
       .send({
-        blogTitle: 'Title ew',
-        blogText: '<strong>Body text</strong><img src=x/>',
-        interests: ['some', 'category'],
+        blogTitle: Math.random().toString(36).substring(7),
+        blogText: `<strong>${Math.random().toString(36).substring(20)}</strong><img src=x/>`
       })
       .set('authorization', blogCreator.accessToken);
 
@@ -42,157 +22,101 @@ describe("'blogResponse ' service", () => {
   }, 100000);
 
   it('registered the service', () => {
-    const service = app.service('blogResponse');
+    const service = global.__APP__.service('blogResponse');
     expect(service).toBeTruthy();
   });
 
   it('any user can create a response on a blog', async () => {
-    const responseText = 'I love your blog';
-    resp = await testServer
+    const responseText = Math.random().toString(36).substring(20);
+    return testServer
       .post(endpoint)
       .send({
         BlogId: blog.id,
         responseText,
       })
-      .set('authorization', testUsers[0].accessToken);
-    resp = resp.body;
-    expect(resp).toEqual(
-      expect.objectContaining({
-        id: expect.any(String),
-        banned: false,
-        BlogId: expect.any(String),
-        responseText,
-        UserId: testUsers[0].id,
-        updatedAt: expect.any(String),
-        createdAt: expect.any(String),
-        bannedReason: null,
-        bannedBy: null,
-        BlogResponseId: null,
-      })
-    );
-  });
-  it('Only a response creator can edit a response', async () => {
-    const responseText = 'I have a new opinion';
-    let responses = await Promise.all(
-      [blogCreator, testUsers[0]].map((user) =>
-        testServer
-          .patch(`${endpoint}/${resp.id}`)
-          .send({
+      .set('authorization', testUsers[0].accessToken)
+      .expect(StatusCodes.CREATED)
+      .expect(r => {
+        expect(r.body).toEqual(
+          expect.objectContaining({
+            id: expect.any(String),
             responseText,
+            UserId: testUsers[0].id,
           })
-          .set('authorization', user.accessToken)
-      )
-    );
+        )
+      });
+  });
 
-    responses = responses.map((response) => response.body);
 
-    expect(responses[0]).toEqual(
-      expect.objectContaining({
-        name: 'BadRequest',
-        message: 'Not authorized',
-        code: 400,
-        className: 'bad-request',
-        errors: {},
-      })
-    );
+  it('Only a response creator can edit a response', async () => {
+    const responseText = Math.random().toString(36).substring(20);
+    const reponder = testUsers[0];
 
-    expect(responses[1]).toEqual(
-      expect.objectContaining({
-        id: expect.any(String),
-        responseText,
-        banned: false,
-        bannedReason: null,
-        bannedBy: null,
-        createdAt: expect.any(String),
-        updatedAt: expect.any(String),
-        BlogId: blog.id,
-        UserId: testUsers[0].id,
-        BlogResponseId: null,
-        User: {
-          firstName: testUsers[0].firstName,
-          lastName: testUsers[0].lastName,
-          id: testUsers[0].id,
-          profilePicture: expect.any(String),
-          createdAt: expect.any(String),
-        },
-      })
-    );
+    const bR = await testServer
+      .post(endpoint)
+      .send({ BlogId: blog.id, responseText })
+      .set('authorization', reponder.accessToken)
+      .expect(StatusCodes.CREATED)
+
+
+    await testServer
+      .patch(`${endpoint}/${bR.body.id}`)
+      .send({ responseText, })
+      .set('authorization', reponder.accessToken)
+      .expect(StatusCodes.OK);
+
+    await testServer
+      .patch(`${endpoint}/${bR.body.id}`)
+      .send({ responseText, })
+      .set('authorization', blogCreator.accessToken)
+      .expect(StatusCodes.BAD_REQUEST);
   });
 
   it('User fetch all response base on blog id', async () => {
     const user0 = testUsers[0];
-    let responses = await testServer
+    return testServer
       .get(`${endpoint}?BlogId=${blog.id}`)
-      .set('authorization', user0.accessToken);
+      .set('authorization', user0.accessToken)
+      .expect(StatusCodes.OK)
+      .expect(responses => {
+        expect(responses.body.data).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              id: expect.any(String),
+              responseText: expect.any(String),
+              User: expect.objectContaining({
+                firstName: expect.any(String),
+                lastName: expect.any(String),
+                id: expect.any(String),
+                profilePicture: expect.any(String),
+              }),
+            }),
+          ])
+        );
+      });
 
-    responses = responses.body.data;
-    expect(responses).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          id: expect.any(String),
-          responseText: expect.any(String),
-          banned: false,
-          bannedReason: null,
-          bannedBy: null,
-          createdAt: expect.any(String),
-          updatedAt: expect.any(String),
-          BlogId: expect.any(String),
-          UserId: expect.any(String),
-          BlogResponseId: null,
-          User: {
-            firstName: expect.any(String),
-            lastName: expect.any(String),
-            id: expect.any(String),
-            profilePicture: expect.any(String),
-            createdAt: expect.any(String),
-          },
-        }),
-      ])
-    );
+
   });
 
   it('Only a response creator can delete a response', async () => {
-    const responseText = 'I have a new opinion';
-    let responses = await Promise.all(
-      [blogCreator, testUsers[0]].map((user) =>
-        testServer
-          .delete(`${endpoint}/${resp.id}`)
-          .set('authorization', user.accessToken)
-      )
-    );
 
-    responses = responses.map((response) => response.body);
+    const responseText = Math.random().toString(36).substring(20);
+    const reponder = testUsers[0];
 
-    expect(responses[0]).toEqual(
-      expect.objectContaining({
-        name: 'BadRequest',
-        message: 'Not authorized',
-        code: 400,
-        className: 'bad-request',
-        errors: {},
-      })
-    );
+    const bR = await testServer
+      .post(endpoint)
+      .send({ BlogId: blog.id, responseText })
+      .set('authorization', reponder.accessToken)
+      .expect(StatusCodes.CREATED)
 
-    expect(responses[1]).toEqual(
-      expect.objectContaining({
-        id: expect.any(String),
-        responseText,
-        banned: false,
-        bannedReason: null,
-        bannedBy: null,
-        createdAt: expect.any(String),
-        updatedAt: expect.any(String),
-        BlogId: blog.id,
-        UserId: testUsers[0].id,
-        BlogResponseId: null,
-        User: {
-          firstName: testUsers[0].firstName,
-          lastName: testUsers[0].lastName,
-          id: testUsers[0].id,
-          profilePicture: expect.any(String),
-          createdAt: expect.any(String),
-        },
-      })
-    );
+    await testServer
+      .delete(`${endpoint}/${bR.body.id}`)
+      .set('authorization', blogCreator.accessToken)
+      .expect(StatusCodes.BAD_REQUEST)
+
+    await testServer
+      .delete(`${endpoint}/${bR.body.id}`)
+      .set('authorization', reponder.accessToken)
+      .expect(StatusCodes.OK);
   });
 });

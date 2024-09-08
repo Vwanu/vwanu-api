@@ -12,16 +12,11 @@ export interface BlogResponseInterface {
 export default (sequelize: any, DataTypes: any) => {
   class BlogResponse
     extends Model<BlogResponseInterface>
-    implements BlogResponseInterface
-  {
+    implements BlogResponseInterface {
     id: string;
-
     responseText: string;
-
     banned: boolean;
-
     bannedReason: string;
-
     bannedBy: number;
 
     static associate(models: any): void {
@@ -63,6 +58,8 @@ export default (sequelize: any, DataTypes: any) => {
     {
       sequelize,
       modelName: 'BlogResponse',
+      tableName: 'blog_responses',
+      underscored: true,
     }
   );
   return BlogResponse;

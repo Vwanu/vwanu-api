@@ -1,8 +1,6 @@
-import app from '../../src/app';
-
 describe("'Reaction' service", () => {
   it('registered the service', () => {
-    const service = app.service('reactions');
+    const service = global.__APP__.service('reactions');
     expect(service).toBeTruthy();
   });
 });

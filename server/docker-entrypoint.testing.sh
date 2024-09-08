@@ -27,8 +27,8 @@ echo "Copying database schema"
 docker cp ./main2.sql test-postgres:/docker-entrypoint-initdb.d/main2.sql
 echo "Executing database schema"
 docker exec -u postgres test-postgres psql -U vwanu -d social_media -f /docker-entrypoint-initdb.d/main2.sql
-
-echo "Migrating database"
+clear
+echo "Migration completed"
 NODE_ENV=test npm run migrate
 
 echo "Seeding database"

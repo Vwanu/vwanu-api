@@ -1,59 +1,41 @@
-/* eslint-disable import/no-extraneous-dependencies */
-import request from 'supertest';
-
-/** Local dependencies */
-import app from '../../src/app';
-import { getRandUsers } from '../../src/lib/utils/generateFakeUser';
+import { StatusCodes } from 'http-status-codes';
 
 describe("'BlogKorem' service", () => {
   let testServer;
   let testUsers;
   let blogs;
   const endpoint = '/blogs';
-  const userEndpoint = '/users';
   const blogKoremEndpoint = '/blogKorem';
 
-  beforeAll(async () => {
-    const sequelize = app.get('sequelizeClient');
-    sequelize.options.logging = false;
-    await sequelize.sync({  logged: false });
-    testServer = request(app);
-    testUsers = await Promise.all(
-      getRandUsers(2).map((u) => {
-        const user = u;
-        delete user.id;
-        return testServer.post(userEndpoint).send(user);
-      }, 10000)
-    );
 
-    blogs = await Promise.all(
-      testUsers.map(({ body }) =>
-        testServer
-          .post(endpoint)
-          .send({
-            blogTitle: 'Title ew',
-            blogText: '<strong>Body text</strong><img src=x/>',
-            interests: ['some', 'category'],
-          })
-          .set('authorization', body.accessToken)
-      )
-    );
-    blogs = blogs.map((blog) => blog.body);
-    testUsers = testUsers.map((testUser) => testUser.body);
-  }, 100000);
 
   it('registered the service', () => {
-    const service = app.service('blogKorem');
+    const service = global.__APP__.service('blogKorem');
     expect(service).toBeTruthy();
   });
 
-  it('Should be able to like a blog', async () => {
-    const blog = blogs[0];
-    const user = testUsers[0];
-    const Korem = await testServer
+  it('Should be able to 👊🏿 a blog', async () => {
+
+    const [user] = await global.__getRandUsers(1);
+
+    const blog = await global.__SERVER__
+      .post(endpoint)
+      .send({
+        blogTitle: 'Title ewr',
+        blogText: 'Text'
+      })
+      .set('authorization', user.accessToken)
+      .expect(StatusCodes.CREATED);
+
+
+
+    const Korem = await global.__SERVER__
       .post(blogKoremEndpoint)
-      .send({ entityId: blog.id, time: 1 })
+      .send({ entityId: blog.body.id, time: 1 })
       .set('authorization', user.accessToken);
+
+    console.log('\n\n\n *** Korm *** \n\n\n', Korem.body);
+
 
     expect(Korem.body).toMatchObject({
       User: {

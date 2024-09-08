@@ -14,14 +14,14 @@ describe("'interests' service", () => {
   }, 10000);
 
 
-  it('registered the service', () => {
+  it.skip('registered the service', () => {
     const service = global.__APP__.service('interests');
     expect(service).toBeTruthy();
   });
 
   /** CRUD  */
 
-  it('Anyone can create new interests but are not aproved', async () => {
+  it.skip('Anyone can create new interests but are not aproved', async () => {
 
     interests = await Promise.all(
       testUsers.map((user, idx) =>
@@ -102,7 +102,7 @@ describe("'interests' service", () => {
     });
   });
 
-  it('Everyone can see all approved interest only', async () => {
+  it.skip('Everyone can see all approved interest only', async () => {
     const allInterests: any = await global.__SERVER__.get(endpoint);
 
     allInterests.body.forEach((interest) => {

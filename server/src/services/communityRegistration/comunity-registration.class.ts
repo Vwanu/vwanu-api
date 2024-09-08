@@ -13,9 +13,6 @@ export class CommunitiesRegistration extends Service {
   }
 
   async create(data, params) {
-    console.log('in accepting invitation');
-
-    console.log({ data });
     const { CommunityInvitationRequest } =
       this.app.get('sequelizeClient').models;
 

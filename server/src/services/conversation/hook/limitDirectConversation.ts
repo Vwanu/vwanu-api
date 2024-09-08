@@ -13,12 +13,12 @@ export default async (context: HookContext) => {
 
   try {
     const existingConversation = await Sequelize.query(
-      `SELECT "ConversationId" FROM "ConversationUsers" WHERE "UserId" IN (${[
+      `SELECT conversation_id as id FROM conversation_users WHERE user_id IN (${[
         ...userIds,
         User.id,
       ].map((id) => `'${id}'`)}) 
-      GROUP BY "ConversationId"
-      HAVING COUNT("ConversationId") > 1`,
+      GROUP BY conversation_id
+      HAVING COUNT(conversation_id) > 1`,
       { type: QueryTypes.SELECT }
     );
 

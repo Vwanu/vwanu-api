@@ -1,8 +1,7 @@
-import app from '../../src/app';
 
 describe('\'timelineBlogs\' service', () => {
   it('registered the service', () => {
-    const service = app.service('timeline-blogs');
+    const service = global.__APP__.service('timeline-blogs');
     expect(service).toBeTruthy();
   });
 });

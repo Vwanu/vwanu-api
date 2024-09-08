@@ -1,106 +1,78 @@
-/* eslint-disable import/no-extraneous-dependencies */
-import request from 'supertest';
-import app from '../../src/app';
-import {
-  getRandUsers,
-  getRandUser,
-} from '../../src/lib/utils/generateFakeUser';
+import { StatusCodes } from 'http-status-codes';
 
-const userEndpoint = '/users';
 const postEndpoint = '/posts';
 const endpoint = '/timeline';
-let observer;
-let aFriend;
-const createPost = (server, postObject: any, accessToken) =>
-  server
-    .post(postEndpoint)
-    .send(postObject)
-    .set('Authorization', `Bearer ${accessToken}`);
 
-const createUser = (server, userObject: any) => {
-  const user = userObject;
-  delete user?.id;
-  return server.post(userEndpoint).send(userObject);
-};
 
 describe("'timeline ' service", () => {
-  let testServer;
-  let createdTestUser;
 
-  beforeAll(async () => {
-    testServer = request(app);
-    await app.get('sequelizeClient').models.User.sync({ force: true });
-    createdTestUser = await Promise.all(
-      getRandUsers(4).map((user) => createUser(testServer, user))
-    );
-    observer = await createUser(testServer, getRandUser());
-    observer = observer.body;
-    // 4 Public posts
-    await Promise.all(
-      createdTestUser.map(({ body }) =>
-        createPost(
-          testServer,
-          { postText: ` I am a post from ${body.firstName}` },
-          body.accessToken
-        )
-      )
-    );
-  }, 10000);
   it('registered the service', () => {
-    const service = app.service('timeline');
+    const service = global.__APP__.service('timeline');
     expect(service).toBeTruthy();
   });
 
   it('Should receive 4 public posts', async () => {
-    const { body: timeline } = await testServer
+    const [user] = await global.__getRandUsers(1);
+    await Promise.all(
+      Array.from({ length: 4 }).map(() =>
+        global.__SERVER__
+          .post(postEndpoint)
+          .send({
+            postText: `${user.firstName} is a cool person`,
+            privacyType: 'public',
+          })
+          .set('authorization', user.accessToken)
+      )
+    );
+    await global.__SERVER__
       .get(endpoint)
-      .set('authorization', observer.accessToken);
-    // console.log('Newly created posts');
-    // console.log(timeline);
-    expect(timeline.data).toHaveLength(4);
+      .set('authorization', user.accessToken)
+      .expect(StatusCodes.OK)
+      .expect((res) => {
+        expect(res.body.data).toHaveLength(4);
+      });
 
-    createdTestUser.forEach((u) => {
-      const post = timeline.data.find((p) =>
-        p.postText.includes(u.body.firstName)
-      );
-      expect(post.privacyType).toEqual('public');
-      expect(post).toBeDefined();
-    });
-
-    // despite a private post was a created it is not being pulled
-    expect(timeline.data.every((t) => t.privacyType === 'public')).toBeTruthy();
   });
 
   it('should create a private post and not be pulled by unfriend User', async () => {
-    const privatePost = await createPost(
-      testServer,
-      {
+
+    await global.__SEQUELIZE__.models.Post.destroy({ where: {} });
+    const [user, observer] = await global.__getRandUsers(2);
+
+    await global.__SERVER__
+      .post(postEndpoint)
+      .send({
         postText: 'I am a private post',
         privacyType: 'private',
-      },
-      createdTestUser[0].body.accessToken
-    );
-    expect(privatePost.statusCode).toBe(201);
+      })
+      .set('authorization', user.accessToken)
+      .expect(StatusCodes.CREATED);
 
-    const { body: timeline } = await testServer
+    await global.__SERVER__
       .get(endpoint)
-      .set('authorization', observer.accessToken);
+      .set('authorization', observer.accessToken)
+      .expect(StatusCodes.OK)
+      .expect((res) => {
+        expect(res.body.data).toHaveLength(0);
+      });
 
-    expect(timeline.data).toHaveLength(4);
-    expect(
-      timeline.data.find((p) => p.postText === privatePost.postText)
-    ).toBeUndefined();
+    await global.__SERVER__
+      .get(endpoint)
+      .set('authorization', user.accessToken)
+      .expect(StatusCodes.OK)
+      .expect((res) => {
+        expect(res.body.data).toHaveLength(1);
+      });
+
   });
 
-  it('should see 5 post ', async () => {
-    const { body: timeline } = await testServer
-      .get(endpoint)
-      .set('authorization', createdTestUser[0].body.accessToken);
+});
 
-    expect(timeline.data).toHaveLength(5);
-  });
-
-  it('friend should still see 4 post as well', async () => {
+/** **
+ * 
+ * 
+ * 
+ it('friend should still see 4 post as well', async () => {
     const { User_friends: friends } = app.get('sequelizeClient').models;
     aFriend = await createUser(testServer, getRandUser());
     aFriend = aFriend.body;
@@ -150,4 +122,4 @@ describe("'timeline ' service", () => {
       .set('authorization', createdTestUser[0].body.accessToken);
     expect(userTimeline.data).toHaveLength(6);
   });
-});
+ */

@@ -4,6 +4,7 @@ import Sequelize from 'sequelize';
 import app from '../src/app';
 import { IMessenger } from '../src/schema/email.schema';
 import { getRandUsers } from '../src/lib/utils/generateFakeUser';
+import ts from 'typescript';
 
 
 
@@ -16,7 +17,8 @@ class MockMessenger implements IMessenger {
   // @ts-ignore
   send = jest.fn().mockResolvedValue({ ok: true });
 }
-
+// @ts-ignore
+jest.mock('../src/lib/utils/messenger');
 // @ts-ignore
 jest.mock('../src/lib/utils/outReach', () => ({
   __esModule: true,

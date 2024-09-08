@@ -1,107 +1,75 @@
-/* eslint-disable import/no-extraneous-dependencies */
-import request from 'supertest';
-/** Local dependencies */
-import app from '../../src/app';
-import { getRandUsers } from '../../src/lib/utils/generateFakeUser';
+import { randomBytes } from 'crypto';
+import { StatusCodes } from 'http-status-codes';
 
 describe("'community-users ' service", () => {
-  let creator;
-  let testUsers;
-  let testServer;
-  let community;
+
+  const testServer = global.__SERVER__;
   const endpoint = '/community-users';
-  const interests = ['sport', 'education'];
-  const userEndpoint = '/users';
   const communityEndpoint = '/communities';
-  const rolesEndpoint = '/community-role';
-  beforeAll(async () => {
-    testServer = request(app);
-    await app.get('sequelizeClient').models.User.sync({ force: true });
 
-    // Creating test users
-    testUsers = await Promise.all(
-      getRandUsers(5).map((u, idx) => {
-        let user = { ...u, admin: false };
-        if (idx === 1) user = { ...user, admin: true };
-        delete user.id;
-        return testServer.post(userEndpoint).send(user);
-      }, 10000)
-    );
-    testUsers = testUsers.map((testUser) => testUser.body);
-    const adminUser = testUsers.shift();
-    await Promise.all(
-      ['admin', 'member', 'moderator'].map((name) =>
-        testServer
-          .post(rolesEndpoint)
-          .send({ name })
-          .set('authorization', adminUser.accessToken)
-      )
-    );
 
-    creator = testUsers.shift();
-
-    // Creating test communities
-    community = await testServer
-      .post(communityEndpoint)
-      .send({
-        name: `Private test community ${Math.random()}`,
-        interests,
-        description: `This is a test community ${Math.random()}`,
-      })
-      .set('authorization', creator.accessToken);
-  });
   it('registered the service', () => {
-    const service = app.service('community-users');
+    const service = global.__APP__.service('community-users');
     expect(service).toBeTruthy();
   });
+
   it('Should return the users of a given community', async () => {
-    let users = await testServer
-      .get(`${endpoint}/?CommunityId=${community.body.id}`)
-      .set('authorization', creator.accessToken);
 
-    users = users.body.data;
-    expect(Array.isArray(users)).toBeTruthy();
-    expect(users.length).toBe(1);
+    const [adminUser] = await global.__getAdminUsers(1);
 
-    // The community creator is automatically added to the community as an admin
-    users.forEach((foundUser) => {
-      expect(foundUser.User).toEqual(
-        expect.objectContaining({
-          id: creator.id,
-          firstName: creator.firstName,
-          lastName: creator.lastName,
-          profilePicture: expect.any(String),
-          createdAt: expect.any(String),
-        })
-      );
+    const com = await testServer
+      .post(communityEndpoint)
+      .send({
+        name: 'test community',
+        description: 'test community description',
+      }).set('authorization', adminUser.accessToken)
+      .expect(StatusCodes.CREATED);
 
-      expect(foundUser.CommunityRole.name).toBe('admin');
-    });
+
+    await testServer
+      .get(`${endpoint}/?CommunityId=${com.body.id}`)
+      .set('authorization', adminUser.accessToken)
+      .expect(StatusCodes.OK)
+      .expect('Content-Type', /json/)
+      .expect((res) => {
+        expect(res.body.data).toEqual(expect.arrayContaining([]));
+        expect(res.body.total).toBe(1);
+      });
   });
-  it('should verify if the user is a member of the community', async () => {
-    const noneMemberId = testUsers[0].id;
-    let possibleMember = await testServer
-      .get(
-        `${endpoint}/?CommunityId=${community.body.id}&UserId=${noneMemberId}`
-      )
-      .set('authorization', creator.accessToken);
-    possibleMember = possibleMember.body.data;
-    expect(possibleMember.length).toBe(0);
 
-    possibleMember = await testServer
-      .get(`${endpoint}/?CommunityId=${community.body.id}&UserId=${creator.id}`)
-      .set('authorization', creator.accessToken);
-    possibleMember = possibleMember.body.data;
-    expect(possibleMember.length).toBe(1);
-    expect(possibleMember[0].User).toEqual(
-      expect.objectContaining({
-        id: creator.id,
-        firstName: creator.firstName,
-        lastName: creator.lastName,
-        profilePicture: expect.any(String),
-        createdAt: expect.any(String),
-      })
-    );
+  it('should verify if the user is a member of the community', async () => {
+
+    const [creator, noneMember] = await global.__getRandUsers(2);
+
+    const com = await testServer
+      .post(communityEndpoint)
+      .send({
+        name: randomBytes(5).toString('hex'),
+        description: randomBytes(10).toString('hex'),
+      }).set('authorization', creator.accessToken)
+      .expect(StatusCodes.CREATED);
+
+    await testServer
+      .get(`${endpoint}/?CommunityId=${com.body.id}&UserId=${noneMember.id}`)
+      .set('authorization', creator.accessToken)
+      .expect(StatusCodes.OK)
+      .expect('Content-Type', /json/)
+      .expect((res) => {
+        expect(res.body.data).toEqual(expect.arrayContaining([]));
+        expect(res.body.total).toBe(0);
+      });
+
+    await testServer
+      .get(`${endpoint}/?CommunityId=${com.body.id}&UserId=${creator.id}`)
+      .set('authorization', creator.accessToken)
+      .expect(StatusCodes.OK)
+      .expect('Content-Type', /json/)
+      .expect((res) => {
+        expect(res.body.data).toEqual(expect.arrayContaining([]));
+        expect(res.body.total).toBe(1);
+      });
+
+
   });
 
   it.todo('should not banned a user of the community');

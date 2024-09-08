@@ -12,8 +12,8 @@ export default async (context: HookContext) => {
 
   const isParticipant = `(
     EXISTS (
-    SELECT 1 FROM "ConversationUsers" AS "CU" 
-    WHERE "CU"."UserId"='${context.params.User.id}' AND "CU"."ConversationId"= "Conversation"."id"
+    SELECT 1 FROM conversation_users AS cu 
+    WHERE cu.user_id='${context.params.User.id}' AND cu.conversation_id= "Conversation"."id"
     )
   )`;
 
@@ -40,17 +40,15 @@ export default async (context: HookContext) => {
     SELECT 
     json_agg(
     json_build_object(
-      'id', "U"."id",
-      'firstName',"U"."firstName",
-      'lastName',"U"."lastName",
-      'createdAt',"U"."createdAt",
-      'updatedAt',"U"."updatedAt",
-      'profilePicture',"U"."profilePicture"
+      'id', users."id",
+      'firstName',users."first_name",
+      'lastName',users."last_name",
+      'profilePicture',users."profile_picture"
     )
       )
-     FROM "ConversationUsers" AS "CU" 
-     INNER JOIN "Users" AS "U" ON "U"."id" = "CU"."UserId"
-     WHERE "CU"."ConversationId"="Conversation"."id"
+     FROM conversation_users AS cu 
+     INNER JOIN users  ON users.id = cu.user_id
+     WHERE cu.conversation_id="Conversation".id
   )`;
 
   const lastMessage = `(
@@ -109,11 +107,11 @@ export default async (context: HookContext) => {
     where: clause,
     attributes: {
       include: [
-        [Sequelize.literal(amountOfMessage), 'amountOfMessage'],
+        // [Sequelize.literal(amountOfMessage), 'amountOfMessage'],
         [Sequelize.literal(Users), 'Users'],
-        [Sequelize.literal(lastMessage), 'lastMessage'],
-        [Sequelize.literal(amountOfPeople), 'amountOfPeople'],
-        [Sequelize.literal(amountOfUnreadMessages), 'amountOfUnreadMessages'],
+        // [Sequelize.literal(lastMessage), 'lastMessage'],
+        // [Sequelize.literal(amountOfPeople), 'amountOfPeople'],
+        // [Sequelize.literal(amountOfUnreadMessages), 'amountOfUnreadMessages'],
       ],
       exclude: ['amountOfMessages', 'amountOfUnreadMessages', 'amountOfPeople'],
     },

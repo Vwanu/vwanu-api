@@ -13,21 +13,16 @@ export interface MessageInterface {
 export default (sequelize: any, DataTypes: any) => {
   class Message extends Model<MessageInterface> implements MessageInterface {
     id: string;
-
     messageText: string;
-
     read: boolean;
-
     received: boolean;
-
     readDate: Date;
-
     receivedDate: Date;
 
     static associate(models: any): void {
-      Message.belongsTo(models.User, { as: 'sender' });
+      Message.belongsTo(models.User, { foreignKey: 'senderId' });
       Message.belongsTo(models.Conversation);
-      Message.belongsToMany(models.Media, { through: 'Message_Media' });
+      Message.belongsToMany(models.Media, { through: 'message_medias', foreignKey: 'message_id', otherKey: 'media_id' });
     }
   }
   Message.init(
@@ -72,6 +67,9 @@ export default (sequelize: any, DataTypes: any) => {
       },
       sequelize,
       modelName: 'Message',
+      tableName: 'messages',
+      underscored: true,
+
     }
   );
   return Message;

@@ -53,8 +53,9 @@ import templateMessages from './templateMessages';
 import userNotificationTypes from './user_notification_types';
 import accessLevelLogs from './access_level_logs'
 import communityInterests from './community_interests';
-import friendRequests from './friendRequests'
-import followers from './follower'
+import friendRequests from './friendRequests';
+import followers from './follower';
+import MessageMedias from './message_medias';
 
 const tables = [
   call,
@@ -104,7 +105,8 @@ const tables = [
   communityInterests,
   friendRequests,
   followers,
-  conversationUsers
+  conversationUsers,
+  MessageMedias
 ];
 
 export default function (app: Application): void {

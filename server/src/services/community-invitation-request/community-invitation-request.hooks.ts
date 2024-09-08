@@ -87,7 +87,7 @@ const notifyInvitation = async (context) => {
   if (!result) return context;
   const { guestId, CommunityId } = data;
   await app.service('notification').create({
-    UserId: User.id,
+    user_id: User.id,
     to: guestId,
     message: 'Invited you to a community',
     type: 'direct',
@@ -97,12 +97,18 @@ const notifyInvitation = async (context) => {
 
   return context;
 };
+
 export default {
   before: {
     all: [authenticate('jwt'), AgeAllow, IncludeGuests],
     find: [OnlyNotResponded],
     get: [],
-    create: [AutoAssign({ hostId: null }), noDuplicateInvitation],
+    create: [
+
+      AutoAssign({ hostId: null }),
+      noDuplicateInvitation,
+
+    ],
     update: [],
     patch: [],
     remove: [],
@@ -112,7 +118,10 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [notifyInvitation],
+    create: [
+
+      // notifyInvitation,
+    ],
     update: [],
     patch: [],
     remove: [],

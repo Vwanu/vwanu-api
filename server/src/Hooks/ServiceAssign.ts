@@ -10,6 +10,7 @@ export default (options: Options) => async (context: HookContext) => {
     where: { name: options.name },
   });
   context.data.ServiceId = serviceId;
+  context.data.entity_id = context.data.entityId;
 
   return context;
 };
