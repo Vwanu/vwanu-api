@@ -1,6 +1,6 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Cities', {
+    await queryInterface.createTable('cities', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
@@ -13,25 +13,25 @@ module.exports = {
         allowNull: false,
         unique: false,
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      StateId: {
+      state_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'States',
+          model: 'states',
           key: 'id',
         },
       },
     });
   },
   async down(queryInterface) {
-    await queryInterface.dropTable('Cities');
+    await queryInterface.dropTable('cities');
   },
 };

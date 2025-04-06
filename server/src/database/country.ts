@@ -48,6 +48,7 @@ export default (sequelize: any, DataTypes: any) => {
       // },
       sequelize,
       modelName: 'Country',
+      tableName: 'countries',
     }
   );
   return Country;

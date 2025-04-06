@@ -16,7 +16,6 @@ import album from './album';
 import Media from './media';
 import state from './state';
 import Korem from './korem';
-import street from './street';
 import friend from './Friends';
 import address from './address';
 import country from './country';
@@ -44,13 +43,13 @@ import communityBans from './community-bans';
 import communityHistory from './community-history';
 import notificationsSettings from './notifications_types';
 import UserNotificationsSettings from './user_notifications_settings';
-import phone from './phones'
+import phone from './phones';
 import userPhoneVerification from './userPhoneVerification';
 import errorCodes from './errorCodes.db';
-import expiryTime from './expiryTime'
+import expiryTime from './expiryTime';
 import templateMessages from './templateMessages';
 import userNotificationTypes from './user_notification_types';
-import accessLevelLogs from './access_level_logs'
+import accessLevelLogs from './access_level_logs';
 
 const tables = [
   call,
@@ -63,7 +62,6 @@ const tables = [
   state,
   Korem,
   Media,
-  street,
   friend,
   address,
   message,
@@ -97,7 +95,7 @@ const tables = [
   expiryTime,
   templateMessages,
   userNotificationTypes,
-  accessLevelLogs
+  accessLevelLogs,
 ];
 
 export default function (app: Application): void {
