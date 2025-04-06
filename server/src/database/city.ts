@@ -13,7 +13,6 @@ export default (sequelize: any, DataTypes: any) => {
     name: string;
 
     static associate(models: any): void {
-      City.hasMany(models.Street);
       City.belongsTo(models.State);
     }
   }
@@ -42,6 +41,8 @@ export default (sequelize: any, DataTypes: any) => {
       // },
       sequelize,
       modelName: 'City',
+      tableName: 'cities',
+      underscored: true,
     }
   );
   return City;
