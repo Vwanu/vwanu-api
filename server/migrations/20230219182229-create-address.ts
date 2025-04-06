@@ -15,7 +15,7 @@ module.exports = {
           type: Sequelize.UUID,
           allowNull: false,
           references: {
-            model: 'Cities',
+            model: 'cities',
             key: 'id',
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE',
@@ -25,7 +25,7 @@ module.exports = {
           type: Sequelize.UUID,
           allowNull: false,
           references: {
-            model: 'States',
+            model: 'states',
             key: 'id',
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE',
@@ -35,7 +35,7 @@ module.exports = {
           type: Sequelize.UUID,
           allowNull: false,
           references: {
-            model: 'Countries',
+            model: 'countries',
             key: 'id',
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE',
