@@ -5,12 +5,11 @@ const { QueryTypes } = require('sequelize');
 module.exports = {
   async up(queryInterface) {
     const env = config.util.getEnv('NODE_ENV');
-    // select all cities in the database 
+    // select all cities in the database
     const query = ` 
       SELECT name FROM "Cities" AS cities
       ${env === 'development' && 'LIMIT 10'}
       `;
-      
 
     const defaultUserQuery = `SELECT id FROM "Users" WHERE email = '${config.get(
       'ROOT_USER_EMAIL'
