@@ -9,15 +9,7 @@ export interface StateInterface {
   initials: string;
 }
 export default (sequelize: any, DataTypes: any) => {
-  class State extends Model<StateInterface> implements StateInterface {
-    id: number;
-
-    name: string;
-
-    initials: string;
-
-    areaCode: string;
-
+  class State extends Model<StateInterface> {
     static associate(models: any): void {
       State.hasMany(models.City);
       State.belongsTo(models.Country, {
@@ -57,6 +49,8 @@ export default (sequelize: any, DataTypes: any) => {
       // },
       sequelize,
       modelName: 'State',
+      tableName: 'states',
+      underscored: true,
     }
   );
   return State;
