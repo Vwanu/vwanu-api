@@ -1,12 +1,6 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('community_users', {
-      // id: {
-      //   type: Sequelize.UUID,
-      //   defaultValue: Sequelize.UUIDV4,
-      //   primaryKey: true,
-      //   allowNull: false,
-      // },
       community_role_id: {
         type: Sequelize.UUID,
         allowNull: false,

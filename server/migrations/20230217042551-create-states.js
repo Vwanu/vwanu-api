@@ -1,6 +1,6 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('States', {
+    await queryInterface.createTable('states', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
@@ -16,30 +16,30 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      areaCode: {
+      area_code: {
         type: Sequelize.STRING,
         allowNull: true,
       },
 
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      CountryId: {
+      country_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'Countries',
+          model: 'countries',
           key: 'id',
         },
       },
     });
   },
   async down(queryInterface) {
-    await queryInterface.dropTable('States');
+    await queryInterface.dropTable('states');
   },
 };

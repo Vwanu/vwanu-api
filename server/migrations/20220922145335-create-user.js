@@ -10,14 +10,6 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4,
         allowNull: false,
       },
-      access_role: {
-        type: Sequelize.UUID,
-        allowNull: true,
-        references: {
-          model: 'CommunityRoles',
-          key: 'id',
-        },
-      },
       email: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -51,42 +43,9 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
-
-      language: {
-        type: Sequelize.STRING,
-        defaultValue: 'en',
-      },
-      activationKey: {
-        type: Sequelize.STRING,
-        allowNull: true,
-        defaultValue: () => nanoid(),
-      },
-      resetPasswordKey: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
       verified: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
-      },
-      active: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: true,
-      },
-
-      lastSeenPrivacy: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: true,
-      },
-
-      admin: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
-      },
-
-      cover: {
-        type: Sequelize.STRING,
-        allowNull: true,
       },
       birthday: {
         type: Sequelize.STRING,

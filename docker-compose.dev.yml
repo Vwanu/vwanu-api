@@ -28,7 +28,7 @@ services:
     container_name: pg_db
     image: 'postgres:12'
     ports:
-      - '5432:5432'
+      - '5442:5432'
     restart: always
 
     environment:
