@@ -8,13 +8,7 @@ export interface CommunityRolesInterface {
   role_access_level: number;
 }
 export default (sequelize: any, DataTypes: any) => {
-  class CommunityRoles
-    extends Model<CommunityRolesInterface>
-    implements CommunityRolesInterface {
-    id: string;
-    name: string;
-    role_access_level: number;
-
+  class CommunityRoles extends Model<CommunityRolesInterface> {
     // static associate(models: any): void {
     //   CommunityRoles.belongsToMany(models.Community, {
     //     through: 'CommunityUsers',
@@ -40,7 +34,7 @@ export default (sequelize: any, DataTypes: any) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 0,
-      }
+      },
     },
 
     {

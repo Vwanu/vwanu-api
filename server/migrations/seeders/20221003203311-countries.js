@@ -86,15 +86,15 @@ async function saveAndAssociateStatesAndCities(queryInterface, stateDetails) {
 const countriesList = countriesData.map((country) => ({
   id: v4(),
   ...country,
-  createdAt: new Date(),
-  updatedAt: new Date(),
+  created_at: new Date(),
+  updated_at: new Date(),
 }));
 const countries = countriesList.map((country) => ({
   id: country.id,
   name: country.name,
   initials: country.initials,
-  createdAt: country.createdAt,
-  updatedAt: country.updatedAt,
+  created_at: country.createdAt,
+  updated_at: country.updatedAt,
 }));
 const countriesWithStates = countriesList.filter((country) =>
   Object.prototype.hasOwnProperty.call(country, 'states')
@@ -117,7 +117,10 @@ module.exports = {
     // save and associate state with countries then save and associate cities with states
     await Promise.all(
       countriesWithStates.map(async ({ states, id: CountryId }) =>
-        saveAndAssociateStatesAndCities(queryInterface, { states, CountryId })
+        saveAndAssociateStatesAndCities(queryInterface, {
+          states,
+          country_id: CountryId,
+        })
       )
     );
   },
