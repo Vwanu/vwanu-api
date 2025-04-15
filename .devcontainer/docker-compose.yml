@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   app:
@@ -16,6 +16,7 @@ services:
       - PGUSER=vwanu
       - PGPASSWORD=123456
       - PGHOST=postgres
+      - DB_HOST=postgres
       - REDIS_URL=redis://redis:6379/0
     depends_on:
       - postgres
@@ -25,7 +26,7 @@ services:
     # Use the sleep command to keep the container running
     command: sleep infinity
     user: node
-    
+
   postgres:
     container_name: postgres
     image: postgres:12
@@ -39,7 +40,7 @@ services:
       - POSTGRES_HOST_AUTH_METHOD=trust
     ports:
       - 5432:5432
-    
+
   redis:
     container_name: redis
     image: redis:alpine
