@@ -1,0 +1,147 @@
+name: Deploy
+run-name: Deploy to ${{ inputs.environment }} by @${{ github.actor }}
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: choice
+        options:
+          - Development
+          - Staging
+          - Production
+
+jobs:
+  # test:
+  #   uses: ./.github/workflows/test.yml
+  #   secrets: inherit
+
+  aws-deploy:
+    #needs: test
+    runs-on: ubuntu-22.04
+    timeout-minutes: ${{ fromJSON(vars.DEFAULT_JOB_TIMEOUT) }}
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: 'us-west-2'
+      AWS_DEFAULT_REGION: 'us-west-2'
+    steps:
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
+      - name: Git Get Short SHA
+        id: git_short_sha
+        run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_OUTPUT
+
+      - name: Set environment variable based on input
+        id: set_env
+        run: |
+          case "${{ inputs.environment }}" in
+            "Production")
+              echo "STAGE=prod" >> $GITHUB_ENV
+              ;;
+            "Staging")
+              echo "STAGE=staging" >> $GITHUB_ENV
+              ;;
+          esac
+
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set Node.js 20.12.2
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.12.2
+          cache: yarn
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: yarn
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to ECR
+        uses: docker/login-action@v3
+        with:
+          registry: 745128203536.dkr.ecr.us-west-2.amazonaws.com
+          username: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/arm64
+          file: ./Dockerfile.build
+          push: true
+          tags: '745128203536.dkr.ecr.us-west-2.amazonaws.com/webvitals/vwanu-1:${{ steps.git_short_sha.outputs.SHORT_SHA }}'
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Deploy to ECS
+
+      - name: Deploy to ECS using Serverless Framework
+        env:
+          SENTRY_PROJECT: vwanu-1-backend
+          SENTRY_ORG: webvitals
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_RELEASE: ${{ steps.git_short_sha.outputs.SHORT_SHA }}
+          IMAGE_TAG: ${{ steps.git_short_sha.outputs.SHORT_SHA }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          yarn sls deploy --stage ${{ env.STAGE }} --param="imageTag=${{ env.IMAGE_TAG }}"
+
+      - uses: 'marvinpinto/action-inject-ssm-secrets@v1.2.1'
+        with:
+          ssm_parameter: '/${{ env.STAGE }}/database/credentials'
+          env_variable_name: 'DATABASE_CREDENTIALS'
+
+      - uses: 'marvinpinto/action-inject-ssm-secrets@v1.2.1'
+        with:
+          ssm_parameter: '/${{ env.STAGE }}/twilio/accountSid'
+          env_variable_name: 'TWILIO_ACCOUNT_SID'
+
+      - uses: 'marvinpinto/action-inject-ssm-secrets@v1.2.1'
+        with:
+          ssm_parameter: '/${{ env.STAGE }}/twilio/apiKey'
+          env_variable_name: 'TWILIO_API_KEY'
+
+      - uses: 'marvinpinto/action-inject-ssm-secrets@v1.2.1'
+        with:
+          ssm_parameter: '/${{ env.STAGE }}/twilio/apiSecret'
+          env_variable_name: 'TWILIO_API_SECRET'
+
+      - uses: 'marvinpinto/action-inject-ssm-secrets@v1.2.1'
+        with:
+          ssm_parameter: '/${{ env.STAGE }}/twilio/authToken'
+          env_variable_name: 'TWILIO_AUTH_TOKEN'
+
+      - name: Get RDS Endpoints
+        run: |
+          echo 'RDS_INSTANCE_ENDPOINTS<<EOF' >> $GITHUB_ENV
+          echo $(aws rds describe-db-instances --db-instance-identifier wurtec-s3c-avt-$STAGE --query "DBInstances[*].Endpoint.Address" --output text) >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+
+      - name: Set RDS Vars
+        run: |
+          echo "::add-mask::${{fromJson(env.DATABASE_CREDENTIALS).username}}"
+          echo "::add-mask::${{fromJson(env.DATABASE_CREDENTIALS).password}}"
+          echo "DB_HOST=${{ env.RDS_INSTANCE_ENDPOINTS }}" >> $GITHUB_ENV
+          echo "DB_USERNAME=${{fromJson(env.DATABASE_CREDENTIALS).username}}" >> $GITHUB_ENV
+          echo "DB_PASSWORD=${{fromJson(env.DATABASE_CREDENTIALS).password}}" >> $GITHUB_ENV
+
+      # - name: Migrate DB
+      #   env:
+      #     # The following are not used but need to be provided to instantiate the callService
+      #     API_URL: 'https://localhost'
+      #     SQS_CALL_QUEUE_URL: 'https://localhost'
+      #     TWIML_APPLICATION_SID: 'DUMMY_SID'
+      #   run: |
+      #     yarn typeorm migration:run -d ./src/Db.ts
