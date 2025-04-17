@@ -1,0 +1,72 @@
+name: Sync Cognito User Status
+run-name: Sync Cognito User Status to ${{ inputs.stage }} by @${{ github.actor }}
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: 'Stage to sync users from'
+        required: true
+        type: choice
+        options:
+          - Development
+          - Development-1
+          - Staging
+          - Production
+
+jobs:
+  sync-cognito:
+    runs-on: ubuntu-22.04
+    environment: ${{ inputs.stage }}
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: us-west-2
+      STAGE: ${{ inputs.stage }}
+      COGNITO_USER_POOL: ${{ secrets.COGNITO_USER_POOL }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set environment based on stage
+        run: |
+          if [ "${{ inputs.stage }}" = "Development" ]; then
+            echo "STAGE=dev" >> $GITHUB_ENV
+          elif [ "${{ inputs.stage }}" = "Development-1" ]; then
+            echo "STAGE=dev-1" >> $GITHUB_ENV
+          elif [ "${{ inputs.stage }}" = "Staging" ]; then
+            echo "STAGE=staging" >> $GITHUB_ENV
+          elif [ "${{ inputs.stage }}" = "Production" ]; then
+            echo "STAGE=prod" >> $GITHUB_ENV
+          fi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - uses: 'marvinpinto/action-inject-ssm-secrets@v1.2.1'
+        with:
+          ssm_parameter: '/${{ env.STAGE }}/database/credentials'
+          env_variable_name: 'DATABASE_CREDENTIALS'
+
+      - name: Get RDS Endpoints
+        run: |
+          echo 'RDS_INSTANCE_ENDPOINTS<<EOF' >> $GITHUB_ENV
+          echo $(aws rds describe-db-instances --db-instance-identifier wurtec-s3c-avt-$STAGE --query "DBInstances[*].Endpoint.Address" --output text) >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+
+      - name: Set RDS Vars
+        run: |
+          echo "::add-mask::${{fromJson(env.DATABASE_CREDENTIALS).username}}"
+          echo "::add-mask::${{fromJson(env.DATABASE_CREDENTIALS).password}}"
+          echo "DB_HOST=${{ env.RDS_INSTANCE_ENDPOINTS }}" >> $GITHUB_ENV
+          echo "DB_USERNAME=${{fromJson(env.DATABASE_CREDENTIALS).username}}" >> $GITHUB_ENV
+          echo "DB_PASSWORD=${{fromJson(env.DATABASE_CREDENTIALS).password}}" >> $GITHUB_ENV
+
+      - name: Sync Status
+        run: yarn sync:cognito:status
+        env:
+          COGNITO_USER_POOL: ${{ secrets.COGNITO_USER_POOL }}
