@@ -134,3 +134,4 @@ env_generator.js
 # .gitignore
 infra/terraform.tfvars
 infra/.terraform
+.terraform/
