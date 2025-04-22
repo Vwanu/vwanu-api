@@ -9,7 +9,6 @@ on:
         type: choice
         options:
           - Development
-          - Staging
           - Production
 
 jobs:
@@ -43,8 +42,8 @@ jobs:
             "Production")
               echo "STAGE=prod" >> $GITHUB_ENV
               ;;
-            "Staging")
-              echo "STAGE=staging" >> $GITHUB_ENV
+            "Development")
+              echo "STAGE=Development" >> $GITHUB_ENV
               ;;
           esac
 
