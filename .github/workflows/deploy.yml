@@ -26,10 +26,10 @@ jobs:
       AWS_REGION: 'us-east-1'
       AWS_DEFAULT_REGION: 'us-east-1'
     steps:
-      - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+      # - name: Slack Notification
+      #   uses: rtCamp/action-slack-notify@v2
+      #   env:
+      #     SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 
       - name: Git Get Short SHA
         id: git_short_sha
@@ -77,7 +77,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           platforms: linux/arm64
-          file: ./Dockerfile.build
+          file: ./Dockerfile
           push: true
           tags: '058264272613.dkr.ecr.us-east-1.amazonaws.com/vwanu-api-backend:${{ steps.git_short_sha.outputs.SHORT_SHA }}'
           cache-from: type=gha
@@ -85,17 +85,17 @@ jobs:
 
       # Deploy to ECS
 
-      # - name: Deploy to ECS using Serverless Framework
-      #   env:
-      #     SENTRY_PROJECT: vwanu-1-backend
-      #     SENTRY_ORG: webvitals
-      #     SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-      #     SENTRY_RELEASE: ${{ steps.git_short_sha.outputs.SHORT_SHA }}
-      #     IMAGE_TAG: ${{ steps.git_short_sha.outputs.SHORT_SHA }}
-      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #   run: |
-      #     yarn sls deploy --stage ${{ env.STAGE }} --param="imageTag=${{ env.IMAGE_TAG }}"
+      - name: Deploy to ECS using Serverless Framework
+        env:
+          #     SENTRY_PROJECT: vwanu-1-backend
+          #     SENTRY_ORG: webvitals
+          #     SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          #     SENTRY_RELEASE: ${{ steps.git_short_sha.outputs.SHORT_SHA }}
+          IMAGE_TAG: ${{ steps.git_short_sha.outputs.SHORT_SHA }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          yarn sls deploy --stage ${{ env.STAGE }} --param="imageTag=${{ env.IMAGE_TAG }}"
 
       - uses: 'marvinpinto/action-inject-ssm-secrets@v1.2.1'
         with:
