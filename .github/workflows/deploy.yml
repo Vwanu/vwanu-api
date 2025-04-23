@@ -131,4 +131,4 @@ jobs:
           aws ecs update-service \
             --cluster ${{ secrets.ECS_CLUSTER }} \
             --service ${{ secrets.ECS_SERVICE }} \
-            --task-definition $NEW_TASK_DEF_ARN
+            --task-definition "${{ env.NEW_TASK_DEF_ARN }}"
