@@ -91,7 +91,7 @@ jobs:
         id: get-task-def
         run: |
           TASK_DEF_JSON=$(aws ecs describe-task-definition --task-definition ${{ secrets.TASK_DEFINITION }} --query taskDefinition --output json)
-
+          echo "$TASK_DEF_JSON" > task-definition.json
       - name: Update task definition with new image
         run: |
           CONTAINER_NAME=my-container-name  # Replace with actual ECS container name
