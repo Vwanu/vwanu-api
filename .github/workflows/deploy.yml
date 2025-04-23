@@ -13,7 +13,12 @@ on:
           - Production
 
 jobs:
+  # test:
+  #   uses: ./.github/workflows/test.yml
+  #   secrets: inherit
+
   aws-deploy:
+    #needs: test
     runs-on: ubuntu-22.04
     timeout-minutes: ${{ vars.DEFAULT_JOB_TIMEOUT || 30 }}
     env:
@@ -25,7 +30,7 @@ jobs:
     steps:
       - name: Git Get Short SHA
         id: git_short_sha
-        run: echo "SHORT_SHA=$(echo ${GITHUB_SHA} | cut -c1-8)" >> $GITHUB_OUTPUT
+        run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_OUTPUT
 
       - name: Set environment variable based on input
         id: set_env
@@ -85,11 +90,7 @@ jobs:
       - name: Get latest task definition
         id: get-task-def
         run: |
-          TASK_DEF_JSON=$(aws ecs describe-task-definition \
-            --task-definition ${{ secrets.TASK_DEFINITION }} \
-            --query taskDefinition \
-            --output json)
-          echo "$TASK_DEF_JSON" > task-definition.json
+          TASK_DEF_JSON=$(aws ecs describe-task-definition --task-definition ${{ secrets.TASK_DEFINITION }} --query taskDefinition --output json)
 
       - name: Update task definition with new image
         run: |
