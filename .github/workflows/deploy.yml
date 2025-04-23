@@ -86,6 +86,8 @@ jobs:
           tags: '058264272613.dkr.ecr.us-east-1.amazonaws.com/vwanu-api-backend:${{ steps.git_short_sha.outputs.SHORT_SHA }}'
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          no-cache: true
+          provenance: false
 
       - name: Get latest task definition
         id: get-task-def
@@ -95,8 +97,8 @@ jobs:
 
       - name: Update task definition with new image
         run: |
-          CONTAINER_NAME=my-container-name  # Replace with actual ECS container name
-          NEW_IMAGE=${{ secrets.ECR_REPOSITORY }}:${{ steps.git_short_sha.outputs.SHORT_SHA }}
+          CONTAINER_NAME=vwanu-api-backend  # Update to match your ECS container name
+          NEW_IMAGE=058264272613.dkr.ecr.us-east-1.amazonaws.com/vwanu-api-backend:${{ steps.git_short_sha.outputs.SHORT_SHA }}
 
           # Update the container image while keeping the structure intact
           jq --arg IMAGE "$NEW_IMAGE" --arg CONTAINER "$CONTAINER_NAME" \
