@@ -92,21 +92,26 @@ jobs:
         run: |
           TASK_DEF_JSON=$(aws ecs describe-task-definition --task-definition ${{ secrets.TASK_DEFINITION }} --query taskDefinition --output json)
           echo "$TASK_DEF_JSON" > task-definition.json
+          
       - name: Update task definition with new image
         run: |
           CONTAINER_NAME=my-container-name  # Replace with actual ECS container name
           NEW_IMAGE=${{ secrets.ECR_REPOSITORY }}:${{ steps.git_short_sha.outputs.SHORT_SHA }}
-
-          # Inject new image
+        
+          # Update the container image while keeping the structure intact
           jq --arg IMAGE "$NEW_IMAGE" --arg CONTAINER "$CONTAINER_NAME" \
-            '(.containerDefinitions[] | select(.name == $CONTAINER) | .image) = $IMAGE' \
-            task-definition.json > updated-task-definition.json
-
-          # Fix cpu type if needed
+              '(.containerDefinitions[] | select(.name == $CONTAINER) | .image) = $IMAGE | .' \
+              task-definition.json > updated-task-definition.json
+        
+          # Fix cpu field type if it is a number
           jq 'if .cpu | type == "number" then .cpu |= tostring else . end' \
-            updated-task-definition.json > final-task-definition.json
-
+              updated-task-definition.json > final-task-definition.json
+        
           mv final-task-definition.json updated-task-definition.json
+          
+      - name: Debug updated task def
+        run: |
+          cat updated-task-definition.json
 
       - name: Register new task definition
         id: register-task-def
