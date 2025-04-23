@@ -1,12 +1,14 @@
-import app from '../../src/app';
 import assert from 'assert';
 import axios from 'axios';
+import app from '../../src/app';
+
+const { describe, it, before, after } = require('mocha');
 
 describe('Health Check Service', () => {
   let server: any;
   let port: number;
 
-  before(function (done) {
+  before((done) => {
     server = app.listen(0);
     server.once('listening', () => {
       port = server.address().port;
@@ -14,7 +16,7 @@ describe('Health Check Service', () => {
     });
   });
 
-  after(function (done) {
+  after((done) => {
     server.close(done);
   });
 

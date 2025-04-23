@@ -1,5 +1,5 @@
-import { Application } from '../../declarations';
 import { Request, Response } from 'express';
+import { Application } from '../../declarations';
 
 export default function (app: Application): void {
   // Register the health check route
