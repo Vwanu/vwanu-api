@@ -1,5 +1,6 @@
 name: Deploy
 run-name: Deploy to ${{ inputs.environment }} by @${{ github.actor }}
+
 on:
   workflow_dispatch:
     inputs:
@@ -25,12 +26,8 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: 'us-east-1'
       AWS_DEFAULT_REGION: 'us-east-1'
-    steps:
-      # - name: Slack Notification
-      #   uses: rtCamp/action-slack-notify@v2
-      #   env:
-      #     SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 
+    steps:
       - name: Git Get Short SHA
         id: git_short_sha
         run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_OUTPUT
@@ -65,14 +62,14 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-          
+
       - name: Login to ECR
         uses: docker/login-action@v3
         with:
@@ -83,12 +80,14 @@ jobs:
       - name: Build Docker image
         uses: docker/build-push-action@v6
         with:
-          platforms: linux/arm64
+          platforms: linux/amd64
           file: ./Dockerfile
           push: true
           tags: '058264272613.dkr.ecr.us-east-1.amazonaws.com/vwanu-api-backend:${{ steps.git_short_sha.outputs.SHORT_SHA }}'
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          no-cache: true
+          provenance: false
 
       - name: Get latest task definition
         id: get-task-def
@@ -98,18 +97,40 @@ jobs:
 
       - name: Update task definition with new image
         run: |
-          CONTAINER_NAME=my-container-name  # Replace with your actual container name
-          NEW_IMAGE=${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
+          CONTAINER_NAME=vwanu-api-backend  # Update to match your ECS container name
+          NEW_IMAGE=058264272613.dkr.ecr.us-east-1.amazonaws.com/vwanu-api-backend:${{ steps.git_short_sha.outputs.SHORT_SHA }}
+
+          # Update the container image while keeping the structure intact
           jq --arg IMAGE "$NEW_IMAGE" --arg CONTAINER "$CONTAINER_NAME" \
-            '.containerDefinitions[] | select(.name == $CONTAINER).image = $IMAGE' \
-            task-definition.json > updated-task-definition.json
+              '(.containerDefinitions[] | select(.name == $CONTAINER) | .image) = $IMAGE | .' \
+              task-definition.json > updated-task-definition.json
+
+          # Fix cpu field type if it is a number
+          jq 'if .cpu | type == "number" then .cpu |= tostring else . end' \
+              updated-task-definition.json > final-task-definition.json
+
+          # Remove fields that can't be included in register-task-definition
+          jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' \
+              final-task-definition.json > cleaned-task-definition.json
+
+          mv cleaned-task-definition.json updated-task-definition.json
+
+      - name: Debug updated task def
+        run: |
+          cat updated-task-definition.json
 
       - name: Register new task definition
         id: register-task-def
         run: |
-          NEW_TASK_DEF_ARN=$(aws ecs register-task-definition --cli-input-json file://updated-task-definition.json --query 'taskDefinition.taskDefinitionArn' --output text)
+          NEW_TASK_DEF_ARN=$(aws ecs register-task-definition \
+            --cli-input-json file://updated-task-definition.json \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text)
           echo "NEW_TASK_DEF_ARN=$NEW_TASK_DEF_ARN" >> $GITHUB_ENV
 
       - name: Deploy new task definition to ECS
         run: |
-          aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER }} --service ${{ secrets.ECS_SERVICE }} --task-definition $NEW_TASK_DEF_ARN
+          aws ecs update-service \
+            --cluster ${{ secrets.ECS_CLUSTER }} \
+            --service ${{ secrets.ECS_SERVICE }} \
+            --task-definition "${{ env.NEW_TASK_DEF_ARN }}"
