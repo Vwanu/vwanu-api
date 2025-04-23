@@ -1,5 +1,6 @@
 name: Deploy
 run-name: Deploy to ${{ inputs.environment }} by @${{ github.actor }}
+
 on:
   workflow_dispatch:
     inputs:
@@ -12,12 +13,7 @@ on:
           - Production
 
 jobs:
-  # test:
-  #   uses: ./.github/workflows/test.yml
-  #   secrets: inherit
-
   aws-deploy:
-    #needs: test
     runs-on: ubuntu-22.04
     timeout-minutes: ${{ vars.DEFAULT_JOB_TIMEOUT || 30 }}
     env:
@@ -25,15 +21,11 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: 'us-east-1'
       AWS_DEFAULT_REGION: 'us-east-1'
-    steps:
-      # - name: Slack Notification
-      #   uses: rtCamp/action-slack-notify@v2
-      #   env:
-      #     SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 
+    steps:
       - name: Git Get Short SHA
         id: git_short_sha
-        run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_OUTPUT
+        run: echo "SHORT_SHA=$(echo ${GITHUB_SHA} | cut -c1-8)" >> $GITHUB_OUTPUT
 
       - name: Set environment variable based on input
         id: set_env
@@ -93,23 +85,40 @@ jobs:
       - name: Get latest task definition
         id: get-task-def
         run: |
-          TASK_DEF_JSON=$(aws ecs describe-task-definition --task-definition ${{ secrets.TASK_DEFINITION }} --query taskDefinition --output json)
+          TASK_DEF_JSON=$(aws ecs describe-task-definition \
+            --task-definition ${{ secrets.TASK_DEFINITION }} \
+            --query taskDefinition \
+            --output json)
           echo "$TASK_DEF_JSON" > task-definition.json
 
       - name: Update task definition with new image
         run: |
-          CONTAINER_NAME=my-container-name  # Replace with your actual container name
-          NEW_IMAGE=${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
+          CONTAINER_NAME=my-container-name  # Replace with actual ECS container name
+          NEW_IMAGE=${{ secrets.ECR_REPOSITORY }}:${{ steps.git_short_sha.outputs.SHORT_SHA }}
+
+          # Inject new image
           jq --arg IMAGE "$NEW_IMAGE" --arg CONTAINER "$CONTAINER_NAME" \
-            '.containerDefinitions[] | select(.name == $CONTAINER).image = $IMAGE' \
+            '(.containerDefinitions[] | select(.name == $CONTAINER) | .image) = $IMAGE' \
             task-definition.json > updated-task-definition.json
+
+          # Fix cpu type if needed
+          jq 'if .cpu | type == "number" then .cpu |= tostring else . end' \
+            updated-task-definition.json > final-task-definition.json
+
+          mv final-task-definition.json updated-task-definition.json
 
       - name: Register new task definition
         id: register-task-def
         run: |
-          NEW_TASK_DEF_ARN=$(aws ecs register-task-definition --cli-input-json file://updated-task-definition.json --query 'taskDefinition.taskDefinitionArn' --output text)
+          NEW_TASK_DEF_ARN=$(aws ecs register-task-definition \
+            --cli-input-json file://updated-task-definition.json \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text)
           echo "NEW_TASK_DEF_ARN=$NEW_TASK_DEF_ARN" >> $GITHUB_ENV
 
       - name: Deploy new task definition to ECS
         run: |
-          aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER }} --service ${{ secrets.ECS_SERVICE }} --task-definition $NEW_TASK_DEF_ARN
+          aws ecs update-service \
+            --cluster ${{ secrets.ECS_CLUSTER }} \
+            --service ${{ secrets.ECS_SERVICE }} \
+            --task-definition $NEW_TASK_DEF_ARN
