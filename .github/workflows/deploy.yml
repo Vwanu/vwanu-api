@@ -62,14 +62,14 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-          
+
       - name: Login to ECR
         uses: docker/login-action@v3
         with:
@@ -92,23 +92,27 @@ jobs:
         run: |
           TASK_DEF_JSON=$(aws ecs describe-task-definition --task-definition ${{ secrets.TASK_DEFINITION }} --query taskDefinition --output json)
           echo "$TASK_DEF_JSON" > task-definition.json
-          
+
       - name: Update task definition with new image
         run: |
           CONTAINER_NAME=my-container-name  # Replace with actual ECS container name
           NEW_IMAGE=${{ secrets.ECR_REPOSITORY }}:${{ steps.git_short_sha.outputs.SHORT_SHA }}
-        
+
           # Update the container image while keeping the structure intact
           jq --arg IMAGE "$NEW_IMAGE" --arg CONTAINER "$CONTAINER_NAME" \
               '(.containerDefinitions[] | select(.name == $CONTAINER) | .image) = $IMAGE | .' \
               task-definition.json > updated-task-definition.json
-        
+
           # Fix cpu field type if it is a number
           jq 'if .cpu | type == "number" then .cpu |= tostring else . end' \
               updated-task-definition.json > final-task-definition.json
-        
-          mv final-task-definition.json updated-task-definition.json
-          
+
+          # Remove fields that can't be included in register-task-definition
+          jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' \
+              final-task-definition.json > cleaned-task-definition.json
+
+          mv cleaned-task-definition.json updated-task-definition.json
+
       - name: Debug updated task def
         run: |
           cat updated-task-definition.json
