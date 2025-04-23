@@ -48,8 +48,10 @@ import phone from './phone/phone.service';
 import templateMessage from './templateMessages/templateMessage.service';
 import notificationTypes from './notification_types/notification_types.service';
 import userNotificationTypes from './user_notification_types/user_notification_types.service';
+import health from './health/health.service';
 
 export default function (app: Application): void {
+  app.configure(health);
   app.configure(search);
   app.configure(post);
   app.configure(users);
