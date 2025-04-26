@@ -64,23 +64,17 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build Docker image, tag and push to ECR
-      - name: Build Docker image
-        uses: docker/build-push-action@v6
-        with:
-          platforms: linux/amd64
-          file: ./Dockerfile
-          push: true
-          tags: '058264272613.dkr.ecr.us-east-1.amazonaws.com/vwanu-api-backend:${{ steps.git_short_sha.outputs.SHORT_SHA }}'
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          no-cache: true
-          provenance: false
-
-      - name: Get latest task definition
-        id: get-task-def
         run: |
-          docker buildx build -t ${{ secrets.ECR_REPOSITORY }}:${{ steps.git_short_sha.outputs.SHORT_SHA }} .
-          docker push ${{ secrets.ECR_REPOSITORY }}:${{ steps.git_short_sha.outputs.SHORT_SHA }}
+          IMAGE_TAG=${{ steps.git_short_sha.outputs.SHORT_SHA }}
+          docker build -t ${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG .
+          docker push ${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
+       
+
+      # - name: Get latest task definition
+      #   id: get-task-def
+      #   run: |
+      #     docker buildx build -t ${{ secrets.ECR_REPOSITORY }}:${{ steps.git_short_sha.outputs.SHORT_SHA }} .
+      #     docker push ${{ secrets.ECR_REPOSITORY }}:${{ steps.git_short_sha.outputs.SHORT_SHA }}
       # - name: Build Docker image
       #   uses: docker/build-push-action@v6
       #   with:
@@ -104,15 +98,15 @@ jobs:
       #     jq --arg IMAGE "$NEW_IMAGE" --arg CONTAINER "$CONTAINER_NAME" \
       #       '.containerDefinitions[] | select(.name == $CONTAINER).image = $IMAGE' \
       #       task-definition.json > updated-task-definition.json
-      - name: Update task definition with new image
-        run: |
-          CONTAINER_NAME=vwanu-api-backend  # Update to match your ECS container name
-          NEW_IMAGE=058264272613.dkr.ecr.us-east-1.amazonaws.com/vwanu-api-backend:${{ steps.git_short_sha.outputs.SHORT_SHA }}
+      # - name: Update task definition with new image
+      #   run: |
+      #     CONTAINER_NAME=vwanu-api-backend  # Update to match your ECS container name
+      #     NEW_IMAGE=058264272613.dkr.ecr.us-east-1.amazonaws.com/vwanu-api-backend:${{ steps.git_short_sha.outputs.SHORT_SHA }}
 
-          # Update the container image while keeping the structure intact
-          jq --arg IMAGE "$NEW_IMAGE" --arg CONTAINER "$CONTAINER_NAME" \
-              '(.containerDefinitions[] | select(.name == $CONTAINER) | .image) = $IMAGE | .' \
-              task-definition.json > updated-task-definition.json
+      #     # Update the container image while keeping the structure intact
+      #     jq --arg IMAGE "$NEW_IMAGE" --arg CONTAINER "$CONTAINER_NAME" \
+      #         '(.containerDefinitions[] | select(.name == $CONTAINER) | .image) = $IMAGE | .' \
+      #         task-definition.json > updated-task-definition.json
 
       # - name: Register new task definition
       #   id: register-task-def
