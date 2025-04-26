@@ -65,7 +65,7 @@ jobs:
 
       - name: Build Docker image, tag and push to ECR
         run: |
-          IMAGE_TAG=${{ steps.git_short_sha.outputs.SHORT_SHA }}
+          IMAGE_TAG="${{ github.sha }}"
           docker build -t ${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG .
           docker push ${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
        
