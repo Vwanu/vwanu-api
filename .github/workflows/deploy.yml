@@ -138,15 +138,9 @@ jobs:
 
       - name: Deploy to ECS
         run: |
-          NEW_TASK_DEF_ARN=$(aws ecs register-task-definition \
-            --cli-input-json file://updated-task-definition.json \
-            --query 'taskDefinition.taskDefinitionArn' \
-            --output text)
-          echo "NEW_TASK_DEF_ARN=$NEW_TASK_DEF_ARN" >> $GITHUB_ENV
-
-      - name: Deploy new task definition to ECS
-        run: |
-          aws ecs update-service \
-            --cluster ${{ secrets.ECS_CLUSTER }} \
-            --service ${{ secrets.ECS_SERVICE }} \
-            --task-definition "${{ env.NEW_TASK_DEF_ARN }}"
+          TASK_DEF=$(aws ecs describe-task-definition --task-definition ${{ vars.ECS_TASK_DEFINITION_STAGING }} --region ${{ vars.AWS_REGION }})
+          NEW_TASK_DEF=$(echo "$TASK_DEF" | jq --arg IMAGE "${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)')
+          NEW_TASK_RESP=$(aws ecs register-task-definition --region ${{ vars.AWS_REGION }} --cli-input-json "$NEW_TASK_DEF")
+          NEW_REVISION=$(echo "$NEW_TASK_RESP" | jq -r '.taskDefinition.family + ":" + (.taskDefinition.revision | tostring)')
+          aws ecs update-service --cluster ${{ vars.ECS_CLUSTER_STAGING }} --service ${{ vars.ECS_SERVICE_STAGING }} --task-definition "$NEW_REVISION" --region ${{ vars.AWS_REGION }}
+          aws ecs wait services-stable --cluster ${{ vars.ECS_CLUSTER_STAGING }} --services ${{ vars.ECS_SERVICE_STAGING }} --region ${{ vars.AWS_REGION }}
