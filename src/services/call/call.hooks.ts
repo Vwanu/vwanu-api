@@ -1,5 +1,3 @@
-import * as authentication from '@feathersjs/authentication';
-// import { fastJoin } from 'feathers-hooks-common';
 
 import { createCallSchema } from '../../schema/call';
 import validateResource from '../../middleware/validateResource';
@@ -7,12 +5,10 @@ import {
   AssignCaller,
   ReturnCallDetails,
   RegisterCallErrors,
-  IncludePeople,
 } from './hooks';
 
-// import { resolvers, query } from './hooks/IncludePeople';
+import { requireAuth } from '../../Hooks/requireAuth';
 
-const { authenticate } = authentication.hooks;
 export default {
   before: {
     all: [requireAuth],
@@ -21,16 +17,6 @@ export default {
     create: [
       validateResource(createCallSchema),
       AssignCaller,
-      (C) => {
-        console.log('b4 include people');
-        return C;
-      },
-      // fastJoin(resolvers, query),
-      (C) => {
-        console.log('after include people');
-
-        return C;
-      },
     ],
     update: [],
     patch: [],
@@ -38,15 +24,10 @@ export default {
   },
 
   after: {
-    all: [ReturnCallDetails, IncludePeople],
+    all: [ReturnCallDetails],
     find: [],
     get: [],
     create: [
-      (C) => {
-        console.log('after include people');
-        console.log(C.result);
-        return C;
-      },
     ],
     update: [],
     patch: [],
