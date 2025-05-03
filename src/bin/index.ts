@@ -14,7 +14,7 @@ if (API_CONFIG_SCHEMA.parse(API_CONFIGURATION)) {
 
   // Configure a middleware for 404s and the error handler
 
-  const server = app.listen(port);
+  const server = app.listen(port, '0.0.0.0');
 
   server.on('error', (err) => {
     helper.onError(err, API_CONFIGURATION.port);
@@ -24,7 +24,7 @@ if (API_CONFIG_SCHEMA.parse(API_CONFIGURATION)) {
     app
       .get('sequelizeSync')
       .then(() => {
-        helper.onListening(server, API_CONFIGURATION.host);
+        helper.onListening(server, '0.0.0.0');
       })
       .catch((error) => {
         Logger.error(error);

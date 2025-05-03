@@ -7,12 +7,13 @@ resource "aws_security_group" "ecs_sg" {
   description = "Allow inbound HTTP traffic to API"
   vpc_id      = aws_vpc.main.id
 
-  # Allow HTTP (port 80) from anywhere
+  # Allow HTTP (port 80) from the load balancer
   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    security_groups = [aws_security_group.lb_sg.id]
+    description     = "Allow traffic from ALB"
   }
 
   # Allow all outbound
