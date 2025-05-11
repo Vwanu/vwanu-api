@@ -7,18 +7,23 @@
     "strict": false,
     "esModuleInterop": true,
     "baseUrl": "server/src",
-  
-    "paths": {
-      "@config/*": ["config/*"],
-      "@controllers/*": ["controller/*"],
-      "@routes/*": ["routes/*"],
-      "@middleware/*": ["middleware/*"],
-      "@service/*": ["service/*"]
-    },
-    "typeRoots": ["src/custom_typings", "./node_modules/@types"],
-
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "exclude": ["node_modules", "build"]
+  "include": ["src/app.ts", "src/bin/index.ts", "src/bin/server_helper.ts"],
+  "exclude": [
+    "node_modules",
+    "build",
+    "test",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "src/service/**/*",
+    "src/database/**/*",
+    "src/lib/**/*",
+    "src/models/**/*",
+    "src/middleware/**/*",
+    "src/channels/**/*",
+    "src/declarations.ts",
+    "src/sequelize.ts"
+  ]
 }
