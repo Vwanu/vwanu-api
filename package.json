@@ -15,7 +15,7 @@
     "test:local": "jest --watch --no-cache --detectOpenHandles",
     "test": "jest --coverage --passWithNoTests --detectOpenHandles --verbose",
     "build": "tsc --project tsconfig.production.json",
-    "start": "NODE_ENV=development node src/bin/index.js",
+    "start": "node src/bin/index.js",
     "start:staging": "NODE_ENV=staging node src/bin/index.js",
     "lint": "eslint src/**/*.ts ",
     "lint:fix": "eslint --fix src/**/*.ts ",
