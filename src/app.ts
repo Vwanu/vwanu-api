@@ -66,7 +66,7 @@ app.get('/health', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.send('Dummy Express App v2.0 is running!');
+  res.send('Dummy Express App v3.0 is running!');
 });
 
 // const PORT = 3000;
