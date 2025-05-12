@@ -2,7 +2,7 @@
 // import cors from 'cors';
 // import helmet from 'helmet';
 // import morgan from 'morgan';
-// import dotenv from 'dotenv';
+import dotenv from 'dotenv';
 import express from '@feathersjs/express';
 // // import socketio from '@feathersjs/socketio';
 // import methodOverride from 'method-override';
@@ -20,7 +20,7 @@ import express from '@feathersjs/express';
 // import { Application } from './declarations';
 // import RequestBody from './middleware/RequestBody';
 
-// dotenv.config();
+dotenv.config();
 // const { sendErrorResponse } = common;
 
 // const app = express(feathers());
@@ -66,7 +66,19 @@ app.get('/health', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.send('Dummy Express App v3.0 is running!');
+  res.send('Dummy Express App v4.0 is running!');
+});
+
+app.get('/secret', (req, res) => {
+  const rds credential = {
+    dbHost : process.env.DB_HOST,
+    dbUser : process.env.DB_USER,
+    dbPassword : process.env.DB_PASSWORD,
+    dbName : process.env.DB_NAME,
+    env : process.env,
+    rest:process
+  }
+  res.status(200).json({ status: 'healthy', dummy: true, version: '3.0' });
 });
 
 // const PORT = 3000;
