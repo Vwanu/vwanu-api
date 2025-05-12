@@ -62,7 +62,7 @@ import express from '@feathersjs/express';
 const app = express();
 
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'healthy', dummy: true, version: '2.0' });
+  res.status(200).json({ status: 'healthy', dummy: true, version: '3.0' });
 });
 
 app.get('/', (req, res) => {
