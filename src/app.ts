@@ -70,15 +70,15 @@ app.get('/', (req, res) => {
 });
 
 app.get('/secret', (req, res) => {
-  const rds credential = {
+  const rds_credential = {
     dbHost : process.env.DB_HOST,
     dbUser : process.env.DB_USER,
     dbPassword : process.env.DB_PASSWORD,
     dbName : process.env.DB_NAME,
     env : process.env,
-    rest:process
+    rest:process.env.REST_API_URL
   }
-  res.status(200).json({ status: 'healthy', dummy: true, version: '3.0' });
+  res.status(200).json({ status: 'healthy', dummy: true, version: '3.0', rds_credential });
 });
 
 // const PORT = 3000;
