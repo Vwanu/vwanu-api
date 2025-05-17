@@ -50,7 +50,7 @@ app.get('/health', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.send('Dummy Express App v4.0 is running!');
+  res.send('Dummy Express App v5.0 is running with all services!');
 });
 
 app.get('/secret', (req, res) => {
