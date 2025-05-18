@@ -16,12 +16,9 @@ import database from './database';
 import services from './services';
 import sequelize from './sequelize';
 import middleware from './middleware';
-import common from './lib/utils/common';
-import { Application } from './declarations';
 import RequestBody from './middleware/RequestBody';
 
 dotenv.config();
-const { sendErrorResponse } = common;
 
 const app = express(feathers());
 app.configure(configuration());
@@ -33,6 +30,13 @@ app.use(RequestBody);
 app.use(morgan('dev', { skip: (req, res) => process.env.NODE_ENV === 'test' }));
 app.use(methodOverride('_method') as any);
 app.use(express.urlencoded({ extended: true }));
+
+// Set API configuration from environment variables
+const API_CONFIGURATION = {
+  host: process.env.API_HOST || 'localhost',
+  port: process.env.API_PORT || 4000
+};
+app.set('API_CONFIGURATION', API_CONFIGURATION);
 
 app.configure(express.rest());
 app.configure(socketio());
@@ -54,7 +58,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/secret', (req, res) => {
-  const rds_credential = {
+  const rdsCredential = {
     dbHost : process.env.DB_HOST,
     dbUser : process.env.DB_USER,
     dbPassword : process.env.DB_PASSWORD,
@@ -62,7 +66,7 @@ app.get('/secret', (req, res) => {
     env : process.env,
     rest:process.env.REST_API_URL
   }
-  res.status(200).json({ status: 'healthy', dummy: true, version: '3.0', rds_credential });
+  res.status(200).json({ status: 'healthy', dummy: true, version: '3.0', rdsCredential });
 });
 
 app.use(express.notFound());

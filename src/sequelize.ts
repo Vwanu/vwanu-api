@@ -18,11 +18,11 @@ if (process.env.NODE_ENV === 'development') {
   dbs = {
     dialect: 'postgres',
     pool: { idle: 20000, acquire: 600000 },
-    database: 'social_media',
-    username: 'vwanu',
-    password: '123456',
-    host: 'localhost',
-    port: 5432,
+    database: process.env.PGDATABASE || 'social_media',
+    username: process.env.PGUSER || 'vwanu',
+    password: process.env.PGPASSWORD || '123456789',
+    host: process.env.PGHOST || process.env.DB_HOST || 'localhost',
+    port: process.env.PGPORT || 5432,
   };
 }
 

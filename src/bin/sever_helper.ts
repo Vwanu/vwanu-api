@@ -37,7 +37,26 @@ export default {
     return null;
   },
   envConfigurationCheck(): void {
-    const mustHaveEnvVars = ['MIN_AGE'];
+    const mustHaveEnvVars = [
+      'dbHost',
+      'dbUser',
+      'dbPassword',
+      'dbName',
+      'clientId',
+      'userPoolId',
+      'CLOUDINARY_API_SECRET',
+      'CLOUDINARY_API_KEY',
+      'CLOUDINARY_CLOUD_NAME',
+      'maxPostVideos',
+      'maxPostAudios',
+      'maxPostImages',
+      'maxMessageImages',
+      'maxDiscussionVideos',
+      'maxDiscussionAudios',
+      'maxDiscussionImages'];
+    if(!mustHaveEnvVars.length ) {
+      throw new Error(`Required environment variables are not set`);
+    };
     const missingEnvVars = mustHaveEnvVars.filter((envVar) => !process.env[envVar]);
     if (missingEnvVars.length > 0) {
       throw new Error(`Server cannot start missing required environment variables: ${missingEnvVars.join(', ')}`);

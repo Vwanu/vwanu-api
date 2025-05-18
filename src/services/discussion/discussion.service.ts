@@ -1,16 +1,14 @@
-// Initializes the `discussion ` service on path `/discussion`
-
 import { ServiceAddons } from '@feathersjs/feathers';
-/** Local dependencies  */
+
 import hooks from './discussion.hooks';
 import { Discussion } from './discussion.class';
 import { Application } from '../../declarations';
 import { discussionStorage } from '../../cloudinary';
+import transferUploadedFilesToFeathers from '../../middleware/PassFilesToFeathers/file-to-feathers.middleware';
 import {
   MEDIA_CONFIG_SCHEMA,
   MEDIA_CONFIG_TYPE,
 } from '../../schema/mediaConf.schema';
-import transferUploadedFilesToFeathers from '../../middleware/PassFilesToFeathers/file-to-feathers.middleware';
 
 // Add this service to the service type index
 declare module '../../declarations' {
