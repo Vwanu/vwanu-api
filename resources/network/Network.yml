@@ -11,7 +11,7 @@ Resources:
           Value: ${self:service}-${self:provider.stage}-vpc
 
   # Internet Gateway
-VwanuInternetGateway:
+  VwanuInternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
       Tags:
@@ -93,7 +93,7 @@ VwanuInternetGateway:
         Ref: PublicRouteTable
 
   # NAT Gateway
-VwanuNatEIP:
+  VwanuNatEIP:
     Type: AWS::EC2::EIP
     Properties:
       Domain: vpc
@@ -101,7 +101,7 @@ VwanuNatEIP:
         - Key: Name
           Value: ${self:service}-${self:provider.stage}-nat-eip
 
-VwanuNatGateway:
+  VwanuNatGateway:
     Type: AWS::EC2::NatGateway
     Properties:
       AllocationId: !GetAtt VwanuNatEIP.AllocationId
