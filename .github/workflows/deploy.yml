@@ -24,8 +24,8 @@ jobs:
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: 'us-west-2'
-      AWS_DEFAULT_REGION: 'us-west-2'
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_DEFAULT_REGION: ${{ vars.AWS_REGION }}
     steps:
       # - name: Slack Notification
       #   uses: rtCamp/action-slack-notify@v2
@@ -69,16 +69,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Install dependencies
-        id: install-dependencies
-        run: npm ci
-        timeout-minutes: 10
-        continue-on-error: true
+      # - name: Install dependencies
+      #   id: install-dependencies
+      #   run: npm ci
+      #   timeout-minutes: 10
+      #   continue-on-error: true
 
-      - name: Fallback to npm install if npm ci fails
-        if: steps.install-dependencies.outcome == 'failure'
-        run: npm install --no-audit --no-fund
-        timeout-minutes: 10
+      # - name: Fallback to npm install if npm ci fails
+      #   if: steps.install-dependencies.outcome == 'failure'
+      #   run: npm install --no-audit --no-fund
+      #   timeout-minutes: 10
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -92,7 +92,7 @@ jobs:
       - name: Login to ECR
         uses: docker/login-action@v3
         with:
-          registry: 058264272613.dkr.ecr.us-east-1.amazonaws.com
+          registry: ${{ vars.ECR_REGISTRY }}
           username: ${{ secrets.AWS_ACCESS_KEY_ID }}
           password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
@@ -102,7 +102,7 @@ jobs:
           platforms: linux/arm64
           file: ./Dockerfile.build
           push: true
-          tags: '058264272613.dkr.ecr.us-east-1.amazonaws.com/webvitals/vwanu-api-backend:${{ steps.git_short_sha.outputs.SHORT_SHA }}'
+          tags: '${{ vars.ECR_REGISTRY }}:${{ steps.git_short_sha.outputs.SHORT_SHA }}'
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
