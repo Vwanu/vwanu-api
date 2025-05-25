@@ -1,6 +1,4 @@
-/* eslint-disable import/prefer-default-export */
-import { Forbidden } from '@feathersjs/errors';
-import { HookContext } from '@feathersjs/feathers';
+import { Forbidden, GeneralError } from '@feathersjs/errors';
 import { CognitoService } from './cognito.service';
 
 interface CognitoConfig {
@@ -8,7 +6,7 @@ interface CognitoConfig {
   clientId: string;
 }
 
-class AuthManager {
+export class AuthManager {
   // eslint-disable-next-line no-use-before-define
   private static instance: AuthManager;
   private cognitoService: CognitoService | null = null;
@@ -30,40 +28,25 @@ class AuthManager {
       );
     }
   }
-
-  public requireAuth = async (context: HookContext): Promise<HookContext> => {
+  public getUserDetails = async (authToken:string, idToken:string) => {
     if (!this.cognitoService || !this.config) {
-      throw new Error('AuthManager must be initialized with config before use');
+      throw new GeneralError('AuthManager must be initialized with config before use');
     }
-
-    try {
-      const authHeader = context.params?.headers?.authorization;
-      const idToken = context.params?.headers?.['x-id-token'];
-
-      if (!authHeader || !idToken) {
-        throw new Forbidden('Missing required tokens');
+    try{
+      const tokens = await this.cognitoService.verifyTokens(authToken, idToken);
+      if(!tokens){
+        throw new Forbidden('Invalid authentication tokens');
       }
-
-      const tokens = await this.cognitoService.verifyTokens(
-        authHeader,
-        idToken
-      );
-      if (tokens) {
-        const { idPayload } = tokens;
-        const userDetails = this.cognitoService.getUserDetails(idPayload);
-        context.params.cognitoUser = userDetails;
-      }
-    } catch (error) {
+      const { idPayload } = tokens;
+      const userDetails = this.cognitoService.getUserDetails(idPayload);
+      return userDetails;
+    }catch(error){
       throw new Forbidden('Invalid authentication tokens');
     }
-    return context;
-  };
+  
+  }
+
+  
 }
 
-export const authManager = AuthManager.getInstance();
 
-// For backward compatibility and easier migration
-export const requireAuth = (config: CognitoConfig) => {
-  authManager.initialize(config);
-  return authManager.requireAuth;
-};
