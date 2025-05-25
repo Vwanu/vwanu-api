@@ -115,4 +115,4 @@ resources:
   # - ${file(resources/ecs/ecs.yml)}
 
   # SES
-  - ${file(resources/ses/email.yml)}
+  # - ${file(resources/ses/email.yml)}
