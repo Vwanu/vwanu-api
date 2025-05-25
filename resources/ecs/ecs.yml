@@ -637,16 +637,18 @@ Resources:
   # HTTP Server Auto Scaling
   HttpServerScalableTarget:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
+    DependsOn: HttpServerECSService
     Properties:
       MaxCapacity: 4
       MinCapacity: 2
-      ResourceId: !Sub 'service/${self:service}-${self:provider.stage}-cluster/${self:service}-${self:provider.stage}-http-server-service'
+      ResourceId: !Sub 'service/${ECSCluster.Name}/${HttpServerECSService.Name}'
       ScalableDimension: ecs:service:DesiredCount
       ServiceNamespace: ecs
       RoleARN: !GetAtt ECSAutoScalingRole.Arn
 
   HttpServerScalingPolicy:
     Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    DependsOn: HttpServerScalableTarget
     Properties:
       PolicyName: ecs-auto-scaling-policy-${self:provider.stage}
       PolicyType: TargetTrackingScaling
