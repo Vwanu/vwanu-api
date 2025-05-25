@@ -11,7 +11,7 @@ export default async (context: HookContext): Promise<HookContext> => {
 
     await UserWorkPlace.destroy({
       where: {
-        UserId: params.User.id,
+        UserId: params.cognitoUser?.id,
         WorkPlaceId: id,
       },
     });
