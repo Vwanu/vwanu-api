@@ -1,36 +1,43 @@
-import config from 'config';
-import jwt from 'jsonwebtoken';
-import { StatusCodes } from 'http-status-codes';
 import { Response, Request, NextFunction } from 'express';
+import { Forbidden , GeneralError} from '@feathersjs/errors';
 
-import common from '../../lib/utils/common';
-import AppError from '../../errors';
+import AppError from '@root/errors';
+import helper from '@root/lib/utils/common';
+import {AuthManager} from '../../lib/authManagement.class';
 
-const JWT_SECRET = config.get<string>('JWT_SECRET');
-
-const { catchAsync } = common;
-export default catchAsync(
-  // eslint-disable-next-line consistent-return
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const token = req.header('x-auth-token');
-      if (!token)
-        throw new AppError(
-          'Missing Authentication token',
-          StatusCodes.BAD_REQUEST
-        );
-
-      jwt.verify(token, JWT_SECRET as jwt.Secret, (err, decoded) => {
-        if (err && !decoded)
-          throw new AppError(err.message, StatusCodes.UNAUTHORIZED);
-        req.user = (<any>decoded).user;
-        return next();
-      });
-    } catch (e: unknown | any) {
-      return next({
-        message: e.message || 'You sent and invalid token',
-        status: e.status || StatusCodes.BAD_REQUEST,
-      });
+export default helper.catchAsync(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    if(!process.env.userPoolId || !process.env.clientId){
+      throw new GeneralError('Cognito configuration is not set');
     }
-  }
-);
+    const authManager = AuthManager.getInstance();
+
+    authManager.initialize({
+      userPoolId: process.env.userPoolId,
+      clientId: process.env.clientId,
+    });
+
+    const authToken = req.headers.authorization;
+    const idToken = req.headers['x-id-token'];
+
+    if(!authToken || !idToken){
+      throw new Forbidden('Missing Authentication token');
+    }
+
+    try {
+      req.user = await authManager.getUserDetails(authToken, idToken as string);
+      // (req as any).feathers = {
+      //   cognitoUser: userDetails,
+      //   User: { id: userDetails.id },
+      //   params: {
+      //     cognitoUser: userDetails,
+      //     User: { id: userDetails.id }
+      //   }
+      // };
+      
+      return next();
+      
+    } catch (e: unknown | AppError) {
+      if(e instanceof AppError) return next(e)
+      throw e;
+    }
+  })
