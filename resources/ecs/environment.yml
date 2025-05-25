@@ -18,5 +18,3 @@
   Value: ${self:provider.environment.API_URL}
 - Name: AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE
   Value: ${self:provider.environment.AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE}
-- Name: REDIS_ENDPOINT
-  Value: ${self:provider.environment.REDIS_ENDPOINT}
