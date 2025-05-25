@@ -22,3 +22,4 @@ scripts/local-deploy.sh
 
 # npm logs
 .npm/
+log/
