@@ -27,10 +27,10 @@ jobs:
       AWS_REGION: 'us-west-2'
       AWS_DEFAULT_REGION: 'us-west-2'
     steps:
-      - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+      # - name: Slack Notification
+      #   uses: rtCamp/action-slack-notify@v2
+      #   env:
+      #     SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 
       - name: Git Get Short SHA
         id: git_short_sha
