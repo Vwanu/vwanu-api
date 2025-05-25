@@ -1,7 +1,6 @@
 Resources:
   VwanuDb:
     Type: AWS::RDS::DBInstance
-    Condition: IsDevStage
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
     Properties:
