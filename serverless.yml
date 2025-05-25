@@ -1,0 +1,117 @@
+service: vwanu-api-backend
+frameworkVersion: '3'
+provider:
+  name: aws
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  iam:
+    role:
+      statements:
+        - Effect: 'Allow'
+          Action:
+            - 'tag:*'
+          Resource: '*'
+        - Effect: 'Allow'
+          Action:
+            - 's3:*'
+          Resource: '*'
+        - Effect: 'Allow'
+          Action:
+            - 'logs:*'
+          Resource: '*'
+        - Effect: 'Allow'
+          Action:
+            - 'cognito-idp:*'
+          Resource: '*'
+        - Effect: 'Allow'
+          Action:
+            - 'ses:SendTemplatedEmail'
+          Resource: '*'
+        - Effect: Allow
+          Action:
+            - ec2:CreateNetworkInterface
+            - ec2:DescribeNetworkInterfaces
+            - ec2:DeleteNetworkInterface
+            - ec2:AssignPrivateIpAddresses
+            - ec2:UnassignPrivateIpAddresses
+          Resource: '*'
+  environment:
+    STAGE: ${sls:stage}
+    REGION: ${self:provider.region}
+    SERVICE_NAME: vwanu-api-backend
+    GITHUB_USERNAME: ${env:GITHUB_USERNAME, 'system'}
+    ADMIN_URL: ${ssm:/${sls:stage}/adminUrl}
+    DB_HOST: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseHost}
+    DB_USERNAME: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseCredentials.username}
+    DB_PASSWORD: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseCredentials.password}
+    COGNITO_USER_POOL: ${self:custom.offlineConfig.${self:custom.isOffline}.cognitoUserPool}
+    API_URL: ${self:custom.offlineConfig.${self:custom.isOffline}.apiUrl}
+    AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE: true
+    REDIS_ENDPOINT: ${ssm:/${sls:stage}/redisEndpoint}
+
+plugins:
+  - serverless-webpack
+  - serverless-prune-plugin
+  - serverless-lift
+
+custom:
+  shortServiceName: vwanu
+  ecr:
+    repositoryUri: '058264272613.dkr.ecr.us-east-1.amazonaws.com/vwanu-api-${sls:stage}-repository'
+    imageTag: ${param:imageTag}
+  isOffline: ${env:IS_OFFLINE, "false"}
+  offlineConfig:
+    true:
+      databaseHost: ${env:DB_HOST, 'localhost'}
+      databaseCredentials:
+        username: ${env:DB_USERNAME, ''}
+        password: ${env:DB_PASSWORD, ''}
+      cognitoUserPool: ${env:COGNITO_USER_POOL, ''}
+      apiUrl: ${env:API_URL, 'http://localhost:3000'}
+    false:
+      databaseHost:
+        Fn::GetAtt:
+          - VwanuDb
+          - Endpoint.Address
+      databaseCredentials: ${ssm:/${sls:stage}/database/credentials}
+      cognitoUserPool:
+        Ref: CognitoUserPool
+      apiUrl: https://api.vwanu.com
+  databaseMultiAz:
+    prod: true
+    staging: true
+    dev: false
+  adminDomains:
+    prod: admin.vwanu.com
+    staging: admin-staging.vwanu.com
+    dev: admin-dev.vwanu.com
+  subjectPrefix:
+    prod: ''
+    staging: '[STAGING] '
+    dev: '[DEV] '
+  prune:
+    automatic: true
+    number: 3
+  webpack:
+    includeModules:
+      forceInclude:
+        - pg
+      forceExclude:
+        - glob
+    excludeFiles: '**/*.spec.ts'
+
+resources:
+  # Network
+  - ${file(resources/network/Network.yml)}
+
+  # Database
+  - ${file(resources/database/Database.yml)}
+
+  # Cognito
+  - ${file(resources/cognito/UserPool.yml)}
+
+  # ECS
+  - ${file(resources/ecs/ecs.yml)}
+
+  # SES
+  - ${file(resources/ses/email.yml)}
