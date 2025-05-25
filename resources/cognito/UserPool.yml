@@ -14,8 +14,8 @@ Resources:
                 - "Click <a href='https://${self:custom.adminDomains.${sls:stage}}/login'>here</a> to login and complete account creation."
       EmailConfiguration:
         EmailSendingAccount: DEVELOPER
-        From: Vwanu <no-reply@mail.vwanu.com>
-        SourceArn: arn:aws:ses:${self:provider.region}:${aws:accountId}:identity/vwanu.com
+        From: Support <no-reply@wadsonvaval.click>
+        SourceArn: arn:aws:ses:${self:provider.region}:${aws:accountId}:identity/wadsonvaval.click
       UserPoolAddOns:
         AdvancedSecurityMode: ENFORCED
       AccountRecoverySetting:
