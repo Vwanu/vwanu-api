@@ -1,10 +1,10 @@
-import { requireAuth } from '../../Hooks/requireAuth';
+
 import modifyQueryForSearch from '../search/modifyQueryForSearch';
 
 
 export default {
   before: {
-    all: [requireAuth],
+ all:[],
     find: [modifyQueryForSearch({ searchColumn: 'search_vector' })],
     get: [],
     create: [],

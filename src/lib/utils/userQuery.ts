@@ -132,7 +132,7 @@ export const WorkPlaces = `(
     WHERE "UserWorkPlaces"."UserId" = "User"."id"
     
   )`;
-export default (UserId, Sequelize, ex = null) => {
+export default (UserId, Sequelize, ex?:string[]|null) => {
   const Interests = `(
 SELECT 
   json_agg(

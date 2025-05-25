@@ -48,6 +48,6 @@ export default (app: Application) =>
       const Template = new TemplateController(template, { data, user });
       return Template.render();
     } catch (error) {
-      throw new Error(error);
+      throw error;
     }
   };

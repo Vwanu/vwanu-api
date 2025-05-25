@@ -2,7 +2,6 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 
 import { Id, Params } from '@feathersjs/feathers';
-import { BadRequest } from '@feathersjs/errors';
 
 import { Application } from '../../declarations';
 // eslint-disable-next-line import/prefer-default-export
@@ -42,7 +41,6 @@ export class Communities extends Service {
 
       return Promise.resolve(community);
     } catch (e) {
-      throw new BadRequest(e.message);
-    }
+      throw e    }
   }
 }

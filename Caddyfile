@@ -1,8 +1,0 @@
-api.localhost {
-    reverse_proxy localhost:4000
-}
-
-devy.vwanu.com {
-    reverse_proxy localhost:4000
-    tls internal
-}

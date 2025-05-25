@@ -1,5 +1,4 @@
 /* eslint-disable no-unused-vars */
-import { Params } from '@feathersjs/feathers';
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { Application } from '../../declarations';
 

@@ -1,0 +1,65 @@
+name: Test
+on:
+  workflow_call:
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    timeout-minutes: ${{ fromJSON(vars.DEFAULT_JOB_TIMEOUT) }}
+    services:
+      postgres:
+        image: postgres:13.4-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    env:
+      # The following are not used but need to be provided to instantiate the callService
+      API_URL: 'https://localhost'
+      SQS_CALL_QUEUE_URL: 'https://localhost'
+      TWIML_APPLICATION_SID: 'DUMMY_SID'
+      TWILIO_ACCOUNT_SID: 'ACDummyAccount'
+      TWILIO_API_KEY: 'DUMMY_KEY'
+      TWILIO_API_SECRET: 'DUMMY_SECRET'
+      TWILIO_AUTH_TOKEN: 'DUMMY_TOKEN'
+      SERVICE_NAME: 'DUMMY_SERVICE'
+      REDIS_ENDPOINT: 'localhost'
+
+    steps:
+      - name: Enable UUID extension
+        run: |
+          PGPASSWORD=postgres psql -h localhost -U postgres -c "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";"
+
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set Node.js 20.12.2
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.12.2
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install packages
+        run: npm ci
+
+      - name: Lint
+        uses: reviewdog/action-eslint@v1
+        with:
+          reporter: github-pr-review
+          eslint_flags: '.'
+
+      - name: Run tests
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+        run: npm test --coverage
+
+      - name: Upload coverage reports to Codecov
+        run: |
+          curl -Os https://uploader.codecov.io/latest/linux/codecov
+          chmod +x codecov
+          ./codecov -t ${{ secrets.CODECOV_TOKEN }}

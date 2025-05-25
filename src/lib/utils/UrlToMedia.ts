@@ -11,8 +11,8 @@ type Media = {
   tiny: string;
 };
 export default (imageUrl: string): Media => ({
-  tiny: imageUrl.replace(/\upload\//g, `upload/${tinySize}/`),
-  medium: imageUrl.replace(/\upload\//g, `upload/${mediumSize}/`),
-  small: imageUrl.replace(/\upload\//g, `upload/${smallSize}/`),
+  tiny: imageUrl.replace(/upload\//g, `upload/${tinySize}/`),
+  medium: imageUrl.replace(/upload\//g, `upload/${mediumSize}/`),
+  small: imageUrl.replace(/upload\//g, `upload/${smallSize}/`),
   original: imageUrl,
 });

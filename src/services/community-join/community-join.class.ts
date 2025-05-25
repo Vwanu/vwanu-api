@@ -1,4 +1,3 @@
-import { BadRequest } from '@feathersjs/errors';
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 
 import { Application } from '../../declarations';
@@ -28,7 +27,6 @@ export class CommunityJoin extends Service {
       );
       return Promise.resolve(response);
     } catch (err) {
-      throw new BadRequest(err.message);
-    }
+      throw err    }
   }
 }

@@ -1,9 +1,8 @@
 import { Op } from '@sequelize/core';
 import addAssociation from '../../Hooks/AddAssociations';
-import { requireAuth } from '../../Hooks/requireAuth';
+
 // import IncludeAssociations from '../../Hooks/IncludeAssociations';
 import autoOwn from '../../Hooks/AutoOwn';
-import AgeAllow from '../../Hooks/AgeAllow';
 // import saveAndAssociateMedia from '../../Hooks/SaveAndAssociateMedia';
 
 // const UserAttributes = [
@@ -17,8 +16,6 @@ import AgeAllow from '../../Hooks/AgeAllow';
 export default {
   before: {
     all: [
-      requireAuth,
-      AgeAllow,
       addAssociation({
         models: [
           {

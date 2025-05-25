@@ -2,12 +2,12 @@ import * as local from '@feathersjs/authentication-local';
 import { disallow } from 'feathers-hooks-common';
 import MediaStringToMediaObject from '../../Hooks/ProfileCoverToObject';
 import modifyQueryForSearch from './modifyQueryForSearch';
-import { requireAuth } from '../../Hooks/requireAuth';
+
 
 const { protect } = local.hooks;
 export default {
   before: {
-    all: [requireAuth],
+ all:[],
     find: [modifyQueryForSearch({ searchColumn: 'search_vector' })],
     get: [disallow()],
     create: [disallow()],

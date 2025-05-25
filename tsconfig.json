@@ -1,29 +1,34 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "allowJs": true,
-    "outDir": "./build",
-    "strict": false,
+    "baseUrl": "./src",
+    "paths": {
+      "@root/*": ["*"],
+      "@entity/*": ["entity/*"],
+      "@schema": ["schema"],
+      "@testing": ["testing"]
+    },
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "noImplicitAny": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "esModuleInterop": true,
-    "baseUrl": "server/src",
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "preserveConstEnums": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "noUnusedLocals": true,
+    "sourceMap": true,
+    "allowJs": true,
+    "target": "ES2021",
+    "outDir": ".build",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "lib": ["ES2021"],
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
-  "include": ["src/app.ts", "src/bin/index.ts", "src/bin/server_helper.ts"],
-  "exclude": [
-    "node_modules",
-    "build",
-    "test",
-    "**/*.test.ts",
-    "**/*.spec.ts",
-    "src/service/**/*",
-    "src/database/**/*",
-    "src/lib/**/*",
-    "src/models/**/*",
-    "src/middleware/**/*",
-    "src/channels/**/*",
-    "src/declarations.ts",
-    "src/sequelize.ts"
-  ]
+  "ts-node": {
+    "swc": false,
+    "require": ["tsconfig-paths/register"]
+  },
+  "include": ["src/**/*"]
 }

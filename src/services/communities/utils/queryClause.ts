@@ -1,5 +1,5 @@
 import { Op } from '@sequelize/core';
-import { HookContext } from '@feathersjs/feathers';
+import { HookContext, Id } from '@feathersjs/feathers';
 
 import notBanned from './notBanned.utils';
 import isMemberOfCommunity from './isMemberOfCommunity.utils';
@@ -17,12 +17,12 @@ export default (context: HookContext, where: any) => {
           {
             [Op.and]: [
               { privacyType: 'public' },
-              notBanned(params.User.id, context.id, sequelize),
+              notBanned(params.User.id, context.id as Id, sequelize),
             ],
           },
           {
             [Op.and]: [
-              isMemberOfCommunity(params.User.id, context.id, sequelize),
+              isMemberOfCommunity(params.User.id, context.id as Id, sequelize),
             ],
           },
         ],

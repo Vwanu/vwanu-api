@@ -56,7 +56,7 @@ export class Followers extends Service {
       if (res === 0)
         throw new BadRequest(`You are not following ${params.User.id}`);
       return Promise.resolve({ message: 'Unfollowed successfully' });
-    } catch (error) {
+    } catch (error: unknown | any) {
       if (error.type === 'FeathersError') throw new BadRequest(error);
       else throw new GeneralError('Could not unfollow');
     }

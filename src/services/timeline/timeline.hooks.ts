@@ -1,11 +1,11 @@
 import { disallow } from 'feathers-hooks-common';
 /** Local dependencies */
 import GetTimeline from './hooks/getTimeline';
-import { requireAuth } from '../../Hooks/requireAuth';
+
 
 export default {
   before: {
-    all: [requireAuth],
+ all:[],
     find: [GetTimeline],
     get: [disallow()],
     create: [disallow()],

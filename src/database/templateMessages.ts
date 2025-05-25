@@ -1,14 +1,14 @@
 /* eslint-disable import/no-import-module-exports */
+/* eslint-disable @typescript-eslint/no-var-requires */
 
-import { Model } from 'sequelize';
-
+const { Model } = require('sequelize');
 import { TemplateMessageInterface } from '../schema/templateMessage.schema';
 
 export default (sequelize: any, DataTypes: any) => {
-  class TemplateMessage extends Model<TemplateMessageInterface> implements TemplateMessageInterface {
-    snug: string;
-    template_body: string;
-    required_fields: JSON;
+  class TemplateMessage extends Model<TemplateMessageInterface> {
+    declare snug: string;
+    declare template_body: string;
+    declare required_fields: JSON;
   }
   TemplateMessage.init(
     {

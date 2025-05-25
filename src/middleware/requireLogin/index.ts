@@ -26,7 +26,7 @@ export default catchAsync(
         req.user = (<any>decoded).user;
         return next();
       });
-    } catch (e) {
+    } catch (e: unknown | any) {
       return next({
         message: e.message || 'You sent and invalid token',
         status: e.status || StatusCodes.BAD_REQUEST,

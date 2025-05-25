@@ -1,13 +1,9 @@
-import { requireAuth } from '../../Hooks/requireAuth';
+
 import saveMedia from '../../Hooks/SaveProfilePictures.hooks';
-
-import AgeAllow from '../../Hooks/AgeAllow';
-
-
 
 export default {
   before: {
-    all: [requireAuth, AgeAllow],
+ 
     find: [],
     get: [],
     create: [saveMedia(['original'])],

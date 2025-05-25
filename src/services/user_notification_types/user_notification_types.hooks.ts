@@ -1,12 +1,12 @@
 import { BadRequest } from '@feathersjs/errors';
-import { requireAuth } from '../../Hooks/requireAuth';
+
 import autoOwn from '../../Hooks/AutoOwn';
 
 
 
 export default {
   before: {
-    all: [requireAuth],
+ all:[],
     create: [() => { throw new BadRequest('You are not allowed to create a notification type') }],
     update: [() => { throw new BadRequest('You are not allowed to update a notification type') }],
     patch: [autoOwn],

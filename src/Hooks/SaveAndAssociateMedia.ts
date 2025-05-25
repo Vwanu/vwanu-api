@@ -4,7 +4,11 @@ export default (options) => async (context) => {
   const { UploadedMedia } = context.data;
   if (!UploadedMedia) return context;
 
-  const Medias = [];
+  interface MediaItem {
+    original: string;
+    UserId: string;
+  }
+  const Medias: MediaItem[] = [];
   if (UploadedMedia && mediaArray.some((media) => UploadedMedia[media])) {
     mediaArray.forEach((mediaGroup) => {
       if (UploadedMedia[mediaGroup]) {

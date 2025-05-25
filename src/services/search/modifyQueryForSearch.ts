@@ -1,5 +1,6 @@
 import { Op } from '@sequelize/core';
-import { Sequelize } from 'sequelize';
+// @ts-ignore
+import  {Sequelize}  from 'sequelize';
 import queryConverter from 'pg-tsquery';
 import { HookContext } from '@feathersjs/feathers';
 
@@ -29,7 +30,7 @@ export default (defaultOptions: any) => async (ctx: HookContext) => {
     ),
   };
 
-  let attributes = null;
+  let attributes: any = null;
   if (path === 'search') {
     clause = queryClause(ctx, where);
     attributes = userQuery(params.User.id, Sequelize);

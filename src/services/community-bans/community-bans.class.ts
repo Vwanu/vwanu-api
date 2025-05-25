@@ -34,9 +34,9 @@ export class CommunityBans extends Service {
         }
       );
       return Promise.resolve({ message: 'Ban created' });
-    } catch (err) {
+    } catch (err: unknown | any) {
       const fallback = 'Could not create ban';
-      throw new BadRequest(err.message || fallback);
+      throw new BadRequest(err || fallback);
     }
   }
 }

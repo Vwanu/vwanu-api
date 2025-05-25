@@ -39,7 +39,6 @@ export class CommunitiesRegistration extends Service {
       return Promise.resolve("You've successfully responded to the invitation");
     } catch (e) {
       console.error(e);
-      throw new BadRequest(e.message);
-    }
+      throw e    }
   }
 }

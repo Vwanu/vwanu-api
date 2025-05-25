@@ -1,5 +1,7 @@
 node_modules
+dist
+Dockerfile
 .git
-build 
-coverage
-# Temporary hide docker file
+.gitignore
+.webpack
+README.md

@@ -9,6 +9,7 @@ on:
         type: choice
         options:
           - Development
+          - Staging
           - Production
 
 jobs:
@@ -16,11 +17,25 @@ jobs:
   #   uses: ./.github/workflows/test.yml
   #   secrets: inherit
 
-  build-and-push:
+  aws-deploy:
     #needs: test
     runs-on: ubuntu-22.04
-
+    timeout-minutes: ${{ fromJSON(vars.DEFAULT_JOB_TIMEOUT) }}
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: 'us-west-2'
+      AWS_DEFAULT_REGION: 'us-west-2'
     steps:
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
+      - name: Git Get Short SHA
+        id: git_short_sha
+        run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_OUTPUT
+
       - name: Set environment variable based on input
         id: set_env
         run: |
@@ -28,8 +43,11 @@ jobs:
             "Production")
               echo "STAGE=prod" >> $GITHUB_ENV
               ;;
+            "Staging")
+              echo "STAGE=staging" >> $GITHUB_ENV
+              ;;
             "Development")
-              echo "STAGE=Development" >> $GITHUB_ENV
+              echo "STAGE=dev" >> $GITHUB_ENV
               ;;
           esac
 
@@ -40,113 +58,92 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20.12.2
-          cache: yarn
           registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+
+      - name: Cache npm registry
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: yarn
+        id: install-dependencies
+        run: npm ci
+        timeout-minutes: 10
+        continue-on-error: true
 
-      # - name: Set up QEMU
-      #   uses: docker/setup-qemu-action@v3
+      - name: Fallback to npm install if npm ci fails
+        if: steps.install-dependencies.outcome == 'failure'
+        run: npm install --no-audit --no-fund
+        timeout-minutes: 10
 
-      # - name: Set up Docker Buildx
-      #   uses: docker/setup-buildx-action@v3
-        
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.AWS_REGION }}
-          
+          driver-opts: |
+            network=host
+
       - name: Login to ECR
-        id: login-to-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build Docker image, tag and push to ECR
-        run: |
-          # IMAGE_TAG="${{ github.sha }}"
-          IMAGE_TAG="latest"
-          docker build -t ${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG .
-          docker push ${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
-       
-
-      # - name: Get latest task definition
-      #   id: get-task-def
-      #   run: |
-      #     docker buildx build -t ${{ secrets.ECR_REPOSITORY }}:${{ steps.git_short_sha.outputs.SHORT_SHA }} .
-      #     docker push ${{ secrets.ECR_REPOSITORY }}:${{ steps.git_short_sha.outputs.SHORT_SHA }}
-      # - name: Build Docker image
-      #   uses: docker/build-push-action@v6
-      #   with:
-      #     platforms: linux/arm64
-      #     file: ./Dockerfile
-      #     push: true
-      #     tags: '058264272613.dkr.ecr.us-east-1.amazonaws.com/vwanu-api-backend:${{ steps.git_short_sha.outputs.SHORT_SHA }}'
-      #     cache-from: type=gha
-      #     cache-to: type=gha,mode=max
-
-      # - name: Get latest task definition
-      #   id: get-task-def
-      #   run: |
-      #     TASK_DEF_JSON=$(aws ecs describe-task-definition --task-definition ${{ secrets.TASK_DEFINITION }} --query taskDefinition --output json)
-      #     echo "$TASK_DEF_JSON" > task-definition.json
-
-      # - name: Update task definition with new image
-      #   run: |
-      #     CONTAINER_NAME=my-container-name  # Replace with your actual container name
-      #     NEW_IMAGE=${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
-      #     jq --arg IMAGE "$NEW_IMAGE" --arg CONTAINER "$CONTAINER_NAME" \
-      #       '.containerDefinitions[] | select(.name == $CONTAINER).image = $IMAGE' \
-      #       task-definition.json > updated-task-definition.json
-      # - name: Update task definition with new image
-      #   run: |
-      #     CONTAINER_NAME=vwanu-api-backend  # Update to match your ECS container name
-      #     NEW_IMAGE=058264272613.dkr.ecr.us-east-1.amazonaws.com/vwanu-api-backend:${{ steps.git_short_sha.outputs.SHORT_SHA }}
-
-      #     # Update the container image while keeping the structure intact
-      #     jq --arg IMAGE "$NEW_IMAGE" --arg CONTAINER "$CONTAINER_NAME" \
-      #         '(.containerDefinitions[] | select(.name == $CONTAINER) | .image) = $IMAGE | .' \
-      #         task-definition.json > updated-task-definition.json
-
-      # - name: Register new task definition
-      #   id: register-task-def
-      #   run: |
-      #     NEW_TASK_DEF_ARN=$(aws ecs register-task-definition --cli-input-json file://updated-task-definition.json --query 'taskDefinition.taskDefinitionArn' --output text)
-      #     echo "NEW_TASK_DEF_ARN=$NEW_TASK_DEF_ARN" >> $GITHUB_ENV
-
-  #     - name: Deploy new task definition to ECS
-  #       run: |
-  #         aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER }} --service ${{ secrets.ECS_SERVICE }} --task-definition $NEW_TASK_DEF_ARN
-  Deploy:
-    needs: build-and-push
-    runs-on: ubuntu-22.04
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ${{ vars.AWS_REGION }}
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: docker/login-action@v3
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.AWS_REGION }}
-          
-      - name : For service re-deployment
-        run: |
-          aws ecs update-service --cluster ${{ vars.ECS_CLUSTER_NAME }} --service ${{ vars.ECS_SERVICE_NAME }} --force-new-deployment 
-      
-      # - name: Install Jq 
-      #   run: sudo apt-get update && sudo apt-get install -y jq
+          registry: 058264272613.dkr.ecr.us-east-1.amazonaws.com
+          username: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      # - name: Deploy to ECS
-      #   run: |
-      #     TASK_DEF=$(aws ecs describe-task-definition --task-definition ${{ vars.ECS_TASK_DEFINITION_STAGING }} --region ${{ vars.AWS_REGION }})
-      #     NEW_TASK_DEF=$(echo "$TASK_DEF" | jq --arg IMAGE "${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)')
-      #     NEW_TASK_RESP=$(aws ecs register-task-definition --region ${{ vars.AWS_REGION }} --cli-input-json "$NEW_TASK_DEF")
-      #     NEW_REVISION=$(echo "$NEW_TASK_RESP" | jq -r '.taskDefinition.family + ":" + (.taskDefinition.revision | tostring)')
-      #     aws ecs update-service --cluster ${{ vars.ECS_CLUSTER_STAGING }} --service ${{ vars.ECS_SERVICE_STAGING }} --task-definition "$NEW_REVISION" --region ${{ vars.AWS_REGION }}
-      #     aws ecs wait services-stable --cluster ${{ vars.ECS_CLUSTER_STAGING }} --services ${{ vars.ECS_SERVICE_STAGING }} --region ${{ vars.AWS_REGION }}
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/arm64
+          file: ./Dockerfile.build
+          push: true
+          tags: '058264272613.dkr.ecr.us-east-1.amazonaws.com/webvitals/vwanu-api-backend:${{ steps.git_short_sha.outputs.SHORT_SHA }}'
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Deploy to ECS
+
+      - name: Deploy to ECS using Serverless Framework
+        env:
+          SENTRY_PROJECT: vwanu-api-backend
+          SENTRY_ORG: webvitals
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_RELEASE: ${{ steps.git_short_sha.outputs.SHORT_SHA }}
+          IMAGE_TAG: ${{ steps.git_short_sha.outputs.SHORT_SHA }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          npx serverless deploy --stage ${{ env.STAGE }} --param="imageTag=${{ env.IMAGE_TAG }}" --force
+
+      - uses: 'marvinpinto/action-inject-ssm-secrets@v1.2.1'
+        with:
+          ssm_parameter: '/${{ env.STAGE }}/database/credentials'
+          env_variable_name: 'DATABASE_CREDENTIALS'
+
+      - name: Get RDS Endpoints
+        run: |
+          echo 'RDS_INSTANCE_ENDPOINTS<<EOF' >> $GITHUB_ENV
+          echo $(aws rds describe-db-instances --db-instance-identifier vwanu-api-backend-$STAGE --query "DBInstances[*].Endpoint.Address" --output text) >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+
+      - name: Set RDS Vars
+        run: |
+          echo "::add-mask::${{fromJson(env.DATABASE_CREDENTIALS).username}}"
+          echo "::add-mask::${{fromJson(env.DATABASE_CREDENTIALS).password}}"
+          echo "DB_HOST=${{ env.RDS_INSTANCE_ENDPOINTS }}" >> $GITHUB_ENV
+          echo "DB_USERNAME=${{fromJson(env.DATABASE_CREDENTIALS).username}}" >> $GITHUB_ENV
+          echo "DB_PASSWORD=${{fromJson(env.DATABASE_CREDENTIALS).password}}" >> $GITHUB_ENV
+
+      - name: Migrate DB
+        env:
+          # The following are not used but need to be provided to instantiate the callService
+          API_URL: 'https://localhost'
+          SQS_CALL_QUEUE_URL: 'https://localhost'
+          TWIML_APPLICATION_SID: 'DUMMY_SID'
+        run: |
+          npm run typeorm:migration:run

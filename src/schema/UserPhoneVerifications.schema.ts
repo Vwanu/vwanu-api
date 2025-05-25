@@ -5,7 +5,7 @@ export const UserPhoneVerifications = object({
  
     user_id:string(),
     phone_id :string(),
-    verification_code: z.number(),
+    verification_code: number(),
     code_sent_time: z.string(),
     verified_time:string(),
     is_verified :z.boolean(),

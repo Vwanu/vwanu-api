@@ -1,23 +1,13 @@
-/* eslint-disable no-unused-vars */
-import { Op } from '@sequelize/core';
-import { Params } from '@feathersjs/feathers';
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 
-import { GeneralError, NotFound } from '@feathersjs/errors';
-
-/** Local dependencies */
 import common from '../../lib/utils/common';
-import { include } from '../../lib/utils/commentPostInclude';
 import { Application } from '../../declarations';
-/** Global dependencies */
-const {
-  catchAsync,
-  sendResponse,
-  getUploadedFiles,
-  getQueryPagesAndSize,
-  getAcceptableQueryParams,
-} = common;
-// eslint-disable-next-line import/prefer-default-export
+import { include } from '../../lib/utils/commentPostInclude';
+
+
+const {getUploadedFiles} = common;
+
+
 export class Posts extends Service {
   app;
 
@@ -27,7 +17,7 @@ export class Posts extends Service {
     this.app = app;
   }
 
-  async create(data, params: Params) {
+  async create(data) {
     const postData = getUploadedFiles(['postImage', 'postVideo'], data);
     const post = await this.app
       .service('posts')

@@ -18,12 +18,12 @@ export class Friends extends Service {
   }
 
   async find(params: Params) {
-    const id = params.query.UserId || params.User.id;
-    const { $limit, $skip } = params.query;
+    const id = params?.query?.UserId || params.User.id;
+    const { $limit, $skip } = params?.query || {};
     try {
       const limit = $limit || this.options.paginate.default;
       const skip =
-        $skip || this.options.paginate.default * (params.query.page - 1) || 0;
+        $skip || this?.options?.paginate?.default ||1  * (params?.query?.page - 1) || 0;
 
       const sequelize = this.app.get('sequelizeClient');
       const friendList = await sequelize.query(
@@ -71,7 +71,8 @@ export class Friends extends Service {
       };
       return Promise.resolve(friend);
     } catch (err) {
-      const error = err.parent;
+      // @ts-ignore
+      const error = err?.parent || {parent: err};
       const msg = error?.detail || error?.message;
       throw new BadRequest(msg); // reject with this error .
     }
@@ -82,6 +83,7 @@ export class Friends extends Service {
     const { models } = this.app.get('sequelizeClient');
 
     const requesterId = params.User.id;
+    // @ts-ignore
     const { friendId } = params.query;
 
     if (requesterId === friendId)

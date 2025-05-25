@@ -11,11 +11,13 @@ export default (queries) => (context: HookContext) => {
   switch (type) {
     case 'before':
       Object.keys(queries).forEach((key) => {
-        if (!originalQuery[key]) query[key] = queries[key];
+        if (!originalQuery[key]) {
+          if (query) query[key] = queries[key];
+        }
       });
       if (
-        query.UserId &&
-        query.UserId.toString() === params.User.id.toString()
+        query?.UserId &&
+        query?.UserId.toString() === params.User.id.toString()
       ) {
         Object.keys(queries).forEach((key) => {
           if (!originalQuery[key]) delete query[key];

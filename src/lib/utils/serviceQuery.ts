@@ -1,5 +1,7 @@
 /* eslint-disable no-unused-vars */
-import { Sequelize } from 'sequelize';
+// @ts-ignore
+ import { Sequelize } from 'sequelize';
+
 import { BadRequest } from '@feathersjs/errors';
 import { HookContext, Id } from '@feathersjs/feathers';
 

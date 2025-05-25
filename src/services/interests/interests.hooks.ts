@@ -1,14 +1,14 @@
-// import * as authentication from '@feathersjs/authentication';
-import { requireAuth } from '../../Hooks/requireAuth';
+// 
+
 
 /** Local dependencies */
 // import allowAnonymous from '../../Hooks/AllowAnonymous';
 /** Global dependencies */
-// const { authenticate } = authentication.hooks;
+// 
 
 export default {
   before: {
-    all: [requireAuth],
+ all:[],
     find: [
       // authenticate('jwt', 'anonymous'),
       // (context) => {
@@ -31,7 +31,6 @@ export default {
     ],
     update: [],
     patch: [
-      // requireAuth,
       // async (context) => {
       //   if (!context.params.User.admin)
       //     throw new BadRequest('You are not authorized to modify interest');
@@ -50,7 +49,6 @@ export default {
       // },
     ],
     remove: [
-      // requireAuth,
       // async (context) => {
       //   if (!context.params.User.admin)
       //     throw new BadRequest('You are not authorized to delete interest');

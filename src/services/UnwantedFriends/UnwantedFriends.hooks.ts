@@ -1,4 +1,4 @@
-import { requireAuth } from '../../Hooks/requireAuth';
+
 import { disallow } from 'feathers-hooks-common';
 // import { BadRequest } from '@feathersjs/errors';
 
@@ -6,7 +6,7 @@ import { disallow } from 'feathers-hooks-common';
 
 export default {
   before: {
-    all: [requireAuth],
+ all:[],
     find: [],
     get: [],
     create: [

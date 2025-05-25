@@ -1,5 +1,7 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
+#!/usr/bin/env bash
 
-# npm run pre-commit
-echo 'rum'
+if test -f ~/.huskyrc; then
+    . ~/.huskyrc
+fi
+
+npx lint-staged

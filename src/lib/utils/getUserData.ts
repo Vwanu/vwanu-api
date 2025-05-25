@@ -1,6 +1,6 @@
 const { BadRequest } = require('@feathersjs/errors');
 
-export default (data, checks = []) => {
+export default (data, checks:string[] = []) => {
   if (Array.isArray(data) ? data.length === 0 : data.total === 0) {
     throw new BadRequest('User not found.');
   }

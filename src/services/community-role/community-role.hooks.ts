@@ -1,9 +1,9 @@
-import AgeAllow from '../../Hooks/AgeAllow';
-import { requireAuth } from '../../Hooks/requireAuth';
+
+
 
 export default {
   before: {
-    all: [requireAuth, AgeAllow],
+ 
     find: [],
     get: [],
     create: [],

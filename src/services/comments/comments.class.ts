@@ -7,11 +7,7 @@ import { Application } from '../../declarations';
 import common from '../../lib/utils/common';
 
 const {
-  catchAsync,
-  sendResponse,
   getUploadedFiles,
-  getQueryPagesAndSize,
-  getAcceptableQueryParams,
 } = common;
 
 // eslint-disable-next-line import/prefer-default-export
@@ -40,8 +36,9 @@ export class Comments extends Service {
       );
 
       return Promise.resolve(comment);
-    } catch (error) {
-      throw new GeneralError(error.message);
+    } catch (error: unknown | any) {
+      throw new GeneralError(error);
+
     }
   }
 }

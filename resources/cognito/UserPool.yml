@@ -1,0 +1,77 @@
+Resources:
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+        InviteMessageTemplate:
+          EmailSubject: '${self:custom.subjectPrefix.${sls:stage}}You have been invited to join as and admin staff member'
+          EmailMessage:
+            Fn::Join:
+              - ''
+              - - 'Your username is {username} and temporary password is {####}'
+                - '<br><br>'
+                - "Click <a href='https://${self:custom.adminDomains.${sls:stage}}/login'>here</a> to login and complete account creation."
+      EmailConfiguration:
+        EmailSendingAccount: DEVELOPER
+        From: Vwanu <no-reply@mail.vwanu.com>
+        SourceArn: arn:aws:ses:${self:provider.region}:${aws:accountId}:identity/vwanu.com
+      UserPoolAddOns:
+        AdvancedSecurityMode: ENFORCED
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+      DeviceConfiguration:
+        DeviceOnlyRememberedOnUserPrompt: false
+      UserPoolName: vwanu-api-backend-user-pool-${sls:stage}
+      AliasAttributes:
+        - email
+      AutoVerifiedAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          RequireUppercase: true
+          RequireLowercase: true
+          RequireSymbols: true
+          RequireNumbers: true
+          MinimumLength: 12
+      Schema:
+        - Name: role
+          AttributeDataType: String
+          Mutable: true
+        - Name: assuming_username
+          AttributeDataType: String
+          Mutable: true
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: vwanu-api-backend-user-pool-client-${sls:stage}
+      UserPoolId:
+        Ref: CognitoUserPool
+      ExplicitAuthFlows:
+        - ALLOW_ADMIN_USER_PASSWORD_AUTH
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_CUSTOM_AUTH
+      EnableTokenRevocation: true
+      PreventUserExistenceErrors: ENABLED
+  CognitoUserPoolGroupAdmin:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      GroupName: 'ADMIN'
+      UserPoolId:
+        Ref: CognitoUserPool
+  CognitoUserPoolGroupModerator:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      GroupName: 'MODERATOR'
+      UserPoolId:
+        Ref: CognitoUserPool
+  CognitoUserPoolGroupUsers:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      GroupName: 'USERS'
+      UserPoolId:
+        Ref: CognitoUserPool

@@ -1,44 +1,40 @@
 import commonHooks from 'feathers-hooks-common';
 import { HooksObject, HookContext, Service } from '@feathersjs/feathers';
+import * as local from '@feathersjs/authentication-local';
 
 import isSelf from '../../Hooks/isSelf.hook';
-// import saveProfilePicture from '../../Hooks/SaveProfilePictures.hooks';
-// import MediaStringToMediaObject from '../../Hooks/ProfileCoverToObject';
+import saveProfilePicture from '../../Hooks/SaveProfilePictures.hooks';
+import MediaStringToMediaObject from '../../Hooks/ProfileCoverToObject';
 
-// import newPerson from './hook/newPerson';
-import { requireAuth } from '../../Hooks/requireAuth';
-// import { AddVisitor, GetUser, NewPerson } from './hook';
-// import SaveAndAttachInterests from '../../Hooks/SaveAndAttachInterest';
-// import updateTsVector from './hook/updateTsVector';
+import { AddVisitor } from './hook';
+import updateTsVector from './hook/updateTsVector';
 
-// const { protect } = local.hooks;
-// const protectKeys = protect(...['search_vector']);
+const { protect } = local.hooks;
+const protectKeys = protect(...['search_vector']);
 
 const hooks = {
   before: {
-    all: [requireAuth],
     create: commonHooks.disallow(),
     update: commonHooks.disallow(),
     patch: [
-      // commonHooks.iff(
-      //   commonHooks.isProvider('external'),
-      //   commonHooks.preventChanges(true, ...['email'])
-      //   //   isSelf
-      // ),
-      // saveProfilePicture(['profilePicture', 'coverPicture']),
+      isSelf,
+      commonHooks.iff(
+        commonHooks.isProvider('external'),
+        commonHooks.preventChanges(true, ...['email'])
+      ),
+      saveProfilePicture(['profilePicture', 'coverPicture']),
     ],
     remove: [isSelf],
   },
 
-  // after: {
-  // all: [MediaStringToMediaObject(['profilePicture', 'coverPicture'])],
+  after: {
+  all: [MediaStringToMediaObject(['profilePicture', 'coverPicture'])],
 
-  // create: NewPerson,
-  // find: [protectKeys],
-  // get: [AddVisitor, protectkeys],
-  //   patch: [protectKeys, updateTsVector],
-  //   remove: [protectKeys],
-  // },
+  find: [protectKeys],
+  get: [AddVisitor, protectKeys],
+    patch: [protectKeys, updateTsVector],
+    remove: [protectKeys],
+  },
   error: {
     all: [
       (context: HookContext<Service<any>>) => {

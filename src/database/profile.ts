@@ -5,24 +5,8 @@ import { Model } from 'sequelize';
 import { ProfileInterface } from '../schema/profile';
 
 module.exports = (sequelize: any, DataTypes: any) => {
-  class Profile extends Model<ProfileInterface> implements ProfileInterface {
-    id?: number | undefined;
+  class Profile extends Model<ProfileInterface>   {
 
-    lastName: string;
-
-    firstName: string;
-
-    dob: Date;
-
-    profilePicture: string;
-
-    coverPicture: string;
-
-    followers?: string;
-
-    followings: string | undefined;
-
-    postText: string;
 
     // static associate(models: any): void {
     //   Profile.belongsTo(models.User, {

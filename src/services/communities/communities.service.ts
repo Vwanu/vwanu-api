@@ -75,7 +75,7 @@ export default function (app: Application): void {
       ],
     },
   });
-  const registrationService = app
+ app
     .service('communities-registrations')
     .hooks(registrationHooks);
 

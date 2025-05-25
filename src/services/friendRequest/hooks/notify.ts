@@ -15,7 +15,7 @@ export default async (context: HookContext): Promise<HookContext> => {
       entityId: context.params.User.id,
     });
   } catch (error) {
-    throw new Error(error);
+    throw error;
   }
 
   return context;

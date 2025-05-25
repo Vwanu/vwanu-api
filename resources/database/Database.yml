@@ -1,0 +1,18 @@
+Resources:
+  VwanuDb:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: vwanu-api-backend-${sls:stage}
+      DBInstanceClass: db.t4g.small
+      Engine: postgres
+      EngineVersion: 13
+      AllocatedStorage: 20
+      MaxAllocatedStorage: 100
+      StorageType: gp3
+      BackupRetentionPeriod: 30
+      MultiAZ: ${self:custom.databaseMultiAz.${sls:stage}}
+      EnablePerformanceInsights: true
+      PubliclyAccessible: true
+      DeletionProtection: true
+      MasterUsername: ${self:provider.environment.DB_USERNAME}
+      MasterUserPassword: ${self:provider.environment.DB_PASSWORD}

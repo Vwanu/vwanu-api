@@ -1,10 +1,9 @@
 /* eslint-disable no-case-declarations */
-import * as authentication from '@feathersjs/authentication';
 import commonHooks from 'feathers-hooks-common';
 
 /** Local dependencies */
-import { AddTalker, AgeAllow } from '../../Hooks';
-import { requireAuth } from '../../Hooks/requireAuth';
+import { AddTalker } from '../../Hooks';
+
 import {
   SetType,
   NotifyUsers,
@@ -13,11 +12,11 @@ import {
   LimitDirectConversations,
 } from './hook';
 
-const { authenticate } = authentication.hooks;
+
 
 export default {
   before: {
-    all: [requireAuth, AgeAllow],
+ 
     find: [FilterConversations],
     get: [FilterConversations],
     create: [SetType, LimitDirectConversations],

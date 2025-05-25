@@ -1,10 +1,9 @@
 import commonHooks from 'feathers-hooks-common';
 import saveProfilePicture from '../../Hooks/SaveProfilePictures.hooks';
-import { requireAuth } from '../../Hooks/requireAuth';
+
 /** Local dependencies  */
 import {
   AutoOwn,
-  AgeAllow,
   LimitToOwner,
   SaveInterest,
   ValidateResource,
@@ -27,8 +26,6 @@ const SaveCover = saveProfilePicture(['coverPicture']);
 export default {
   before: {
     all: [
-      requireAuth,
-      AgeAllow,
       IncludeAssociations({
         include: [
           {

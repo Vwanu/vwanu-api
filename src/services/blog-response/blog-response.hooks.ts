@@ -1,11 +1,10 @@
 import {
   AutoOwn,
-  AgeAllow,
   LimitToOwner,
   IncludeAssociations,
   AdjustCount,
 } from '../../Hooks';
-import { requireAuth } from '../../Hooks/requireAuth';
+
 
 
 const AdjustCountOptions = {
@@ -23,8 +22,6 @@ const UserAttributes = [
 export default {
   before: {
     all: [
-      requireAuth,
-      AgeAllow,
       IncludeAssociations({
         include: [
           {

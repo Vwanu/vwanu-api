@@ -6,17 +6,20 @@ import dotenv from 'dotenv';
 import express from '@feathersjs/express';
 import socketio from '@feathersjs/socketio';
 import methodOverride from 'method-override';
+import feathers from '@feathersjs/feathers';
 import configuration from '@feathersjs/configuration';
 import { Request, Response, NextFunction } from 'express';
-import feathers from '@feathersjs/feathers';
 
-// /** Custom dependencies */
+
 import channels from './channels';
 import database from './database';
 import services from './services';
 import sequelize from './sequelize';
 import middleware from './middleware';
+import Logger from './lib/utils/logger';
+import healthCheck from './services/healthCheck';
 import RequestBody from './middleware/RequestBody';
+import morganMiddleware from './middleware/morgan.middleware';
 
 dotenv.config();
 
@@ -27,13 +30,13 @@ app.use(express.json());
 app.use(cors());
 app.use(helmet());
 app.use(RequestBody);
-app.use(morgan('dev', { skip: (req, res) => process.env.NODE_ENV === 'test' }));
-app.use(methodOverride('_method') as any);
+app.use(methodOverride('_method'));
+app.use(morgan('dev', { skip: morganMiddleware }));
 app.use(express.urlencoded({ extended: true }));
 
 // Set API configuration from environment variables
 const API_CONFIGURATION = {
-  host: process.env.API_HOST || 'localhost',
+  host: process.env.API_HOST || '0.0.0.0',
   port: process.env.API_PORT || 4000
 };
 app.set('API_CONFIGURATION', API_CONFIGURATION);
@@ -46,33 +49,31 @@ app.configure(middleware);
 app.configure(channels);
 app.configure(database);
 app.get('startSequelize')();
+
+app.get('/health', healthCheck);
+
+
+app.use((req:Request, res:Response, next:NextFunction)=>{
+  const token = req.headers.authorization;
+  if(!token){
+    return res.status(401).json({message:'Unauthorized'})
+  }
+  next();
+})
+
 app.configure(services);
 
 
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'healthy', dummy: true, version: '3.0' });
-});
 
-app.get('/', (req, res) => {
-  res.send('Dummy Express App v5.0 is running with all services!');
-});
 
-app.get('/secret', (req, res) => {
-  const rdsCredential = {
-    dbHost : process.env.DB_HOST,
-    dbUser : process.env.DB_USER,
-    dbPassword : process.env.DB_PASSWORD,
-    dbName : process.env.DB_NAME,
-    env : process.env,
-    rest:process.env.REST_API_URL
-  }
-  res.status(200).json({ status: 'healthy', dummy: true, version: '3.0', rdsCredential });
-});
+
 
 app.use(express.notFound());
-app.use(express.errorHandler({ logger: console } as any));
+app.use(express.errorHandler({ logger: Logger }));
 
-app.use((err: Error | any, req: Request, res: Response, next: NextFunction) =>
+app.use(
+  (err: Error & { status?: number; code?: number }, 
+    req: Request, res: Response, _: NextFunction) =>
   res
     .status(err.status || err.code || 500)
     .json({ error: err.message || 'Internal Server Error' })

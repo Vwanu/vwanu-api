@@ -31,7 +31,7 @@ module.exports = {
     username: 'DB_USER',
     password: 'DB_PASSWORD',
     database: 'DB_DATABASE',
-    host: 'localhost',
+    host: '0.0.0.0',
   },
   CLOUDINARY_CONFIGURATION: {
     api_secret: process.env.CLOUDINARY_API_SECRET,
