@@ -1,15 +1,14 @@
-import * as authentication from '@feathersjs/authentication';
 import { BadRequest } from '@feathersjs/errors';
 
 /** Local dependencies */
 import AutoAssign from '../../Hooks/AutoAssign.hook';
-import { AddAssociations, AgeAllow } from '../../Hooks';
-import { requireAuth } from '../../Hooks/requireAuth';
+import { AddAssociations } from '../../Hooks';
+
 import UrlToMedia from '../../lib/utils/UrlToMedia';
 
 import { OnlyNotResponded } from './hook';
 
-const { authenticate } = authentication.hooks;
+
 const attributes = [
   'firstName',
   'lastName',
@@ -71,7 +70,7 @@ const noDuplicateInvitation = async (context) => {
       throw new BadRequest(
         'This person already has an invitation for this community'
       );
-  } catch (e) {
+  } catch (e: unknown | any) {
     throw new BadRequest(e);
   }
 
@@ -100,7 +99,7 @@ const notifyInvitation = async (context) => {
 };
 export default {
   before: {
-    all: [requireAuth, AgeAllow, IncludeGuests],
+   all:[IncludeGuests],
     find: [OnlyNotResponded],
     get: [],
     create: [AutoAssign({ hostId: null }), noDuplicateInvitation],

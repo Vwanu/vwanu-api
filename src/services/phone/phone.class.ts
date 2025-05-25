@@ -56,8 +56,7 @@ export class Phone extends Service {
         }
       ).then(result => result[0])
         .catch(err => {
-          throw new BadRequest(err.message);
-        });
+          throw err        });
     }
 
     // Handle adding a new phone
@@ -79,6 +78,7 @@ export class Phone extends Service {
   // GET: Retrieve phone details
   async find(params: Params) {
     const { sequelize } = this.app.get('sequelizeClient');
+    // @ts-ignore
     const { UserId: userId, phoneNumber } = params.query;
     return sequelize.query(
       'SELECT * FROM get_phone_details(:userId, :phoneNumber)',
@@ -94,6 +94,7 @@ export class Phone extends Service {
   async patch(id, data, params: Params) {
 
     const { UserId: userId, phoneNumber } = data;
+    // @ts-ignore
     switch (params.query.action) {
       case 'updatePrimary':
         return this.updatePrimaryPhone(userId, phoneNumber);
@@ -108,6 +109,7 @@ export class Phone extends Service {
   async remove(id, params: Params) {
     const { sequelize } = this.app.get('sequelizeClient');
     const { UserId: userId } = params;
+    // @ts-ignore
     const { phoneNumber } = params.query;
     return sequelize.query(
       'SELECT delete_phone_association(:userId, :phoneNumber) AS status',

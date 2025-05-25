@@ -1,13 +1,11 @@
-import { requireAuth } from '../../Hooks/requireAuth';
+
 
 import addAssociation from '../../Hooks/AddAssociations';
 import autoOwn from '../../Hooks/AutoOwn';
 import LimitToOwner from '../../Hooks/LimitToOwner';
-import AgeAllow from '../../Hooks/AgeAllow';
 
 export default {
   before: {
-    all: [requireAuth, AgeAllow],
     find: [
       addAssociation({
         models: [

@@ -1,13 +1,12 @@
 import addAssociation from '../../Hooks/AddAssociations';
 
 import OwnerOrAuthorized from './hooks/OwnerOrAuthorized';
-import AgeAllow from '../../Hooks/AgeAllow';
-import { requireAuth } from '../../Hooks/requireAuth';
+
 
 
 export default {
   before: {
-    all: [requireAuth, AgeAllow],
+ 
     find: [
       (context) => {
         context.params.query = {

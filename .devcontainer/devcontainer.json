@@ -1,27 +1,53 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/javascript-node-postgres
 {
-  "name": "Vwanu API - Development",
+  "name": "Node.js & PostgreSQL",
   "dockerComposeFile": "docker-compose.yml",
   "service": "app",
   "workspaceFolder": "/workspace",
+
+  // Features to add to the dev container. More info: https://containers.dev/features.
+  // "features": {},
+
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  // This can be used to network with other containers or with the host.
+  "forwardPorts": [3000, 5432],
+
+  // Use 'postCreateCommand' to run commands after the container is created.
+  // "postCreateCommand": "npm install",
+
+  // Configure tool-specific properties.
   "customizations": {
     "vscode": {
+      // Set *default* container specific settings.json values on container create.
+      "settings": {
+        "sqltools.connections": [
+          {
+            "name": "Postgress Container database",
+            "driver": "PostgreSQL",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "database": "social-media-api",
+            "username": "vwanu",
+            "password": "1234567890"
+          }
+        ]
+      },
+
+      // Add the IDs of extensions you want installed when the container is created.
       "extensions": [
         "dbaeumer.vscode-eslint",
+        "editorconfig.editorconfig",
         "esbenp.prettier-vscode",
         "graphql.vscode-graphql",
+        "github.vscode-pull-request-github",
         "mtxr.sqltools",
-        "mtxr.sqltools-driver-pg",
-        "redhat.vscode-yaml",
-        "mikestead.dotenv"
-      ],
-      "settings": {
-        "editor.formatOnSave": true,
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-      }
+        "mtxr.sqltools-driver-pg"
+      ]
     }
-  },
-  "forwardPorts": [4000, 5432, 6379],
-  "postCreateCommand": "yarn install",
-  "remoteUser": "node",
-  "updateRemoteUserUID": true
+  }
+
+  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+  // "remoteUser": "root"
 }

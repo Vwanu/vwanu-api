@@ -1,12 +1,12 @@
 // import { HooksObject } from '@feathersjs/feathers';
-import * as authentication from '@feathersjs/authentication';
+
 // Don't remove this comment. It's needed to format import lines nicely.
 // import { AddAssociations, IncludeAssociations } from '../../Hooks';
 
-import AgeAllow from '../../Hooks/AgeAllow';
-import { requireAuth } from '../../Hooks/requireAuth';
 
-const { authenticate } = authentication.hooks;
+
+
+
 
 const findConversationsFrom = async ({ app, conversationId }) => {
   try {
@@ -14,7 +14,7 @@ const findConversationsFrom = async ({ app, conversationId }) => {
 
     return conversations;
   } catch (e) {
-    throw new Error(e);
+    throw e
   }
 };
 const AssociateConversation = async (ctx) => {
@@ -45,8 +45,6 @@ const AssociateConversation = async (ctx) => {
 export default {
   before: {
     all: [
-      requireAuth,
-      AgeAllow,
       // IncludeAssociations({
       //   include: [
       //     {

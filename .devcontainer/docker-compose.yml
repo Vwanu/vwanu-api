@@ -1,52 +1,39 @@
-version: "3.8"
+version: '3.8'
 
 services:
   app:
-    container_name: vwanu_dev_container
     build:
-      context: ..
-      dockerfile: .devcontainer/Dockerfile
+      context: .
+      dockerfile: Dockerfile.node
     volumes:
       - ..:/workspace:cached
-      - ~/.gitconfig:/home/node/.gitconfig
-    environment:
-      - NODE_ENV=development
-      - PORT=4000
-      - PGDATABASE=social_media
-      - PGUSER=vwanu
-      - PGPASSWORD=123456
-      - PGHOST=postgres
-      - DB_HOST=postgres
-      - REDIS_URL=redis://redis:6379/0
-    depends_on:
-      - postgres
-      - redis
-    # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function
-    network_mode: service:postgres
-    # Use the sleep command to keep the container running
-    command: sleep infinity
-    user: node
+      - vwanu-node-modules:/workspace/node_modules  # ✅ Correct path
+      - /var/run/docker.sock:/var/run/docker.sock
 
-  postgres:
-    container_name: postgres
-    image: postgres:12
+    command : bash -c  "ls -la && sleep infinity"
+    # command: bash -c "npm run typeorm:migration:run && sleep infinity"
+    network_mode: service:db
+    # depends_on:
+    #   db:
+    #     condition: service_healthy
+
+  db:
+    build:
+      context: .
+      dockerfile: Dockerfile.db
     restart: unless-stopped
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - vwanu-postgres-data:/var/lib/postgresql/data  # ✅ Correct name
     environment:
-      - POSTGRES_USER=vwanu
-      - POSTGRES_PASSWORD=123456
-      - POSTGRES_DB=social_media
-      - POSTGRES_HOST_AUTH_METHOD=trust
-    ports:
-      - 5432:5432
-
-  redis:
-    container_name: redis
-    image: redis:alpine
-    restart: unless-stopped
-    ports:
-      - 6379:6379
+      POSTGRES_PASSWORD: 1234567890
+      POSTGRES_USER: vwanu
+      POSTGRES_DB:  social-media-api
+    # healthcheck:
+    #   test: ["CMD-SHELL", "pg_isready -U vwanu -d 1234567890"]
+    #   interval: 5s
+    #   timeout: 5s
+    #   retries: 5
 
 volumes:
-  postgres-data:
+  vwanu-postgres-data:
+  vwanu-node-modules:

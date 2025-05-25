@@ -1,6 +1,7 @@
 
 import { Id } from '@feathersjs/feathers';
-import { Sequelize } from 'sequelize';
+// @ts-ignore
+import {Sequelize} from 'sequelize';
 import notBannedQuery from '../sql/notbanned.sql';
 
 export default (userId: Id, communityId: Id, sequelize: Sequelize) => {

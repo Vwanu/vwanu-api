@@ -6,7 +6,7 @@ export default (role: string = 'member') => async (context: HookContext): Promis
         const memBerRole = await context.app.service('CommunityRoles')._find({ where: { name: role } });
         context.data.access_role = memBerRole[0].id;
     } catch (error) {
-        throw new Error(error);
+        throw error;
     }
 
     return context;

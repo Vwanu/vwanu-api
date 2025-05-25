@@ -1,11 +1,6 @@
-/* eslint-disable no-unused-vars */
-import { Op } from '@sequelize/core';
-import { Params, Id } from '@feathersjs/feathers';
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
-import { BadRequest } from '@feathersjs/errors';
-/** Local dependencies */
+
 import { Application } from '../../declarations';
-// eslint-disable-next-line import/prefer-default-export
 export class FriendRequest extends Service {
   app;
 

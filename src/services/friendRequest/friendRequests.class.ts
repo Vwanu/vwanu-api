@@ -77,7 +77,7 @@ export class FriendRequest extends Service {
       // requester.addFriendshipRequested(friend),
     ]);
 
-    const user2 = await requester.reload();
+    await requester.reload();
 
     await friend.reload();
 
@@ -125,7 +125,7 @@ export class FriendRequest extends Service {
     //             .service('friends')
     //             .create({ UserId: params.User.id, friendId: friendsRequestId });
     //         } catch (error) {
-    //           throw new Error(error);
+    //           throw error;
     //         }
     //         break;
 

@@ -9,20 +9,21 @@ export default async (context: HookContext) => {
     .service(context.path)
     .filterQuery(context.params);
 
-  let order = [];
+  let order: any[] = [];
   if (filters.$sort) {
     const { amountOfMembers } = filters.$sort;
     const customFilters: any = {};
     if (amountOfMembers) {
-      customFilters.numMembers = amountOfMembers; // rename amountOfMembers to numMembers
+      customFilters.numMembers = amountOfMembers;
       delete filters.$sort.amountOfMembers;
     }
     const allField = { ...filters.$sort, ...customFilters };
     order = Object.keys(allField).map((key) => {
       const descAsc = allField[key] === 1 ? 'ASC' : 'DESC';
-      if (customFilters[key])
-        return [[Sequelize.literal(`"${key}"`), `${descAsc}`]];
-      return [`${key}`, descAsc];
+      if (customFilters[key]) {
+        return [Sequelize.literal(`"${key}"`), descAsc];
+      }
+      return [key, descAsc];
     });
   }
 

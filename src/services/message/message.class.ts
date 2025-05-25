@@ -4,7 +4,6 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 
 /** Local dependencies */
 import common from '../../lib/utils/common';
-import { include } from '../../lib/utils/commentPostInclude';
 import { Application } from '../../declarations';
 
 const { getUploadedFiles } = common;

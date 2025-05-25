@@ -8,7 +8,7 @@ export default async (context: HookContext): Promise<HookContext> => {
     .service(context.path)
     .filterQuery(context.params);
 
-  let order = [];
+  let order: Array<[string, string] | Array<[any, string]>> = [];
 
   const specialOrders = [
     'amountOfMembers',

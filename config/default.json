@@ -1,14 +1,10 @@
 {
   "port": "API_PORT",
-  "frontendUrl": "FRONTEND_URL",
   "host": "HOST",
   "dbSettings": {
     "dialect": "postgres",
     "seederStorage": "sequelize"
   },
-  "smtp_password": "00bcfe6b6504a3036b1c23051a00dacd",
-  "smtp_port": 587,
-  "JWT_SECRET": "JWT_SECRET",
   "maxPostImages": 10,
   "maxDiscussionImages": 10,
   "maxMessageImages": 4,

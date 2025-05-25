@@ -4,4 +4,3 @@ export { default as SaveAddress } from './saveAddress';
 export { default as IncludeAddress } from './includeAddress';
 export { default as SendWelcomeMail } from './welcomeEmail.hook';
 export { default as AddworkPlace } from './addWorkplace';
-export { default as AssignRole } from './assignRole';

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import app from '../app';
 import Logger from '../lib/utils/logger';
 import {
@@ -8,20 +9,21 @@ import helper from './sever_helper';
 
 const API_CONFIGURATION: ApiConfigurationType = app.get('API_CONFIGURATION');
 
-// helper.envConfigurationCheck();
+helper.envConfigurationCheck();
 
 if (API_CONFIG_SCHEMA.safeParse(API_CONFIGURATION)) {
   const {host} = API_CONFIGURATION;
+  console.log({API_CONFIGURATION});
   const port = helper.normalizePort(API_CONFIGURATION.port);
-  // @ts-ignore
+ // @ts-ignore
   const server = app.listen(port, host);
-
-  server.on('error', (err) => {helper.onError(err, port)});
+  server.on('error', (err) => {helper.onError(err, port as string)});
   server.on('listening', () => {
   app
     .get('sequelizeSync')
     .then(() => {
-    helper.onListening(server, host?? '0.0.0.0')})
+    helper.onListening(server, host?? '0.0.0.0')
+  })
   .catch((error) => {
     Logger.error(error);
     process.exit(1);

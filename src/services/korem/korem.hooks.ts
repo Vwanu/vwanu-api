@@ -1,15 +1,12 @@
 import commonHooks from 'feathers-hooks-common';
-import * as authentication from '@feathersjs/authentication';
-
 import {
   AutoOwn,
-  AgeAllow,
   LimitToOwner,
   IncludeAssociations,
 } from '../../Hooks';
-import { requireAuth } from '../../Hooks/requireAuth';
 
-const { authenticate } = authentication.hooks;
+
+
 
 const UserAttributes = [
   'firstName',
@@ -21,8 +18,6 @@ const UserAttributes = [
 export default {
   before: {
     all: [
-      requireAuth,
-      AgeAllow,
       IncludeAssociations({
         include: [
           {

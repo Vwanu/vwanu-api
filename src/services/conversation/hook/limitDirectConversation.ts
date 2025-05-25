@@ -29,7 +29,7 @@ export default async (context: HookContext) => {
     }
   } catch (err) {
     console.log('Here is where the error occured');
-    throw new Error(err.message);
+   throw err;
   }
   return context;
 };

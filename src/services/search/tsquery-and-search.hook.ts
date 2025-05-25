@@ -1,6 +1,5 @@
 import { HookContext } from '@feathersjs/feathers';
 import { GeneralError } from '@feathersjs/errors';
-import { QueryTypes } from 'sequelize';
 
 export default (options: any) => async (ctx: HookContext) => {
   // Postgres is not used in testing mode therefore the functions are not available
@@ -33,7 +32,7 @@ export default (options: any) => async (ctx: HookContext) => {
   await sequelize
     .query(query, {
       bind: fieldList.map((v) => ctx.result[v]),
-      type: QueryTypes.UPDATE,
+      type: 'UPDATE',
     })
     .then((r: any) => {
       // because we want see the vector in our result(not normal), we modify the outbound data by appending the updated search_vector field.

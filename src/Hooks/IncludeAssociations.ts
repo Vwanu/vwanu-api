@@ -10,7 +10,7 @@ type Assoc = {
 };
 
 const associateModels = (include, context) => {
-  const associations = [];
+  const associations: Assoc[] = [];
 
   (Array.isArray(include) ? include : [include]).forEach((assoc: any) => {
     const { as: associate, model, include: subInclude, ...rest } = assoc;
@@ -51,10 +51,10 @@ export default (options): any =>
           include,
           raw: false,
         });
-        // console.log(context.params.sequelize);
       }
       return context;
     } catch (err) {
-      throw new Error(err);
+      const message = err instanceof Error ? err.message : 'Unknown error occurred';
+      throw new Error(message);
     }
   };

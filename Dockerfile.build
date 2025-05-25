@@ -1,0 +1,49 @@
+# Stage 1: Dependencies
+FROM node:20-alpine AS deps
+
+# Set the working directory
+WORKDIR /app
+
+# Copy package files for better caching
+COPY package.json package-lock.json ./
+
+# Install all dependencies - we'll create two dependency directories
+# This is more efficient than running npm install twice
+RUN npm ci || npm install
+RUN cp -R node_modules dev_node_modules
+RUN npm ci --omit=dev || npm install --omit=dev && rm -rf node_modules/typescript
+
+# Stage 2: Build the application
+FROM node:20-alpine AS builder
+
+# Set the working directory
+WORKDIR /app
+
+# Copy package files and the dev dependencies
+COPY package.json package-lock.json ./
+COPY --from=deps /app/dev_node_modules ./node_modules
+
+# Copy source code
+COPY . .
+
+# Set the environment variable
+ENV NODE_ENV=production
+
+# Build the TypeScript application
+RUN npm run build:webpack:prod
+
+# Final stage: Create the production image
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy only necessary files for production
+COPY --from=builder /app/package.json ./package.json
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+
+# Expose the application port
+EXPOSE 4000
+
+# Run the application
+CMD ["node", "dist/main.js"]

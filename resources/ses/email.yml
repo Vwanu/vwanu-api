@@ -1,0 +1,38 @@
+Resources:
+  CarCallNotificationTemplate:
+    Type: 'AWS::SES::Template'
+    Properties:
+      Template:
+        HtmlPart:
+          '<p>A Wur-Com Emergency Elevator Comunicator assigned to one of your properties has received an {{mode}} call</p>
+          <p>Property: {{propertyName}}</p>
+          <p>Car: {{carName}}</p>
+          <p>Initiated by User: {{username}}</p>
+          <p>Started: {{createdAt}}</p>
+          <p>Direct Access Link: <a href="${self:provider.environment.ADMIN_URL}/dashboard/property/{{propertyId}}">Go to {{propertyName}}</p>'
+        SubjectPart: '${self:custom.subjectPrefix.${sls:stage}}Wur-Com Car Station {{mode}} Call'
+        TemplateName: ${self:provider.environment.CALL_NOTIFICATION_EMAIL_TEMPLATE}
+        TextPart: 'A Wur-Com Emergency Elevator Comunicator assigned to one of your properties has received an {{mode}} call. Property: {{propertyName}}, Car: {{carName}}, Initiated by User: {{username}}, Started: {{createdAt}}'
+  CarOfflinelNotificationTemplate:
+    Type: 'AWS::SES::Template'
+    Properties:
+      Template:
+        HtmlPart:
+          '<p>A Wur-Com Emergency Elevator Comunicator assigned to one of your properties has been offline for more than {{offlineThresholdMinutes}} minutes.</p>
+          <p>Property: {{propertyName}}</p>
+          <p>Car: {{carName}}</p>
+          <p>Time: {{createdAt}}</p>
+          <p>Direct Access Link: <a href="${self:provider.environment.ADMIN_URL}/dashboard/property/{{propertyId}}">Go to {{propertyName}}</p>'
+        SubjectPart: '${self:custom.subjectPrefix.${sls:stage}}Wur-Com device offline: {{propertyName}} - {{carName}}'
+        TemplateName: ${self:provider.environment.CAR_OFFLINE_NOTIFICATION_EMAIL_TEMPLATE}
+        TextPart: 'A Wur-Com Emergency Elevator Comunicator assigned to one of your properties has been offline for more than {{offlineThresholdMinutes}} minutes.. Property: {{propertyName}}, Car: {{carName}}, Time: {{createdAt}}'
+  CallNotAnsweredNotificationTemplate:
+    Type: 'AWS::SES::Template'
+    Properties:
+      Template:
+        HtmlPart: '<p>A Wur-Com Emergency Call went unanswered.</p>
+          <p>Property: {{propertyName}}</p>
+          <p>Car: {{carName}}</p>'
+        SubjectPart: '${self:custom.subjectPrefix.${sls:stage}}Wur-Com call went unanswered: {{propertyName}} - {{carName}}'
+        TemplateName: ${self:provider.environment.CALL_NOT_ANSWERED_NOTIFICATION_EMAIL_TEMPLATE}
+        TextPart: 'A Wur-Com Emergency Elevator Call went unanswered.. Property: {{propertyName}}, Car: {{carName}}'

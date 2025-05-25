@@ -41,7 +41,7 @@ hookFiles.forEach((hookFile) => {
   ) {
     content = content.replace(
       "import * as feathersAuthentication from '@feathersjs/authentication';",
-      "import { requireAuth } from '../../Hooks/requireAuth';"
+      ""
     );
     hasChanges = true;
   }

@@ -4,9 +4,11 @@
 import { IMessenger } from '../../../schema/email.schema';
 
 export default class SendGridMessenger implements IMessenger {
-  constructor(private apikey, private fromEmail) {
+  constructor(private apikey: string, private fromEmail: string) {
     this.apikey = apikey;
     this.fromEmail = fromEmail;
+    // @ts-ignore
+    console.log(this.apikey)
     // sendGridMail.setApiKey(this.apikey);
   }
 

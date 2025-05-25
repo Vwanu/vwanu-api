@@ -100,6 +100,6 @@ export default function (app: Application): void {
   const sequelize = app.get('sequelizeClient');
 
   tables.forEach((table) => {
-    table(sequelize, Sequelize.DataTypes);
+    table(sequelize, Sequelize);
   });
 }

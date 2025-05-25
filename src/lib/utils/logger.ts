@@ -22,7 +22,7 @@ const filename = path.join(logDir, 'server.log');
 const logger = winston.createLogger({
   format: combine(
     timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-    label({ label: path.basename(require.main.filename) }),
+    label({ label: path.basename(require.main?.filename || 'server') }),
     splat(),
     colorize(),
     myFormat

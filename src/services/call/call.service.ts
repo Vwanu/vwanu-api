@@ -42,7 +42,7 @@ export default function (app: Application): void {
           : app.channel(`userIds-${call.callerId}`);
       default:
         console.error('Unknown call status', call.status);
-        return null;
+        return [];
       // return [
       //   app.channel(`userIds-${call.receiverId}`),
       //   app.channel(`userIds-${call.callerId}`),

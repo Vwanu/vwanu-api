@@ -14,6 +14,6 @@ export default async (service: any, id: string | number) => {
     return entity;
   } catch (error) {
     Logger.error(error);
-    throw new Error(error.message);
+     throw error
   }
 };

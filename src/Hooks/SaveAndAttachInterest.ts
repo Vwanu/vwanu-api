@@ -55,7 +55,7 @@ export default (attachments: AttachInterest) => async (context: HookContext) => 
     // });
 
     return context;
-  } catch (error) {
+  } catch (error: unknown | any) {
     throw new BadRequest(error);
   }
 };

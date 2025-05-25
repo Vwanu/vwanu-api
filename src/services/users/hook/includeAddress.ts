@@ -27,10 +27,10 @@ const getUserIds = (result) => {
   if (result.id) return [result.id];
   if (result.data) {
     const { data } = result;
-    const userIds = [];
+    const userIds: string[] = [];
     if (Array.isArray(data)) {
       data.forEach((entity) => {
-        userIds.push(entity.id);
+        userIds.push(entity?.id as string);
       });
     } else {
       userIds.push(data.id);

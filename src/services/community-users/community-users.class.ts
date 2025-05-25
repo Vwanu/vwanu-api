@@ -33,8 +33,7 @@ export class CommunityUsers extends Service {
         return Promise.resolve(response);
       } catch (e) {
         console.error(e);
-        throw new BadRequest(e.message);
-      }
+        throw e      }
     } else throw new BadRequest('demote query param is required');
   }
 }

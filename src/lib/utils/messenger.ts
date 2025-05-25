@@ -15,13 +15,10 @@ import { NotifierOptions, IMessenger } from '../../schema/email.schema';
 // ____/
 
 const TexterService = (): IMessenger => {
-  console.log('');
-  // console.log('texterService')
-  // const { authToken, fromNumber, accountSid } = config.get<{ authToken: string, fromToken: string, accounsid: string }>('Texterconfiguration')
-  // console.log({ authToken, fromNumber, accountSid })
-  // const texter = new TwilioMessenger(authToken, fromNumber, accountSid)
-  // return texter;
-  return { send: () => Promise.resolve('message sent') } as IMessenger;
+  return {
+    send: (to: string, message: string, subject: string) => Promise.resolve({ ok: true }),
+    sendTemplate: (to: string, templateId: string, data: any) => Promise.resolve({ ok: true })
+  };
 };
 
 const defaultNotifierOptions: NotifierOptions = {
@@ -65,7 +62,7 @@ export default function (app: Application) {
         );
       } catch (error) {
         Logger.error(error);
-        throw new Error(error);
+        throw error;
       }
     },
   };

@@ -1,20 +1,20 @@
 /* eslint-disable import/prefer-default-export */
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
 import { CognitoIdTokenPayload } from 'aws-jwt-verify/jwt-model';
-import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
+// import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
 
 import Logger from './utils/logger';
 
 export class CognitoService {
   private accessVerifier: any;
   private idVerifier: any;
-  private cognitoClient: CognitoIdentityProviderClient;
+  // private cognitoClient: CognitoIdentityProviderClient;
 
-  constructor(private userPoolId: string, clientId: string) {
+  constructor(private userPoolId: string, private clientId: string) {
     this.accessVerifier = CognitoJwtVerifier.create({
-      userPoolId,
+      userPoolId: this.userPoolId,
       tokenUse: 'access',
-      clientId,
+      clientId: this.clientId,
     });
 
     this.idVerifier = CognitoJwtVerifier.create({
@@ -23,13 +23,13 @@ export class CognitoService {
       clientId,
     });
 
-    this.cognitoClient = new CognitoIdentityProviderClient({
-      region: userPoolId.split('_')[0],
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-      },
-    });
+    // this.cognitoClient = new CognitoIdentityProviderClient({
+    //   region: userPoolId.split('_')[0],
+    //   credentials: {
+    //     accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    //     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    //   },
+    // });
   }
 
   async verifyTokens(accessToken: string, idToken: string) {

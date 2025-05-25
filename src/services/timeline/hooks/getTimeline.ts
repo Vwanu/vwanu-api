@@ -1,5 +1,6 @@
 // import isEmpty from 'lodash/isEmpty';
 import { Op } from '@sequelize/core';
+import { HookContext } from '@feathersjs/feathers';
 
 const UserAttributes = [
   'firstName',
@@ -8,10 +9,11 @@ const UserAttributes = [
   'profilePicture',
   'createdAt',
 ];
-export default (context) => {
+export default (context: HookContext  ): HookContext => {
   const { app, params } = context;
   const Sequelize = app.get('sequelizeClient');
 
+  
   const amountOfComments = `(
       SELECT 
       COUNT(*) 
@@ -36,13 +38,12 @@ SELECT
     ) 
     FROM "Reactions" AS "R"
     WHERE "R"."entityId"="Post"."id" AND  "R"."entityType"='Post' AND "R"."UserId"='${context.params.User.id}'
-  )`;
+  )`
   const friends = `(
      EXISTS(
-      SELECT 1 FROM "User_friends" WHERE "User_friends"."UserId" = "Post"."UserId" AND "User_friends"."friendId" = '${params.User.id}'
+      SELECT 1 FROM "User_friends" WHERE "User_friends"."UserId" = "Post"."UserId" AND "User_friends"."friendId" = '${params?.User?.id}'
      )
     )`;
-
   const WallUser = `(
   SELECT 
   json_build_object(
@@ -138,7 +139,7 @@ SELECT
 
   const single = context.method === 'get';
   const queryString = /* isEmpty(where)
-    ? */ {
+    ? */{
     PostId: null,
     ...where,
     [Op.and]: {

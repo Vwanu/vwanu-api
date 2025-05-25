@@ -11,7 +11,7 @@ import getEntityById from '../../../lib/utils/getEntityById';
 
 export default async (context: HookContext): Promise<HookContext> => {
   const { params, id, service } = context;
-  const entity = await getEntityById(service, id);
+  const entity = await getEntityById(service, id as string);
   if (entity.UserId === params.User.id || entity.wallId === params.User.id)
     return context;
   if (!entity.PostId)

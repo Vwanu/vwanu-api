@@ -31,8 +31,8 @@ export default async (context: HookContext) => {
   try {
     await updateUserCount(context);
     context.result.amountOfPeople = addedUser.length;
-  } catch (e) {
-    throw new GeneralError(e.message);
+  } catch (e: unknown | any) {
+    throw new GeneralError(e);
   }
 
   return context;

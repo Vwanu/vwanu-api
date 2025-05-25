@@ -1,17 +1,16 @@
 import commonHooks from 'feathers-hooks-common';
-import * as authentication from '@feathersjs/authentication';
+
 // Don't remove this comment. It's needed to format import lines nicely.
 import {
   AutoOwn,
-  AgeAllow,
   LimitToOwner,
   AddAssociations,
   AdjustCount,
   ServiceAssign,
 } from '../../Hooks';
-import { requireAuth } from '../../Hooks/requireAuth';
+
 // ValidateResource
-const { authenticate } = authentication.hooks;
+
 const UserAttributes = [
   'firstName',
   'lastName',
@@ -46,8 +45,6 @@ const AssociateUserAndAdjustCount = async (context) => {
 export default {
   before: {
     all: [
-      requireAuth,
-      AgeAllow,
       AddAssociations({
         models: [
           {

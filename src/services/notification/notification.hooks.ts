@@ -1,15 +1,15 @@
-import * as authentication from '@feathersjs/authentication';
+
 import { HookContext } from '@feathersjs/feathers';
 // Don't remove this comment. It's needed to format import lines nicely.
 import addAssociation from '../../Hooks/AddAssociations';
-import AgeAllow from '../../Hooks/AgeAllow';
-import { requireAuth } from '../../Hooks/requireAuth';
 
-const { authenticate } = authentication.hooks;
+
+
+
 
 export default {
   before: {
-    all: [requireAuth, AgeAllow],
+ 
     find: [
       addAssociation({
         models: [

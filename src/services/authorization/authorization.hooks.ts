@@ -6,11 +6,11 @@
  * @module services/authorization/authorization.hooks
  */
 
-import * as authentication from '@feathersjs/authentication';
-import { disallow } from 'feathers-hooks-common';
-import { requireAuth } from '../../Hooks/requireAuth';
 
-const { authenticate } = authentication.hooks;
+import { disallow } from 'feathers-hooks-common';
+
+
+
 
 /**
  * Hook object containing before hooks for authorization.
@@ -21,7 +21,7 @@ const authorizationHooks = {
     /**
      * Before hook that authenticates the user using JWT strategy for all service methods.
      */
-    all: [requireAuth],
+ all:[],
 
     /**
      * Before hook that disallows the 'find' method.

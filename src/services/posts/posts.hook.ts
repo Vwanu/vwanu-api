@@ -1,8 +1,8 @@
-import { requireAuth } from '../../Hooks/requireAuth';
+
 
 /** Local dependencies */
 import AutoOwn from '../../Hooks/AutoOwn';
-import AgeAllow from '../../Hooks/AgeAllow';
+
 import { LimitToOwner } from '../../Hooks';
 import DeletePost from './hooks/deletePost';
 import * as schema from '../../schema/post';
@@ -13,7 +13,7 @@ import CanComment from '../../Hooks/NoCommentOnLockParents';
 
 export default {
   before: {
-    all: [requireAuth, AgeAllow],
+ 
     find: [GetTimeline],
     get: [GetTimeline],
     create: [

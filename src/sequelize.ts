@@ -1,11 +1,9 @@
-/* eslint-disable no-useless-catch */
-/* eslint-disable global-require */
-/* eslint-disable import/no-dynamic-require */
+import config from 'config';
+import { Model } from 'sequelize';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const Sequelize = require('sequelize').Sequelize;
 
 import { Application } from './declarations';
-
-const Sequelize = require('sequelize');
-const config = require('config');
 
 const dbSettings = config.get('dbSettings');
 
@@ -14,15 +12,16 @@ if (process.env.NODE_ENV === 'test') {
   dbs.host = 'localhost';
 }
 
+
 if (process.env.NODE_ENV === 'development') {
   dbs = {
     dialect: 'postgres',
     pool: { idle: 20000, acquire: 600000 },
-    database: process.env.PGDATABASE || 'social_media',
-    username: process.env.PGUSER || 'vwanu',
-    password: process.env.PGPASSWORD || '123456789',
-    host: process.env.PGHOST || process.env.DB_HOST || 'localhost',
-    port: process.env.PGPORT || 5432,
+    database: process.env.PGDATABASE,
+    username: process.env.PGUSER,
+    password: process.env.PGPASSWORD,
+    host: process.env.DB_HOST ,
+    port: process.env.PGPORT
   };
 }
 
@@ -35,13 +34,8 @@ export default function (app: Application): void {
         seederStorge: 'sequelize',
       });
 
-  // handling sequelize query error
   sequelize.query = async function (...args) {
-    try {
-      return await Sequelize.prototype.query.apply(this, args);
-    } catch (err) {
-      throw err;
-    }
+    return await Sequelize.prototype.query.apply(this, args);
   };
 
   const oldSetup = app.setup;
@@ -54,7 +48,8 @@ export default function (app: Application): void {
     // Set up data relationships
     // Sync to the database
 
-    app.set('sequelizeSync', sequelize.sync({ alter: true }));
+    const syncOptions = process.env.NODE_ENV === 'development' ? { alter: true } : {};
+    app.set('sequelizeSync', sequelize.sync(syncOptions));
 
     return result;
   };
@@ -62,7 +57,7 @@ export default function (app: Application): void {
     const { models } = sequelize;
     Object.keys(models).forEach((name) => {
       if ('associate' in models[name]) {
-        (models[name] as any).associate(models);
+        (models[name] as Model).associate?.(models);
       }
     });
   }
