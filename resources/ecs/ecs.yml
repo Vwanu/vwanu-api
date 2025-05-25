@@ -469,7 +469,7 @@ Resources:
                   - ecs:DescribeServices
                 Resource:
                   - !Ref HttpServerECSService
-                  - !Ref WebSocketServerECSService
+                  # - !Ref WebSocketServerECSService
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
@@ -495,33 +495,19 @@ Resources:
               ecs = boto3.client('ecs')
               cluster = os.environ['CLUSTER_NAME']
               http_service = os.environ['HTTP_SERVICE_NAME']
-              ws_service = os.environ['WS_SERVICE_NAME']
               
-              # Get alarm name from event to determine which service to restart
-              alarm_name = ""
-              if 'Records' in event and len(event['Records']) > 0:
-                  if 'Sns' in event['Records'][0]:
-                      sns_message = json.loads(event['Records'][0]['Sns']['Message'])
-                      if 'AlarmName' in sns_message:
-                          alarm_name = sns_message['AlarmName']
-              
-              # Determine which service to restart based on alarm name
-              service_to_restart = http_service  # Default to HTTP service
-              if 'WS-HighCPU' in alarm_name:
-                  service_to_restart = ws_service
-              
-              print(f"Forcing redeployment for service {service_to_restart} in cluster {cluster}")
+              print(f"Forcing redeployment for service {http_service} in cluster {cluster}")
               
               try:
                   # Force a new deployment
                   response = ecs.update_service(
                       cluster=cluster,
-                      service=service_to_restart,
+                      service=http_service,
                       forceNewDeployment=True
                   )
                   return {
                       'statusCode': 200,
-                      'body': f"Forced redeployment of ECS service {service_to_restart}"
+                      'body': f"Forced redeployment of ECS service {http_service}"
                   }
               except Exception as e:
                   print(f"Error: {str(e)}")
@@ -530,7 +516,6 @@ Resources:
         Variables:
           CLUSTER_NAME: !Ref ECSCluster
           HTTP_SERVICE_NAME: !GetAtt HttpServerECSService.Name
-          WS_SERVICE_NAME: !GetAtt WebSocketServerECSService.Name
       Timeout: 30
 
   # Allow CloudWatch to invoke the Lambda
@@ -613,25 +598,25 @@ Resources:
         - !GetAtt TaskRestartLambda.Arn
 
   # CloudWatch Alarm to Trigger on High CPU for WebSocket Server
-  WebSocketHighCpuTaskRestartAlarm:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmName: !Sub '${AWS::StackName}-WS-HighCPU-RestartTasks'
-      AlarmDescription: 'Trigger Lambda to restart WebSocket tasks when CPU > 75%'
-      Namespace: AWS/ECS
-      MetricName: CPUUtilization
-      Dimensions:
-        - Name: ClusterName
-          Value: !Ref ECSCluster
-        - Name: ServiceName
-          Value: !GetAtt WebSocketServerECSService.Name
-      Statistic: Average
-      Period: 60
-      EvaluationPeriods: 1
-      Threshold: 75
-      ComparisonOperator: GreaterThanThreshold
-      AlarmActions:
-        - !GetAtt TaskRestartLambda.Arn
+  # WebSocketHighCpuTaskRestartAlarm:
+  #   Type: AWS::CloudWatch::Alarm
+  #   Properties:
+  #     AlarmName: !Sub '${AWS::StackName}-WS-HighCPU-RestartTasks'
+  #     AlarmDescription: 'Trigger Lambda to restart WebSocket tasks when CPU > 75%'
+  #     Namespace: AWS/ECS
+  #     MetricName: CPUUtilization
+  #     Dimensions:
+  #       - Name: ClusterName
+  #         Value: !Ref ECSCluster
+  #       - Name: ServiceName
+  #         Value: !GetAtt WebSocketServerECSService.Name
+  #     Statistic: Average
+  #     Period: 60
+  #     EvaluationPeriods: 1
+  #     Threshold: 75
+  #     ComparisonOperator: GreaterThanThreshold
+  #     AlarmActions:
+  #       - !GetAtt TaskRestartLambda.Arn
 
   # Auto Scaling
   ECSAutoScalingRole:
