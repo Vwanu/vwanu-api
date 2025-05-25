@@ -4,8 +4,8 @@
   Value: ${self:provider.environment.REGION}
 - Name: SERVICE_NAME
   Value: ${self:provider.environment.SERVICE_NAME}
-- Name: ADMIN_URL
-  Value: ${self:provider.environment.ADMIN_URL}
+- Name: GITHUB_USERNAME
+  Value: ${self:provider.environment.GITHUB_USERNAME}
 - Name: DB_HOST
   Value: ${self:provider.environment.DB_HOST}
 - Name: DB_USERNAME
