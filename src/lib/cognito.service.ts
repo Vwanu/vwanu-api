@@ -1,14 +1,14 @@
-/* eslint-disable import/prefer-default-export */
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
 import { CognitoIdTokenPayload } from 'aws-jwt-verify/jwt-model';
-// import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
+import { BadRequest } from '@feathersjs/errors';
 
 import Logger from './utils/logger';
 
+
+
 export class CognitoService {
-  private accessVerifier: any;
-  private idVerifier: any;
-  // private cognitoClient: CognitoIdentityProviderClient;
+  private accessVerifier; 
+  private idVerifier;
 
   constructor(private userPoolId: string, private clientId: string) {
     this.accessVerifier = CognitoJwtVerifier.create({
@@ -18,24 +18,17 @@ export class CognitoService {
     });
 
     this.idVerifier = CognitoJwtVerifier.create({
-      userPoolId,
+      userPoolId: this.userPoolId,
       tokenUse: 'id',
-      clientId,
+      clientId: this.clientId,
     });
 
-    // this.cognitoClient = new CognitoIdentityProviderClient({
-    //   region: userPoolId.split('_')[0],
-    //   credentials: {
-    //     accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    //     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-    //   },
-    // });
   }
 
   async verifyTokens(accessToken: string, idToken: string) {
     try {
       if (!accessToken.startsWith('Bearer ')) {
-        throw new Error('Invalid access token format');
+        throw new BadRequest('Invalid access token format');
       }
 
       const accessPayload = await this.accessVerifier.verify(
@@ -47,24 +40,23 @@ export class CognitoService {
         accessPayload,
         idPayload,
       };
-    } catch (error) {
+    } catch (error: unknown ) {
       Logger.error('Token verification failed:', error);
-      return null;
+      throw new Error('Token verification failed');
     }
   }
 
   // eslint-disable-next-line class-methods-use-this
   getUserDetails(idPayload: CognitoIdTokenPayload) {
     return {
-      username: idPayload.username,
-      attributes: {
-        sub: idPayload.sub,
-        email: idPayload.email,
-        given_name: idPayload.given_name,
-        family_name: idPayload.family_name,
-        email_verified: idPayload.email_verified,
-        // ... other attributes from ID token
-      },
+      username: idPayload.username as string,
+      emailVerified: idPayload.email_verified as boolean,
+      firstName: idPayload.given_name as string,
+      lastName: idPayload.family_name as string,
+      email: idPayload.email as string,
+      id: idPayload.sub,
     };
   }
 }
+
+

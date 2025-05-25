@@ -20,6 +20,8 @@ import Logger from './lib/utils/logger';
 import healthCheck from './services/healthCheck';
 import RequestBody from './middleware/RequestBody';
 import morganMiddleware from './middleware/morgan.middleware';
+import requireLogin from './middleware/requireLogin';
+import AppError from './errors';
 
 dotenv.config();
 
@@ -53,31 +55,30 @@ app.get('startSequelize')();
 app.get('/health', healthCheck);
 
 
-app.use((req:Request, res:Response, next:NextFunction)=>{
-  const token = req.headers.authorization;
-  if(!token){
-    return res.status(401).json({message:'Unauthorized'})
-  }
-  next();
-})
+app.use(requireLogin);
 
 app.configure(services);
-
-
-
-
 
 
 app.use(express.notFound());
 app.use(express.errorHandler({ logger: Logger }));
 
 app.use(
-  (err: Error & { status?: number; code?: number }, 
+  (err: unknown | AppError, 
     req: Request, res: Response, _: NextFunction) =>
-  res
-    .status(err.status || err.code || 500)
-    .json({ error: err.message || 'Internal Server Error' })
-);
+      
+ { 
+  if(err instanceof AppError){
+  return res
+    .status(err?.status) 
+    .json({ error: err.message})
+  }
+  else{
+    return res
+    .status(500) 
+    .json({ error: err || 'Internal Server Error' })
+  }
+})
 
 export default app;
 
