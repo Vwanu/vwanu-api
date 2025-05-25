@@ -4,7 +4,7 @@ Resources:
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
     Properties:
-      DBInstanceIdentifier: vwanu-api-backend-${sls:stage}
+      DBInstanceIdentifier: vwanu-api-backend-${sls:stage}-new
       DBInstanceClass: db.t4g.small
       Engine: postgres
       EngineVersion: 13
@@ -15,6 +15,6 @@ Resources:
       MultiAZ: ${self:custom.databaseMultiAz.${sls:stage}}
       EnablePerformanceInsights: true
       PubliclyAccessible: true
-      DeletionProtection: true
+      DeletionProtection: false
       MasterUsername: ${self:provider.environment.DB_USERNAME}
       MasterUserPassword: ${self:provider.environment.DB_PASSWORD}
