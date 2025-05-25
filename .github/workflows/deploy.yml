@@ -69,16 +69,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      # - name: Install dependencies
-      #   id: install-dependencies
-      #   run: npm ci
-      #   timeout-minutes: 10
-      #   continue-on-error: true
+      - name: Install dependencies
+        id: install-dependencies
+        run: npm ci
+        timeout-minutes: 10
+        continue-on-error: true
 
-      # - name: Fallback to npm install if npm ci fails
-      #   if: steps.install-dependencies.outcome == 'failure'
-      #   run: npm install --no-audit --no-fund
-      #   timeout-minutes: 10
+      - name: Fallback to npm install if npm ci fails
+        if: steps.install-dependencies.outcome == 'failure'
+        run: npm install --no-audit --no-fund
+        timeout-minutes: 10
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
