@@ -4,7 +4,7 @@ provider:
   name: aws
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
-   iam:
+  iam:
     role:
       statements:
         - Effect: 'Allow'
