@@ -15,8 +15,6 @@ Resources:
         RecoveryMechanisms:
           - Name: verified_email
             Priority: 1
-      DeviceConfiguration:
-        DeviceOnlyRememberedOnUserPrompt: false
       UserPoolName: vwanu-api-backend-user-pool-${sls:stage}
       AliasAttributes:
         - email
