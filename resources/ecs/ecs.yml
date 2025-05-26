@@ -196,44 +196,46 @@ Resources:
   #       MinimumHealthyPercent: 50
 
   # Application Load Balancer
-  ApplicationLoadBalancer:
-    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
-    Properties:
-      Name: ${self:custom.shortServiceName}-${self:provider.stage}-alb
-      Scheme: internet-facing
-      Subnets:
-        - Ref: PublicSubnet1
-        - Ref: PublicSubnet2
-      SecurityGroups:
-        - Ref: ALBSecurityGroup
-      Type: application
+  # ApplicationLoadBalancer:
+  #   Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+  #   Properties:
+  #     Name: ${self:custom.shortServiceName}-${self:provider.stage}-alb
+  #     Scheme: internet-facing
+  #     Subnets:
+  #       - Ref: PublicSubnet1
+  #       - Ref: PublicSubnet2
+  #     SecurityGroups:
+  #       - Ref: ALBSecurityGroup
+  #     Type: application
 
   # ALB Security Group
-  ALBSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Security group for ALB
-      VpcId:
-        Ref: VwanuVPC
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
-          CidrIp: 0.0.0.0/0 # Allow inbound HTTPS traffic from anywhere
-      SecurityGroupEgress:
-        - IpProtocol: -1
-          FromPort: -1
-          ToPort: -1
-          CidrIp: 0.0.0.0/0 # Allow all outbound traffic
-      Tags:
-        - Key: Name
-          Value: ${self:service}-${self:provider.stage}-alb-sg
+  # ALBSecurityGroup:
+  #   Type: AWS::EC2::SecurityGroup
+  #   Properties:
+  #     GroupDescription: Security group for ALB
+  #     VpcId:
+  #       Fn::ImportValue: DefaultVPCId
+  #     SecurityGroupIngress:
+  #       - IpProtocol: tcp
+  #         FromPort: 443
+  #         ToPort: 443
+  #         CidrIp: 0.0.0.0/0 # Allow inbound HTTPS traffic from anywhere
+  #     SecurityGroupEgress:
+  #       - IpProtocol: -1
+  #         FromPort: -1
+  #         ToPort: -1
+  #         CidrIp: 0.0.0.0/0 # Allow all outbound traffic
+  #     Tags:
+  #       - Key: Name
+  #         Value: ${self:service}-${self:provider.stage}-alb-sg
 
   # ECS Task Security Group
   ECSTaskSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Security group for ECS tasks
+      VpcId:
+        Fn::ImportValue: DefaultVPCId
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 4000
@@ -248,23 +250,24 @@ Resources:
         - Key: Name
           Value: ${self:service}-${self:provider.stage}-ecs-sg
 
-  HttpTargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      Name: ${self:custom.shortServiceName}-${self:provider.stage}-http
-      Port: 4000
-      Protocol: HTTP
-      VpcId:
-        Ref: VwanuVPC
-      TargetType: ip
-      HealthCheckIntervalSeconds: 30
-      HealthCheckProtocol: HTTP
-      HealthCheckPath: /health
-      Matcher:
-        HttpCode: '200'
-      Tags:
-        - Key: Name
-          Value: ${self:service}-${self:provider.stage}-http-tg
+  # Target Groups
+  # HttpTargetGroup:
+  #   Type: AWS::ElasticLoadBalancingV2::TargetGroup
+  #   Properties:
+  #     Name: ${self:custom.shortServiceName}-${self:provider.stage}-http
+  #     Port: 4000
+  #     Protocol: HTTP
+  #     VpcId:
+  #       Ref: VwanuVPC
+  #     TargetType: ip
+  #     HealthCheckIntervalSeconds: 30
+  #     HealthCheckProtocol: HTTP
+  #     HealthCheckPath: /health
+  #     Matcher:
+  #       HttpCode: '200'
+  #     Tags:
+  #       - Key: Name
+  #         Value: ${self:service}-${self:provider.stage}-http-tg
 
   # WebSocketTargetGroup:
   #   Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -285,21 +288,21 @@ Resources:
   #         Value: ${self:service}-${self:provider.stage}-ws-tg
 
   # ALB Listener
-  ApplicationLoadBalancerListener:
-    Type: AWS::ElasticLoadBalancingV2::Listener
-    Properties:
-      LoadBalancerArn:
-        Ref: ApplicationLoadBalancer
-      Port: 443
-      Protocol: HTTPS
-      Certificates:
-        - CertificateArn:
-            Ref: ApiLoadBalancerCertificate
-      SslPolicy: ELBSecurityPolicy-TLS-1-2-2017-01 # or choose a more recent policy if available
-      DefaultActions:
-        - Type: forward
-          TargetGroupArn:
-            Ref: HttpTargetGroup
+  # ApplicationLoadBalancerListener:
+  #   Type: AWS::ElasticLoadBalancingV2::Listener
+  #   Properties:
+  #     LoadBalancerArn:
+  #       Ref: ApplicationLoadBalancer
+  #     Port: 443
+  #     Protocol: HTTPS
+  #     Certificates:
+  #       - CertificateArn:
+  #           Ref: ApiLoadBalancerCertificate
+  #     SslPolicy: ELBSecurityPolicy-TLS-1-2-2017-01 # or choose a more recent policy if available
+  #     DefaultActions:
+  #       - Type: forward
+  #         TargetGroupArn:
+  #           Ref: HttpTargetGroup
 
   # WebSocketListenerRule:
   #   Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
@@ -550,47 +553,47 @@ Resources:
   #       - !GetAtt TaskRestartLambda.Arn
 
   # Auto Scaling
-  ECSAutoScalingRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: ${self:service}-${self:provider.stage}-ecs-autoscaling-role
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: application-autoscaling.amazonaws.com
-            Action: 'sts:AssumeRole'
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceAutoscaleRole
-      Description: 'Role for ECS Application Auto Scaling'
+  # ECSAutoScalingRole:
+  #   Type: AWS::IAM::Role
+  #   Properties:
+  #     RoleName: ${self:service}-${self:provider.stage}-ecs-autoscaling-role
+  #     AssumeRolePolicyDocument:
+  #       Version: '2012-10-17'
+  #       Statement:
+  #         - Effect: Allow
+  #           Principal:
+  #             Service: application-autoscaling.amazonaws.com
+  #           Action: 'sts:AssumeRole'
+  #     ManagedPolicyArns:
+  #       - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceAutoscaleRole
+  #     Description: 'Role for ECS Application Auto Scaling'
 
   # HTTP Server Auto Scaling
-  HttpServerScalableTarget:
-    Type: AWS::ApplicationAutoScaling::ScalableTarget
-    DependsOn: HttpServerECSService
-    Properties:
-      MaxCapacity: 4
-      MinCapacity: 2
-      ResourceId: !Sub 'service/${ECSCluster.Name}/${HttpServerECSService.Name}'
-      ScalableDimension: ecs:service:DesiredCount
-      ServiceNamespace: ecs
-      RoleARN: !GetAtt ECSAutoScalingRole.Arn
+  # HttpServerScalableTarget:
+  #   Type: AWS::ApplicationAutoScaling::ScalableTarget
+  #   DependsOn: HttpServerECSService
+  #   Properties:
+  #     MaxCapacity: 4
+  #     MinCapacity: 2
+  #     ResourceId: !Sub 'service/${ECSCluster.Name}/${HttpServerECSService.Name}'
+  #     ScalableDimension: ecs:service:DesiredCount
+  #     ServiceNamespace: ecs
+  #     RoleARN: !GetAtt ECSAutoScalingRole.Arn
 
-  HttpServerScalingPolicy:
-    Type: AWS::ApplicationAutoScaling::ScalingPolicy
-    DependsOn: HttpServerScalableTarget
-    Properties:
-      PolicyName: ecs-auto-scaling-policy-${self:provider.stage}
-      PolicyType: TargetTrackingScaling
-      ScalingTargetId: !Ref HttpServerScalableTarget
-      TargetTrackingScalingPolicyConfiguration:
-        TargetValue: 75.0 # 75% CPU utilization
-        PredefinedMetricSpecification:
-          PredefinedMetricType: ECSServiceAverageCPUUtilization
-        ScaleInCooldown: 300
-        ScaleOutCooldown: 300
-        DisableScaleIn: false
+  # HttpServerScalingPolicy:
+  #   Type: AWS::ApplicationAutoScaling::ScalingPolicy
+  #   DependsOn: HttpServerScalableTarget
+  #   Properties:
+  #     PolicyName: ecs-auto-scaling-policy-${self:provider.stage}
+  #     PolicyType: TargetTrackingScaling
+  #     ScalingTargetId: !Ref HttpServerScalableTarget
+  #     TargetTrackingScalingPolicyConfiguration:
+  #       TargetValue: 75.0 # 75% CPU utilization
+  #       PredefinedMetricSpecification:
+  #         PredefinedMetricType: ECSServiceAverageCPUUtilization
+  #       ScaleInCooldown: 300
+  #       ScaleOutCooldown: 300
+  #       DisableScaleIn: false
 
   # WebSocket Server Auto Scaling
   # WebSocketServerScalableTarget:
