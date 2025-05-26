@@ -41,9 +41,9 @@ provider:
     REGION: ${self:provider.region}
     SERVICE_NAME: ${self:service}
     # GITHUB_USERNAME: ${env:GITHUB_USERNAME, 'system'}
-    # DB_HOST: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseHost}
-    # DB_USERNAME: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseCredentials.username}
-    # DB_PASSWORD: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseCredentials.password}
+    DB_HOST: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseHost}
+    DB_USERNAME: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseCredentials.username}
+    DB_PASSWORD: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseCredentials.password}
     COGNITO_USER_POOL: ${self:custom.offlineConfig.${self:custom.isOffline}.cognitoUserPool}
     # API_URL: ${self:custom.offlineConfig.${self:custom.isOffline}.apiUrl}
     # AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE: true
@@ -62,27 +62,27 @@ custom:
   isOffline: ${env:IS_OFFLINE, "false"}
   offlineConfig:
     true:
-      # databaseHost: ${env:DB_HOST, 'localhost'}
-      # databaseCredentials:
-      #   username: ${env:DB_USERNAME, 'postgres'}
-      #   password: ${env:DB_PASSWORD, 'postgres'}
+      databaseHost: ${env:DB_HOST, 'localhost'}
+      databaseCredentials:
+        username: ${env:DB_USERNAME, 'postgres'}
+        password: ${env:DB_PASSWORD, 'postgres'}
       cognitoUserPool: ${env:COGNITO_USER_POOL, ''}
       # apiUrl: ${env:API_URL, 'http://localhost:3000'}
     false:
-      # databaseHost:
-      #   Fn::GetAtt:
-      #     - VwanuDb
-      #     - Endpoint.Address
-      # databaseCredentials:
-      #   username: ${env:DB_USERNAME, 'postgres'}
-      #   password: ${env:DB_PASSWORD, 'postgres'}
+      databaseHost:
+        Fn::GetAtt:
+          - VwanuDb
+          - Endpoint.Address
+      databaseCredentials:
+        username: ${env:DB_USERNAME, 'postgres'}
+        password: ${env:DB_PASSWORD, 'postgres'}
       cognitoUserPool:
         Ref: CognitoUserPool
       # apiUrl: https://api.wadsonvaval.click
-  # databaseMultiAz:
-  #   prod: true
-  #   staging: true
-  #   dev: false
+  databaseMultiAz:
+    prod: true
+    staging: true
+    dev: false
   # adminDomains:
   #   prod: admin.wadsonvaval.click
   #   staging: admin-staging.wadsonvaval.click
