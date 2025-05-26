@@ -39,19 +39,19 @@ provider:
     STAGE: ${sls:stage}
     REGION: ${self:provider.region}
     SERVICE_NAME: vwanu-api-backend
-    GITHUB_USERNAME: ${env:GITHUB_USERNAME, 'system'}
+    # GITHUB_USERNAME: ${env:GITHUB_USERNAME, 'system'}
     DB_HOST: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseHost}
     DB_USERNAME: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseCredentials.username}
     DB_PASSWORD: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseCredentials.password}
     COGNITO_USER_POOL: ${self:custom.offlineConfig.${self:custom.isOffline}.cognitoUserPool}
-    API_URL: ${self:custom.offlineConfig.${self:custom.isOffline}.apiUrl}
+    # API_URL: ${self:custom.offlineConfig.${self:custom.isOffline}.apiUrl}
     AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE: true
    # REDIS_ENDPOINT: ${ssm:/${sls:stage}/redisEndpoint}
 
 plugins:
   - serverless-webpack
   - serverless-prune-plugin
-  - serverless-lift
+  # - serverless-lift
 
 custom:
   shortServiceName: vwanu
@@ -66,7 +66,7 @@ custom:
         username: ${env:DB_USERNAME, 'postgres'}
         password: ${env:DB_PASSWORD, 'postgres'}
       cognitoUserPool: ${env:COGNITO_USER_POOL, ''}
-      apiUrl: ${env:API_URL, 'http://localhost:3000'}
+      # apiUrl: ${env:API_URL, 'http://localhost:3000'}
     false:
       databaseHost:
         Fn::GetAtt:
@@ -77,19 +77,19 @@ custom:
         password: ${env:DB_PASSWORD, 'postgres'}
       cognitoUserPool:
         Ref: CognitoUserPool
-      apiUrl: https://api.wadsonvaval.click
+      # apiUrl: https://api.wadsonvaval.click
   databaseMultiAz:
     prod: true
     staging: true
     dev: false
-  adminDomains:
-    prod: admin.wadsonvaval.click
-    staging: admin-staging.wadsonvaval.click
-    dev: admin-dev.wadsonvaval.click
-  subjectPrefix:
-    prod: ''
-    staging: '[STAGING] '
-    dev: '[DEV] '
+  # adminDomains:
+  #   prod: admin.wadsonvaval.click
+  #   staging: admin-staging.wadsonvaval.click
+  #   dev: admin-dev.wadsonvaval.click
+  # subjectPrefix:
+  #   prod: ''
+  #   staging: '[STAGING] '
+  #   dev: '[DEV] '
   prune:
     automatic: true
     number: 3
@@ -103,7 +103,7 @@ custom:
 
 resources:
   # Network
-  - ${file(resources/network/Network.yml)}
+  # - ${file(resources/network/Network.yml)}
 
   # Database
   - ${file(resources/database/Database.yml)}
@@ -115,4 +115,4 @@ resources:
   - ${file(resources/ecs/ecs.yml)}
 
   # SES
-  - ${file(resources/ses/email.yml)}
+  # - ${file(resources/ses/email.yml)}

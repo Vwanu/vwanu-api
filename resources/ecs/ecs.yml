@@ -154,28 +154,31 @@ Resources:
   # ECS Service
   HttpServerECSService:
     Type: AWS::ECS::Service
-    DependsOn: ApplicationLoadBalancerListener
+    # DependsOn: ApplicationLoadBalancerListener
     Properties:
       ServiceName: ${self:service}-${self:provider.stage}-http-server-service
       Cluster:
         Ref: ECSCluster
       LaunchType: FARGATE
-      DesiredCount: 2 # TODO: After testing adjust the desired number of tasks, we probably want to start with 2 in staging and production
+      # DesiredCount: 2 # TODO: After testing adjust the desired number of tasks, we probably want to start with 2 in staging and production
+      DesiredCount: 1
       TaskDefinition:
         Ref: ECSTaskDefinitionHttpServer
       NetworkConfiguration:
         AwsvpcConfiguration:
-          AssignPublicIp: DISABLED
+          # AssignPublicIp: DISABLED
+          AssignPublicIp: ENABLED
           Subnets:
-            - Ref: PrivateSubnet1
-            - Ref: PrivateSubnet2
+            # - Ref: PrivateSubnet1
+            # - Ref: PrivateSubnet2
+            - Ref: DefaultSubnet1
           SecurityGroups:
             - Ref: ECSTaskSecurityGroup
-      LoadBalancers:
-        - TargetGroupArn:
-            Ref: HttpTargetGroup
-          ContainerName: http-server
-          ContainerPort: 4000
+      # LoadBalancers:
+      #   - TargetGroupArn:
+      #       Ref: HttpTargetGroup
+      #     ContainerName: http-server
+      #     ContainerPort: 4000
       DeploymentConfiguration:
         DeploymentCircuitBreaker:
           Enable: true
@@ -253,14 +256,15 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Security group for ECS tasks
-      VpcId:
-        Ref: VwanuVPC
+      # VpcId:
+      #   Ref: VwanuVPC
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 4000
           ToPort: 4000
-          SourceSecurityGroupId:
-            Ref: ALBSecurityGroup
+          # SourceSecurityGroupId:
+          #   Ref: ALBSecurityGroup
+          CidrIp: 0.0.0.0/0
       SecurityGroupEgress:
         - IpProtocol: -1
           FromPort: -1
@@ -348,9 +352,11 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              Service:
-                - ecs-tasks.amazonaws.com
-            Action: 'sts:AssumeRole'
+            #   Service:
+            #     - ecs-tasks.amazonaws.com
+            # Action: 'sts:AssumeRole'
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
 
@@ -363,56 +369,10 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              Service:
-                - ecs-tasks.amazonaws.com
-            Action: 'sts:AssumeRole'
-      Policies:
-        - PolicyName: ECSServicePolicy
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource:
-                  Fn::GetAtt: [ECSLogGroup, Arn]
-              - Effect: Allow
-                Action:
-                  - cognito-idp:AdminCreateUser
-                  - cognito-idp:AdminGetUser
-                  - cognito-idp:AdminUpdateUserAttributes
-                  - cognito-idp:AdminAddUserToGroup
-                  - cognito-idp:AdminRemoveUserFromGroup
-                  - cognito-idp:AdminSetUserPassword
-                  - cognito-idp:AdminDisableUser
-                  - cognito-idp:AdminEnableUser
-                  - cognito-idp:AdminDeleteUser
-                Resource:
-                  Fn::Sub:
-                    - arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}
-                    - UserPoolId: !Ref CognitoUserPool
-              - Effect: Allow
-                Action:
-                  - iot:*
-                  - iot-data:Publish
-                  - iot-data:GetThingShadow
-                  - iot-data:UpdateThingShadow
-                Resource:
-                  - Fn::Sub: arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/*
-                  - Fn::Sub: arn:aws:iot:${AWS::Region}:${AWS::AccountId}:thing/*
-              - Effect: Allow
-                Action:
-                  - sqs:SendMessage
-                Resource:
-                  Fn::Sub: arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:${self:service}-${self:provider.stage}-call-queue
-              - Effect: Allow
-                Action:
-                  - ses:SendTemplatedEmail
-                  - ses:SendEmail
-                Resource:
-                  - Fn::Sub: arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*
-                  - Fn::Sub: arn:aws:ses:${AWS::Region}:${AWS::AccountId}:template/*
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
 
   # CloudWatch Logs Log Group
   ECSLogGroup:
@@ -685,3 +645,16 @@ Resources:
   #       ScaleInCooldown: 300
   #       ScaleOutCooldown: 60
   #       DisableScaleIn: false
+
+  # Default VPC Subnet (using the default VPC's first subnet)
+  DefaultSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: 
+        Fn::ImportValue: DefaultVPCId
+      AvailabilityZone: ${self:provider.region}a
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: ${self:service}-${self:provider.stage}-subnet
