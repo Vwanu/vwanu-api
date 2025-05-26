@@ -71,8 +71,6 @@ Resources:
         - FARGATE
       ExecutionRoleArn:
         Fn::GetAtt: [ECSTaskExecutionRole, Arn]
-      TaskRoleArn:
-        Fn::GetAtt: [ECSTaskRole, Arn]
       ContainerDefinitions:
         - Name: http-server
           Image:
@@ -86,12 +84,12 @@ Resources:
               Protocol: tcp
           Essential: true
           Environment: ${file(resources/ecs/environment.yml)}
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-group: /ecs/${self:service}-${self:provider.stage}
-              awslogs-region: ${self:provider.region}
-              awslogs-stream-prefix: ecs
+          # LogConfiguration:
+          #   LogDriver: awslogs
+          #   Options:
+          #     awslogs-group: /ecs/${self:service}-${self:provider.stage}
+          #     awslogs-region: ${self:provider.region}
+          #     awslogs-stream-prefix: ecs
 
   # Task Definition
   # ECSTaskDefinitionWebSocketServer:
@@ -154,7 +152,7 @@ Resources:
         AwsvpcConfiguration:
           AssignPublicIp: ENABLED
           Subnets:
-            - Ref: DefaultSubnet1
+            - subnet-03bc2568cd15ed673
           SecurityGroups:
             - Ref: ECSTaskSecurityGroup
       DeploymentConfiguration:
@@ -246,9 +244,6 @@ Resources:
           FromPort: -1
           ToPort: -1
           CidrIp: 0.0.0.0/0
-      Tags:
-        - Key: Name
-          Value: ${self:service}-${self:provider.stage}-ecs-sg
 
   # Target Groups
   # HttpTargetGroup:
@@ -346,129 +341,129 @@ Resources:
               Service: ecs-tasks.amazonaws.com
             Action: sts:AssumeRole
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+        - arn:aws:iam::aws:policy/AmazonRDSFullAccess  # Permissive for testing
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy  # For basic ECS functionality
 
-  # CloudWatch Logs Log Group
-  ECSLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: /ecs/${self:service}-${self:provider.stage}
-      RetentionInDays: 14
-      Tags:
-        - Key: Name
-          Value: ${self:service}-${self:provider.stage}-log-group
+  # CloudWatch Logs Log Group (commented out for minimal setup)
+  # ECSLogGroup:
+  #   Type: AWS::Logs::LogGroup
+  #   Properties:
+  #     LogGroupName: /ecs/${self:service}-${self:provider.stage}
+  #     RetentionInDays: 14
+  #     Tags:
+  #       - Key: Name
+  #         Value: ${self:service}-${self:provider.stage}-log-group
 
-  # Domain setup
-  ApiRecordSet:
-    Type: AWS::Route53::RecordSet
-    Properties:
-      HostedZoneId: ${ssm:/${sls:stage}/hostedZoneId}
-      Name: api.${self:provider.stage}.wadsonvaval.click
-      Type: A
-      AliasTarget:
-        DNSName:
-          Fn::GetAtt: [ApplicationLoadBalancer, DNSName]
-        HostedZoneId:
-          Fn::GetAtt: [ApplicationLoadBalancer, CanonicalHostedZoneID]
-        EvaluateTargetHealth: false
+  # Domain setup (commented out - will use default Fargate URL)
+  # ApiRecordSet:
+  #   Type: AWS::Route53::RecordSet
+  #   Properties:
+  #     HostedZoneId: ${ssm:/${sls:stage}/hostedZoneId}
+  #     Name: api.${self:provider.stage}.wadsonvaval.click
+  #     Type: A
+  #     AliasTarget:
+  #       DNSName:
+  #         Fn::GetAtt: [ApplicationLoadBalancer, DNSName]
+  #       HostedZoneId:
+  #         Fn::GetAtt: [ApplicationLoadBalancer, CanonicalHostedZoneID]
+  #       EvaluateTargetHealth: false
 
-  ApiLoadBalancerCertificate:
-    Type: 'AWS::CertificateManager::Certificate'
-    Properties:
-      DomainName: api.${self:provider.stage}.wadsonvaval.click
-      ValidationMethod: DNS
-      DomainValidationOptions:
-        - DomainName: api.${self:provider.stage}.wadsonvaval.click
-          HostedZoneId: ${ssm:/${sls:stage}/hostedZoneId}
+  # SSL Certificate (commented out - not needed for basic setup)
+  # ApiLoadBalancerCertificate:
+  #   Type: 'AWS::CertificateManager::Certificate'
+  #   Properties:
+  #     DomainName: api.${self:provider.stage}.wadsonvaval.click
+  #     ValidationMethod: DNS
+  #     DomainValidationOptions:
+  #       - DomainName: api.${self:provider.stage}.wadsonvaval.click
+  #         HostedZoneId: ${ssm:/${sls:stage}/hostedZoneId}
 
-  # Auto Restart Mechanism
-  TaskRestartLambdaRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-            Action: sts:AssumeRole
-      Policies:
-        - PolicyName: ECSTaskRestartPolicy
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - ecs:UpdateService
-                  - ecs:DescribeServices
-                Resource:
-                  - !Ref HttpServerECSService
-                  # - !Ref WebSocketServerECSService
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: '*'
+  # Auto Restart Mechanism (commented out for minimal setup)
+  # TaskRestartLambdaRole:
+  #   Type: AWS::IAM::Role
+  #   Properties:
+  #     AssumeRolePolicyDocument:
+  #       Version: '2012-10-17'
+  #       Statement:
+  #         - Effect: Allow
+  #           Principal:
+  #             Service: lambda.amazonaws.com
+  #           Action: sts:AssumeRole
+  #     Policies:
+  #       - PolicyName: ECSTaskRestartPolicy
+  #         PolicyDocument:
+  #           Version: '2012-10-17'
+  #           Statement:
+  #             - Effect: Allow
+  #               Action:
+  #                 - ecs:UpdateService
+  #                 - ecs:DescribeServices
+  #               Resource:
+  #                 - !Ref HttpServerECSService
+  #             - Effect: Allow
+  #               Action:
+  #                 - logs:CreateLogGroup
+  #                 - logs:CreateLogStream
+  #                 - logs:PutLogEvents
+  #               Resource: '*'
 
-  # Lambda Function to Force Redeployment
-  TaskRestartLambda:
-    Type: AWS::Lambda::Function
-    Properties:
-      Handler: index.lambda_handler
-      Runtime: python3.8
-      Role: !GetAtt TaskRestartLambdaRole.Arn
-      Code:
-        ZipFile: |
-          import boto3
-          import os
-          import json
+  # Lambda Function to Force Redeployment (commented out for minimal setup)
+  # TaskRestartLambda:
+  #   Type: AWS::Lambda::Function
+  #   Properties:
+  #     Handler: index.lambda_handler
+  #     Runtime: python3.8
+  #     Role: !GetAtt TaskRestartLambdaRole.Arn
+  #     Code:
+  #       ZipFile: |
+  #         import boto3
+  #         import os
+  #         import json
 
-          def lambda_handler(event, context):
-              print("Event received:", json.dumps(event))
-              ecs = boto3.client('ecs')
-              cluster = os.environ['CLUSTER_NAME']
-              http_service = os.environ['HTTP_SERVICE_NAME']
+  #         def lambda_handler(event, context):
+  #             print("Event received:", json.dumps(event))
+  #             ecs = boto3.client('ecs')
+  #             cluster = os.environ['CLUSTER_NAME']
+  #             http_service = os.environ['HTTP_SERVICE_NAME']
               
-              print(f"Forcing redeployment for service {http_service} in cluster {cluster}")
+  #             print(f"Forcing redeployment for service {http_service} in cluster {cluster}")
               
-              try:
-                  # Force a new deployment
-                  response = ecs.update_service(
-                      cluster=cluster,
-                      service=http_service,
-                      forceNewDeployment=True
-                  )
-                  return {
-                      'statusCode': 200,
-                      'body': f"Forced redeployment of ECS service {http_service}"
-                  }
-              except Exception as e:
-                  print(f"Error: {str(e)}")
-                  raise e
-      Environment:
-        Variables:
-          CLUSTER_NAME: !Ref ECSCluster
-          HTTP_SERVICE_NAME: !GetAtt HttpServerECSService.Name
-      Timeout: 30
+  #             try:
+  #                 # Force a new deployment
+  #                 response = ecs.update_service(
+  #                     cluster=cluster,
+  #                     service=http_service,
+  #                     forceNewDeployment=True
+  #                 )
+  #                 return {
+  #                     'statusCode': 200,
+  #                     'body': f"Forced redeployment of ECS service {http_service}"
+  #                 }
+  #             except Exception as e:
+  #                 print(f"Error: {str(e)}")
+  #                 raise e
+  #     Environment:
+  #       Variables:
+  #         CLUSTER_NAME: !Ref ECSCluster
+  #         HTTP_SERVICE_NAME: !GetAtt HttpServerECSService.Name
+  #     Timeout: 30
 
-  # Allow CloudWatch to invoke the Lambda
-  TaskRestartLambdaPermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: !Ref TaskRestartLambda
-      Action: lambda:InvokeFunction
-      Principal: lambda.alarms.cloudwatch.amazonaws.com
-      SourceArn: !GetAtt High5xxErrorAlarm.Arn
+  # Lambda Permissions (commented out for minimal setup)
+  # TaskRestartLambdaPermission:
+  #   Type: AWS::Lambda::Permission
+  #   Properties:
+  #     FunctionName: !Ref TaskRestartLambda
+  #     Action: lambda:InvokeFunction
+  #     Principal: lambda.alarms.cloudwatch.amazonaws.com
+  #     SourceArn: !GetAtt High5xxErrorAlarm.Arn
 
-  # Add permission for the CPU Alarm too
-  TaskRestartLambdaPermissionCpu:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: !Ref TaskRestartLambda
-      Action: lambda:InvokeFunction
-      Principal: lambda.alarms.cloudwatch.amazonaws.com
-      SourceArn: !GetAtt HighCpuTaskRestartAlarm.Arn
+  # TaskRestartLambdaPermissionCpu:
+  #   Type: AWS::Lambda::Permission
+  #   Properties:
+  #     FunctionName: !Ref TaskRestartLambda
+  #     Action: lambda:InvokeFunction
+  #     Principal: lambda.alarms.cloudwatch.amazonaws.com
+  #     SourceArn: !GetAtt HighCpuTaskRestartAlarm.Arn
 
   # Add permission for the WebSocket CPU Alarm too
   # TaskRestartLambdaPermissionWebSocketCpu:
@@ -480,56 +475,56 @@ Resources:
   #     SourceArn: !GetAtt WebSocketHighCpuTaskRestartAlarm.Arn
 
   # CloudWatch Alarm for HTTP 5XX Errors
-  High5xxErrorAlarm:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmName: !Sub '${AWS::StackName}-High504-RestartTasks'
-      AlarmDescription: 'Trigger Lambda to restart ECS tasks when ALB 504 Gateway Timeout errors exceed threshold'
-      Namespace: AWS/ApplicationELB
-      MetricName: HTTPCode_ELB_504_Count
-      Dimensions:
-        - Name: LoadBalancer
-          Value:
-            Fn::Sub:
-              - 'app/${LoadBalancerName}/${LoadBalancerId}'
-              - LoadBalancerName: !GetAtt ApplicationLoadBalancer.Name
-                LoadBalancerId:
-                  !Select [
-                    3,
-                    !Split [
-                      '/',
-                      !GetAtt ApplicationLoadBalancer.LoadBalancerArn,
-                    ],
-                  ]
-      Statistic: Sum
-      Period: 300
-      EvaluationPeriods: 1
-      Threshold: 10
-      ComparisonOperator: GreaterThanOrEqualToThreshold
-      AlarmActions:
-        - !GetAtt TaskRestartLambda.Arn
-      TreatMissingData: notBreaching
+  # High5xxErrorAlarm:
+  #   Type: AWS::CloudWatch::Alarm
+  #   Properties:
+  #     AlarmName: !Sub '${AWS::StackName}-High504-RestartTasks'
+  #     AlarmDescription: 'Trigger Lambda to restart ECS tasks when ALB 504 Gateway Timeout errors exceed threshold'
+  #     Namespace: AWS/ApplicationELB
+  #     MetricName: HTTPCode_ELB_504_Count
+  #     Dimensions:
+  #       - Name: LoadBalancer
+  #         Value:
+  #           Fn::Sub:
+  #             - 'app/${LoadBalancerName}/${LoadBalancerId}'
+  #             - LoadBalancerName: !GetAtt ApplicationLoadBalancer.Name
+  #               LoadBalancerId:
+  #                 !Select [
+  #                   3,
+  #                   !Split [
+  #                     '/',
+  #                     !GetAtt ApplicationLoadBalancer.LoadBalancerArn,
+  #                   ],
+  #                 ]
+  #     Statistic: Sum
+  #     Period: 300
+  #     EvaluationPeriods: 1
+  #     Threshold: 10
+  #     ComparisonOperator: GreaterThanOrEqualToThreshold
+  #     AlarmActions:
+  #       - !GetAtt TaskRestartLambda.Arn
+  #     TreatMissingData: notBreaching
 
   # CloudWatch Alarm to Trigger on High CPU for HTTP Server
-  HighCpuTaskRestartAlarm:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmName: !Sub '${AWS::StackName}-HTTP-HighCPU-RestartTasks'
-      AlarmDescription: 'Trigger Lambda to restart HTTP tasks when CPU > 75%'
-      Namespace: AWS/ECS
-      MetricName: CPUUtilization
-      Dimensions:
-        - Name: ClusterName
-          Value: !Ref ECSCluster
-        - Name: ServiceName
-          Value: !GetAtt HttpServerECSService.Name
-      Statistic: Average
-      Period: 60
-      EvaluationPeriods: 1
-      Threshold: 75
-      ComparisonOperator: GreaterThanThreshold
-      AlarmActions:
-        - !GetAtt TaskRestartLambda.Arn
+  # HighCpuTaskRestartAlarm:
+  #   Type: AWS::CloudWatch::Alarm
+  #   Properties:
+  #     AlarmName: !Sub '${AWS::StackName}-HTTP-HighCPU-RestartTasks'
+  #     AlarmDescription: 'Trigger Lambda to restart HTTP tasks when CPU > 75%'
+  #     Namespace: AWS/ECS
+  #     MetricName: CPUUtilization
+  #     Dimensions:
+  #       - Name: ClusterName
+  #         Value: !Ref ECSCluster
+  #       - Name: ServiceName
+  #         Value: !GetAtt HttpServerECSService.Name
+  #     Statistic: Average
+  #     Period: 60
+  #     EvaluationPeriods: 1
+  #     Threshold: 75
+  #     ComparisonOperator: GreaterThanThreshold
+  #     AlarmActions:
+  #       - !GetAtt TaskRestartLambda.Arn
 
   # CloudWatch Alarm to Trigger on High CPU for WebSocket Server
   # WebSocketHighCpuTaskRestartAlarm:
@@ -620,15 +615,15 @@ Resources:
   #       ScaleOutCooldown: 60
   #       DisableScaleIn: false
 
-  # Default VPC Subnet (using the default VPC's first subnet)
-  DefaultSubnet1:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: 
-        Fn::ImportValue: DefaultVPCId
-      AvailabilityZone: ${self:provider.region}a
-      CidrBlock: 10.0.1.0/24
-      MapPublicIpOnLaunch: true
-      Tags:
-        - Key: Name
-          Value: ${self:service}-${self:provider.stage}-subnet
+  # Comment out subnet creation - using existing default VPC subnet instead
+  # DefaultSubnet1:
+  #   Type: AWS::EC2::Subnet
+  #   Properties:
+  #     VpcId: 
+  #       Fn::ImportValue: DefaultVPCId
+  #     AvailabilityZone: ${self:provider.region}a
+  #     CidrBlock: 10.0.1.0/24
+  #     MapPublicIpOnLaunch: true
+  #     Tags:
+  #       - Key: Name
+  #         Value: ${self:service}-${self:provider.stage}-subnet

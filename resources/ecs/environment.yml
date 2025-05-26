@@ -10,8 +10,16 @@
   Value: ${self:provider.environment.DB_HOST}
 - Name: DB_USERNAME
   Value: ${self:provider.environment.DB_USERNAME}
+- Name: PGUSER
+  Value: ${self:provider.environment.DB_USERNAME}
 - Name: DB_PASSWORD
   Value: ${self:provider.environment.DB_PASSWORD}
+- Name: PGPASSWORD
+  Value: ${self:provider.environment.DB_PASSWORD}
+- Name: PGPORT
+  Value: 5432
+- Name: PGDATABASE
+  Value: social-media-api
 - Name: COGNITO_USER_POOL
   Value: ${self:provider.environment.COGNITO_USER_POOL}
 # - Name: API_URL

@@ -40,7 +40,7 @@ provider:
     STAGE: ${sls:stage}
     REGION: ${self:provider.region}
     SERVICE_NAME: ${self:service}
-    # GITHUB_USERNAME: ${env:GITHUB_USERNAME, 'system'}
+    GITHUB_USERNAME: ${env:GITHUB_USERNAME, 'system'}
     DB_HOST: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseHost}
     DB_USERNAME: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseCredentials.username}
     DB_PASSWORD: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseCredentials.password}
@@ -113,7 +113,7 @@ resources:
   - ${file(resources/cognito/UserPool.yml)}
 
   # ECS
-  # - ${file(resources/ecs/ecs.yml)}
+  - ${file(resources/ecs/ecs.yml)}
 
   # SES
   # - ${file(resources/ses/email.yml)}
