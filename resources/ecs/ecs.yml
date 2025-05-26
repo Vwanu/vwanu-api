@@ -232,8 +232,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Security group for ECS tasks
-      VpcId:
-        Fn::ImportValue: DefaultVPCId
+      VpcId: vpc-00a9fc84c8861d94c
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 4000
