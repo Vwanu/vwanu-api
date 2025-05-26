@@ -7,9 +7,9 @@ const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const { sentryWebpackPlugin } = require('@sentry/webpack-plugin');
 
 const entry =
-    Object.keys(slsw.lib.entries).length > 1
+    /*Object.keys(slsw.lib.entries).length > 1
         ? slsw.lib.entries
-        : './src/bin/index.ts';
+        :*/ './src/bin/index.ts';
 const mode = slsw.lib.webpack.isLocal
     ? 'development'
     : process.env.NODE_ENV === 'development'

@@ -111,8 +111,8 @@ resources:
   # Cognito
   - ${file(resources/cognito/UserPool.yml)}
 
-  # ECS - Temporarily commented out
-  # - ${file(resources/ecs/ecs.yml)}
+  # ECS
+  - ${file(resources/ecs/ecs.yml)}
 
   # SES
-  # - ${file(resources/ses/email.yml)}
+  - ${file(resources/ses/email.yml)}
