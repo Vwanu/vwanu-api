@@ -84,20 +84,14 @@ Resources:
               Protocol: tcp
           Essential: true
           Environment: ${file(resources/ecs/environment.yml)}
-          HealthCheck:
-            Command:
-              - CMD-SHELL
-              - curl -f http://localhost:4000/health || exit 1
-            Interval: 30
-            Timeout: 5
-            Retries: 3
-            StartPeriod: 60
           LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: /ecs/${self:service}-${self:provider.stage}
+              awslogs-group: ${self:service}-${self:provider.stage}
               awslogs-region: ${self:provider.region}
               awslogs-stream-prefix: ecs
+          StartTimeout: 120
+          StopTimeout: 120
 
   # Task Definition
   # ECSTaskDefinitionWebSocketServer:
@@ -164,11 +158,8 @@ Resources:
           SecurityGroups:
             - Ref: ECSTaskSecurityGroup
       DeploymentConfiguration:
-        DeploymentCircuitBreaker:
-          Enable: true
-          Rollback: true
-        MaximumPercent: 200
-        MinimumHealthyPercent: 50
+        MaximumPercent: 100
+        MinimumHealthyPercent: 0
 
   # WebSocketServerECSService:
   #   Type: AWS::ECS::Service
