@@ -5,13 +5,8 @@ Resources:
       AdminCreateUserConfig:
         AllowAdminCreateUserOnly: false
         InviteMessageTemplate:
-          EmailSubject: '${self:custom.subjectPrefix.${sls:stage}}You have been invited to join as and admin staff member'
-          EmailMessage:
-            Fn::Join:
-              - ''
-              - - 'Your username is {username} and temporary password is {####}'
-                - '<br><br>'
-                - "Click <a href='https://${self:custom.adminDomains.${sls:stage}}/login'>here</a> to login and complete account creation."
+          EmailSubject: 'Welcome to Vwanu API'
+          EmailMessage: 'Your username is {username} and temporary password is {####}'
       EmailConfiguration:
         EmailSendingAccount: COGNITO_DEFAULT
       UserPoolAddOns:

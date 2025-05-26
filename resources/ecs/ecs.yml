@@ -61,8 +61,8 @@ Resources:
     Type: AWS::ECS::TaskDefinition
     Properties:
       Family: ${self:service}-${self:provider.stage}-http-server-task
-      Cpu: '256' # TODO: Test if 256 is enough
-      Memory: '512' # TODO: Test if 512 is enough
+      Cpu: '256'
+      Memory: '512'
       RuntimePlatform:
         CpuArchitecture: ARM64
         OperatingSystemFamily: LINUX
@@ -75,17 +75,6 @@ Resources:
         Fn::GetAtt: [ECSTaskRole, Arn]
       ContainerDefinitions:
         - Name: http-server
-          # To login locally do this from your host machine:
-          # Replace --profile as needed
-          # aws ecr get-login-password --profile vwanu --region us-west-2 | docker login --username AWS --password-stdin 745128203536.dkr.ecr.us-west-2.amazonaws.com
-
-          # Currently we build and push from the host machine
-          # STAGE=dev-1
-          # VERSION=v0.1
-          # docker build -f Dockerfile.build -t Vwanu/wurtec-s3c-avt-backend-$STAGE:$VERSION .
-          # docker tag Vwanu/wurtec-s3c-avt-backend-$STAGE:$VERSION 745128203536.dkr.ecr.us-west-2.amazonaws.com/Vwanu/wurtec-s3c-avt-backend-$STAGE:$VERSION
-          # docker push 745128203536.dkr.ecr.us-west-2.amazonaws.com/Vwanu/wurtec-s3c-avt-backend-$STAGE:$VERSION
-          # npm run sls deploy --stage $STAGE --param="imageTag=$VERSION"
           Image:
             Fn::Join:
               - ''
@@ -96,7 +85,6 @@ Resources:
             - ContainerPort: 4000
               Protocol: tcp
           Essential: true
-          # TODO: Add the environment variables
           Environment: ${file(resources/ecs/environment.yml)}
           LogConfiguration:
             LogDriver: awslogs
@@ -154,31 +142,21 @@ Resources:
   # ECS Service
   HttpServerECSService:
     Type: AWS::ECS::Service
-    # DependsOn: ApplicationLoadBalancerListener
     Properties:
       ServiceName: ${self:service}-${self:provider.stage}-http-server-service
       Cluster:
         Ref: ECSCluster
       LaunchType: FARGATE
-      # DesiredCount: 2 # TODO: After testing adjust the desired number of tasks, we probably want to start with 2 in staging and production
       DesiredCount: 1
       TaskDefinition:
         Ref: ECSTaskDefinitionHttpServer
       NetworkConfiguration:
         AwsvpcConfiguration:
-          # AssignPublicIp: DISABLED
           AssignPublicIp: ENABLED
           Subnets:
-            # - Ref: PrivateSubnet1
-            # - Ref: PrivateSubnet2
             - Ref: DefaultSubnet1
           SecurityGroups:
             - Ref: ECSTaskSecurityGroup
-      # LoadBalancers:
-      #   - TargetGroupArn:
-      #       Ref: HttpTargetGroup
-      #     ContainerName: http-server
-      #     ContainerPort: 4000
       DeploymentConfiguration:
         DeploymentCircuitBreaker:
           Enable: true
@@ -256,20 +234,16 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Security group for ECS tasks
-      # VpcId:
-      #   Ref: VwanuVPC
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 4000
           ToPort: 4000
-          # SourceSecurityGroupId:
-          #   Ref: ALBSecurityGroup
           CidrIp: 0.0.0.0/0
       SecurityGroupEgress:
         - IpProtocol: -1
           FromPort: -1
           ToPort: -1
-          CidrIp: 0.0.0.0/0 # Allow all outbound traffic
+          CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
           Value: ${self:service}-${self:provider.stage}-ecs-sg
@@ -346,15 +320,12 @@ Resources:
   ECSTaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: ${self:service}-${self:provider.stage}-ecsTaskExecutionRole
+      RoleName: ${self:service}-${self:provider.stage}-ecs-execution-role
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Principal:
-            #   Service:
-            #     - ecs-tasks.amazonaws.com
-            # Action: 'sts:AssumeRole'
               Service: ecs-tasks.amazonaws.com
             Action: sts:AssumeRole
       ManagedPolicyArns:
@@ -363,7 +334,7 @@ Resources:
   ECSTaskRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: ${self:service}-${self:provider.stage}-ecsTaskRole
+      RoleName: ${self:service}-${self:provider.stage}-ecs-task-role
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -379,7 +350,7 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: /ecs/${self:service}-${self:provider.stage}
-      RetentionInDays: 14 # Optional: Set log retention as desired
+      RetentionInDays: 14
       Tags:
         - Key: Name
           Value: ${self:service}-${self:provider.stage}-log-group
