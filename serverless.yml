@@ -4,48 +4,19 @@ provider:
   name: aws
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
-  iam:
-    role:
-      statements:
-        - Effect: 'Allow'
-          Action:
-            - 'tag:*'
-          Resource: '*'
-        - Effect: 'Allow'
-          Action:
-            - 's3:*'
-          Resource: '*'
-        - Effect: 'Allow'
-          Action:
-            - 'logs:*'
-          Resource: '*'
-        - Effect: 'Allow'
-          Action:
-            - 'cognito-idp:*'
-          Resource: '*'
-        - Effect: 'Allow'
-          Action:
-            - 'ses:SendTemplatedEmail'
-          Resource: '*'
-        - Effect: Allow
-          Action:
-            - ec2:CreateNetworkInterface
-            - ec2:DescribeNetworkInterfaces
-            - ec2:DeleteNetworkInterface
-            - ec2:AssignPrivateIpAddresses
-            - ec2:UnassignPrivateIpAddresses
-          Resource: '*'
+  iAmRole: ${file(resources/iam/iam.yml):iAmRole}
+ 
   environment:
     STAGE: ${sls:stage}
     REGION: ${self:provider.region}
-    SERVICE_NAME: vwanu-api-backend
+    SERVICE_NAME: ${self:service}
     # GITHUB_USERNAME: ${env:GITHUB_USERNAME, 'system'}
-    DB_HOST: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseHost}
-    DB_USERNAME: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseCredentials.username}
-    DB_PASSWORD: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseCredentials.password}
+    # DB_HOST: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseHost}
+    # DB_USERNAME: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseCredentials.username}
+    # DB_PASSWORD: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseCredentials.password}
     COGNITO_USER_POOL: ${self:custom.offlineConfig.${self:custom.isOffline}.cognitoUserPool}
     # API_URL: ${self:custom.offlineConfig.${self:custom.isOffline}.apiUrl}
-    AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE: true
+    # AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE: true
    # REDIS_ENDPOINT: ${ssm:/${sls:stage}/redisEndpoint}
 
 plugins:
@@ -61,27 +32,27 @@ custom:
   isOffline: ${env:IS_OFFLINE, "false"}
   offlineConfig:
     true:
-      databaseHost: ${env:DB_HOST, 'localhost'}
-      databaseCredentials:
-        username: ${env:DB_USERNAME, 'postgres'}
-        password: ${env:DB_PASSWORD, 'postgres'}
+      # databaseHost: ${env:DB_HOST, 'localhost'}
+      # databaseCredentials:
+      #   username: ${env:DB_USERNAME, 'postgres'}
+      #   password: ${env:DB_PASSWORD, 'postgres'}
       cognitoUserPool: ${env:COGNITO_USER_POOL, ''}
       # apiUrl: ${env:API_URL, 'http://localhost:3000'}
     false:
-      databaseHost:
-        Fn::GetAtt:
-          - VwanuDb
-          - Endpoint.Address
-      databaseCredentials:
-        username: ${env:DB_USERNAME, 'postgres'}
-        password: ${env:DB_PASSWORD, 'postgres'}
+      # databaseHost:
+      #   Fn::GetAtt:
+      #     - VwanuDb
+      #     - Endpoint.Address
+      # databaseCredentials:
+      #   username: ${env:DB_USERNAME, 'postgres'}
+      #   password: ${env:DB_PASSWORD, 'postgres'}
       cognitoUserPool:
         Ref: CognitoUserPool
       # apiUrl: https://api.wadsonvaval.click
-  databaseMultiAz:
-    prod: true
-    staging: true
-    dev: false
+  # databaseMultiAz:
+  #   prod: true
+  #   staging: true
+  #   dev: false
   # adminDomains:
   #   prod: admin.wadsonvaval.click
   #   staging: admin-staging.wadsonvaval.click
@@ -93,26 +64,26 @@ custom:
   prune:
     automatic: true
     number: 3
-  webpack:
-    includeModules:
-      forceInclude:
-        - pg
-      forceExclude:
-        - glob
-    excludeFiles: '**/*.spec.ts'
+  # webpack:
+  #   includeModules:
+  #     forceInclude:
+  #       - pg
+  #     forceExclude:
+  #       - glob
+  #   excludeFiles: '**/*.spec.ts'
 
 resources:
   # Network
   # - ${file(resources/network/Network.yml)}
 
   # Database
-  - ${file(resources/database/Database.yml)}
+  # - ${file(resources/database/Database.yml)}
 
   # Cognito
   - ${file(resources/cognito/UserPool.yml)}
 
   # ECS
-  - ${file(resources/ecs/ecs.yml)}
+  # - ${file(resources/ecs/ecs.yml)}
 
   # SES
   # - ${file(resources/ses/email.yml)}
