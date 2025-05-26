@@ -4,7 +4,37 @@ provider:
   name: aws
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
-  iAmRole: ${file(resources/iam/iam.yml):iAmRole}
+   iam:
+    role:
+      statements:
+        - Effect: 'Allow'
+          Action:
+            - 'tag:*'
+          Resource: '*'
+        - Effect: 'Allow'
+          Action:
+            - 's3:*'
+          Resource: '*'
+        - Effect: 'Allow'
+          Action:
+            - 'logs:*'
+          Resource: '*'
+        - Effect: 'Allow'
+          Action:
+            - 'cognito-idp:*'
+          Resource: '*'
+        - Effect: 'Allow'
+          Action:
+            - 'ses:SendTemplatedEmail'
+          Resource: '*'
+        - Effect: Allow
+          Action:
+            - ec2:CreateNetworkInterface
+            - ec2:DescribeNetworkInterfaces
+            - ec2:DeleteNetworkInterface
+            - ec2:AssignPrivateIpAddresses
+            - ec2:UnassignPrivateIpAddresses
+          Resource: '*'
  
   environment:
     STAGE: ${sls:stage}
@@ -61,9 +91,9 @@ custom:
   #   prod: ''
   #   staging: '[STAGING] '
   #   dev: '[DEV] '
-  prune:
-    automatic: true
-    number: 3
+  # prune:
+  #   automatic: true
+  #   number: 3
   # webpack:
   #   includeModules:
   #     forceInclude:

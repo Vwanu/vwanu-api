@@ -1,4 +1,4 @@
- iAmRole:
+ iam:
     role:
       statements:
         - Effect: 'Allow'
