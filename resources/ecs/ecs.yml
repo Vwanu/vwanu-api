@@ -76,9 +76,9 @@ Resources:
           Image:
             Fn::Join:
               - ''
-              - - ${self:custom.ecr.repositoryUri}
+              - - ${self:custom.ecr.repositoryUri,'058264272613.dkr.ecr.us-east-1.amazonaws.com/vwanu-api'}
                 - ':'
-                - ${self:custom.ecr.imageTag}
+                - ${self:custom.ecr.imageTag, 'latest'}
           PortMappings:
             - ContainerPort: 4000
               Protocol: tcp

@@ -47,6 +47,11 @@ provider:
     COGNITO_USER_POOL: ${self:custom.offlineConfig.${self:custom.isOffline}.cognitoUserPool}
     # API_URL: ${self:custom.offlineConfig.${self:custom.isOffline}.apiUrl}
     # AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE: true
+    PGUSER: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseCredentials.username}
+    PGPASSWORD: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseCredentials.password}
+    PGPORT: "5432"
+    PGDATABASE: "social-media-api"
+    AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE: "true"
    # REDIS_ENDPOINT: ${ssm:/${sls:stage}/redisEndpoint}
 
 plugins:

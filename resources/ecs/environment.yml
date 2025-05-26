@@ -4,25 +4,21 @@
   Value: ${self:provider.environment.REGION}
 - Name: SERVICE_NAME
   Value: ${self:provider.environment.SERVICE_NAME}
-# - Name: GITHUB_USERNAME
-#   Value: ${self:provider.environment.GITHUB_USERNAME}
 - Name: DB_HOST
   Value: ${self:provider.environment.DB_HOST}
 - Name: DB_USERNAME
   Value: ${self:provider.environment.DB_USERNAME}
-- Name: PGUSER
-  Value: ${self:provider.environment.DB_USERNAME}
 - Name: DB_PASSWORD
   Value: ${self:provider.environment.DB_PASSWORD}
-- Name: PGPASSWORD
-  Value: ${self:provider.environment.DB_PASSWORD}
-- Name: PGPORT
-  Value: 5432
-- Name: PGDATABASE
-  Value: social-media-api
 - Name: COGNITO_USER_POOL
   Value: ${self:provider.environment.COGNITO_USER_POOL}
-# - Name: API_URL
-#   Value: ${self:provider.environment.API_URL}
+- Name: PGUSER
+  Value: ${self:provider.environment.PGUSER}
+- Name: PGPASSWORD
+  Value: ${self:provider.environment.PGPASSWORD}
+- Name: PGPORT
+  Value: ${self:provider.environment.PGPORT}
+- Name: PGDATABASE
+  Value: ${self:provider.environment.PGDATABASE}
 - Name: AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE
   Value: ${self:provider.environment.AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE}
