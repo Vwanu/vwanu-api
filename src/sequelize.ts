@@ -13,7 +13,7 @@ if (process.env.NODE_ENV === 'test') {
 }
 
 
-if (process.env.NODE_ENV === 'development') {
+// if (process.env.NODE_ENV === 'development') {
   dbs = {
     dialect: 'postgres',
     pool: { idle: 20000, acquire: 600000 },
@@ -21,9 +21,16 @@ if (process.env.NODE_ENV === 'development') {
     username: process.env.PGUSER,
     password: process.env.PGPASSWORD,
     host: process.env.DB_HOST ,
-    port: process.env.PGPORT
+    port: process.env.PGPORT,
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      }
+    }
   };
-}
+// }
+  console.log('dbs', dbs);
 
 export default function (app: Application): void {
   const sequelize = dbSettings.url

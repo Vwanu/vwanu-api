@@ -35,6 +35,12 @@ provider:
             - ec2:AssignPrivateIpAddresses
             - ec2:UnassignPrivateIpAddresses
           Resource: '*'
+        - Effect: Allow
+          Action:
+            - 'ssm:GetParameter'
+            - 'ssm:GetParameters'
+          Resource: 
+            - 'arn:aws:ssm:${self:provider.region}:*:parameter/${sls:stage}/*'
   environment:
     STAGE: ${sls:stage}
     REGION: ${self:provider.region}
@@ -46,6 +52,18 @@ provider:
     COGNITO_USER_POOL: ${self:custom.offlineConfig.${self:custom.isOffline}.cognitoUserPool}
     API_URL: ${self:custom.offlineConfig.${self:custom.isOffline}.apiUrl}
     AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE: true
+    CLIENT_ID: ${ssm:/${sls:stage}/clientId}
+    USER_POOL_ID: ${ssm:/${sls:stage}/userPoolId}
+    CLOUDINARY_API_SECRET: ${ssm:/${sls:stage}/CLOUDINARY_API_SECRET}
+    CLOUDINARY_API_KEY: ${ssm:/${sls:stage}/CLOUDINARY_API_KEY}
+    CLOUDINARY_CLOUD_NAME: ${ssm:/${sls:stage}/CLOUDINARY_CLOUD_NAME}
+    MAX_POST_VIDEOS: ${ssm:/${sls:stage}/maxPostVideos}
+    MAX_POST_AUDIOS: ${ssm:/${sls:stage}/maxPostAudios}
+    MAX_POST_IMAGES: ${ssm:/${sls:stage}/maxPostImages}
+    MAX_MESSAGE_IMAGES: ${ssm:/${sls:stage}/maxMessageImages}
+    MAX_DISCUSSION_VIDEOS: ${ssm:/${sls:stage}/maxDiscussionVideos}
+    MAX_DISCUSSION_AUDIOS: ${ssm:/${sls:stage}/maxDiscussionAudios}
+    MAX_DISCUSSION_IMAGES: ${ssm:/${sls:stage}/maxDiscussionImages}
    # REDIS_ENDPOINT: ${ssm:/${sls:stage}/redisEndpoint}
 
 plugins:
@@ -115,4 +133,4 @@ resources:
   - ${file(resources/ecs/ecs.yml)}
 
   # SES
-  - ${file(resources/ses/email.yml)}
+  # - ${file(resources/ses/email.yml)}
