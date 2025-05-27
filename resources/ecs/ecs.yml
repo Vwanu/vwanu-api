@@ -72,26 +72,18 @@ Resources:
       ExecutionRoleArn:
         Fn::GetAtt: [ECSTaskExecutionRole, Arn]
       ContainerDefinitions:
-        - Name: http-server
-          Image:
-            Fn::Join:
-              - ''
-              - - ${self:custom.ecr.repositoryUri,'058264272613.dkr.ecr.us-east-1.amazonaws.com/vwanu-api'}
-                - ':'
-                - ${self:custom.ecr.imageTag, 'latest'}
+        - Name: test-app
+          Image: ${self:custom.ecr.repositoryUri}:test-app-latest
           PortMappings:
             - ContainerPort: 4000
               Protocol: tcp
           Essential: true
-          Environment: ${file(resources/ecs/environment.yml)}
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-group: ${self:service}-${self:provider.stage}
-              awslogs-region: ${self:provider.region}
-              awslogs-stream-prefix: ecs
-          StartTimeout: 120
-          StopTimeout: 120
+          HealthCheck:
+            Command: ["CMD-SHELL", "curl -f http://localhost:4000/health || exit 1"]
+            Interval: 30
+            Timeout: 5
+            Retries: 3
+            StartPeriod: 60
 
   # Task Definition
   # ECSTaskDefinitionWebSocketServer:
@@ -139,11 +131,11 @@ Resources:
   #             awslogs-region: ${self:provider.region}
   #             awslogs-stream-prefix: ecs
 
-  # ECS Service
+  # ECS Service for test app
   HttpServerECSService:
     Type: AWS::ECS::Service
     Properties:
-      ServiceName: ${self:service}-${self:provider.stage}-http-server-service
+      ServiceName: ${self:service}-${self:provider.stage}-test-app-service
       Cluster:
         Ref: ECSCluster
       LaunchType: FARGATE
@@ -158,8 +150,11 @@ Resources:
           SecurityGroups:
             - Ref: ECSTaskSecurityGroup
       DeploymentConfiguration:
-        MaximumPercent: 100
-        MinimumHealthyPercent: 0
+        MaximumPercent: 200
+        MinimumHealthyPercent: 50
+        DeploymentCircuitBreaker:
+          Enable: true
+          Rollback: true
 
   # WebSocketServerECSService:
   #   Type: AWS::ECS::Service
@@ -327,20 +322,21 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
 
-  ECSTaskRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: ${self:service}-${self:provider.stage}-ecs-task-role
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: ecs-tasks.amazonaws.com
-            Action: sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AmazonRDSFullAccess  # Permissive for testing
-        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy  # For basic ECS functionality
+  # Task role not needed for test app
+  # ECSTaskRole:
+  #   Type: AWS::IAM::Role
+  #   Properties:
+  #     RoleName: ${self:service}-${self:provider.stage}-ecs-task-role
+  #     AssumeRolePolicyDocument:
+  #       Version: '2012-10-17'
+  #       Statement:
+  #         - Effect: Allow
+  #           Principal:
+  #             Service: ecs-tasks.amazonaws.com
+  #           Action: sts:AssumeRole
+  #     ManagedPolicyArns:
+  #       - arn:aws:iam::aws:policy/AmazonRDSFullAccess
+  #       - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
 
   # CloudWatch Logs Log Group (commented out for minimal setup)
   # ECSLogGroup:

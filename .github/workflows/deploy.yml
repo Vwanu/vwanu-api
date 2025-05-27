@@ -96,15 +96,28 @@ jobs:
           username: ${{ secrets.AWS_ACCESS_KEY_ID }}
           password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: Build Docker image
+      # Build and push test app image
+      - name: Build and push test app
         uses: docker/build-push-action@v6
         with:
+          context: ./test-app
           platforms: linux/arm64
-          file: ./Dockerfile.build
+          file: ./test-app/Dockerfile
           push: true
-          tags: '${{ vars.ECR_REGISTRY }}:${{ steps.git_short_sha.outputs.SHORT_SHA }}'
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          tags: '${{ vars.ECR_REGISTRY }}:test-app-latest'
+          cache-from: type=gha,scope=test-app
+          cache-to: type=gha,mode=max,scope=test-app
+
+      # Build and push main app image
+      # - name: Build main application
+      #   uses: docker/build-push-action@v6
+      #   with:
+      #     platforms: linux/arm64
+      #     file: ./Dockerfile.build
+      #     push: true
+      #     tags: '${{ vars.ECR_REGISTRY }}:${{ steps.git_short_sha.outputs.SHORT_SHA }}'
+      #     cache-from: type=gha
+      #     cache-to: type=gha,mode=max
 
       # Deploy to ECS
 
