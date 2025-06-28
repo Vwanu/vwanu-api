@@ -1,16 +1,22 @@
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
 import { CognitoIdTokenPayload } from 'aws-jwt-verify/jwt-model';
 import { BadRequest } from '@feathersjs/errors';
+import {
+  AdminUpdateUserAttributesCommand,
+  CognitoIdentityProviderClient,
+} from '@aws-sdk/client-cognito-identity-provider';
 
 import Logger from './utils/logger';
 
-
-
 export class CognitoService {
-  private accessVerifier; 
+  private accessVerifier;
   private idVerifier;
+  private cognitoClient;
 
-  constructor(private userPoolId: string, private clientId: string) {
+  constructor(
+    private userPoolId: string,
+    private clientId: string,
+  ) {
     this.accessVerifier = CognitoJwtVerifier.create({
       userPoolId: this.userPoolId,
       tokenUse: 'access',
@@ -22,7 +28,9 @@ export class CognitoService {
       tokenUse: 'id',
       clientId: this.clientId,
     });
-
+    this.cognitoClient = new CognitoIdentityProviderClient({
+      region: process.env.AWS_REGION,
+    });
   }
 
   async verifyTokens(accessToken: string, idToken: string) {
@@ -32,7 +40,7 @@ export class CognitoService {
       }
 
       const accessPayload = await this.accessVerifier.verify(
-        accessToken.split(' ')[1]
+        accessToken.split(' ')[1],
       );
       const idPayload = await this.idVerifier.verify(idToken);
 
@@ -40,7 +48,7 @@ export class CognitoService {
         accessPayload,
         idPayload,
       };
-    } catch (error: unknown ) {
+    } catch (error: unknown) {
       Logger.error('Token verification failed:', error);
       throw new Error('Token verification failed');
     }
@@ -57,6 +65,13 @@ export class CognitoService {
       id: idPayload.sub,
     };
   }
+  async updatUserAttributes(attributes: any) {
+    const command = new AdminUpdateUserAttributesCommand({
+      UserPoolId: this.userPoolId,
+      Username: attributes.Username,
+      UserAttributes: attributes.UserAttributes,
+    });
+    const response = await this.cognitoClient.send(command);
+    return response;
+  }
 }
-
-

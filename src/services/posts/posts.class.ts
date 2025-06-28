@@ -4,9 +4,7 @@ import common from '../../lib/utils/common';
 import { Application } from '../../declarations';
 import { include } from '../../lib/utils/commentPostInclude';
 
-
-const {getUploadedFiles} = common;
-
+const { getUploadedFiles } = common;
 
 export class Posts extends Service {
   app;
@@ -17,13 +15,13 @@ export class Posts extends Service {
     this.app = app;
   }
 
-  async create(data) {
+  async create(data, params) {
     const postData = getUploadedFiles(['postImage', 'postVideo'], data);
     const post = await this.app
       .service('posts')
       .Model.create(postData, { include: include(this.app) });
 
-    return Promise.resolve(post);
+    const updatedPost = await this.app.service('posts').get(post.id, params);
+    return Promise.resolve(updatedPost);
   }
-
 }

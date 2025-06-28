@@ -9,36 +9,35 @@ const UserAttributes = [
   'profilePicture',
   'createdAt',
 ];
-export default (context: HookContext  ): HookContext => {
+export default (context: HookContext): HookContext => {
   const { app, params } = context;
   const Sequelize = app.get('sequelizeClient');
 
-  
   const amountOfComments = `(
       SELECT 
       COUNT(*) 
       FROM "Posts" AS "Pt"
       WHERE "Pt"."PostId" = "Post"."id"
     )::int`;
-  const amountOfReactions = `(
+  const amountOfKorems = `(
       SELECT 
       COUNT("R"."id") 
-      FROM "Reactions" AS "R"
+      FROM "Korems" AS "R"
       WHERE "R"."entityId" = "Post"."id" AND "R"."entityType"='Post'
     )::int`;
+
   const isReactor = `(
 SELECT 
   json_agg(
     json_build_object(
      'id', "R"."id",
-     'content',"R"."content",
      'createdAt',"R"."createdAt",
      'updatedAt',"R"."updatedAt"
     ) 
     ) 
-    FROM "Reactions" AS "R"
+    FROM "Korems" AS "R"
     WHERE "R"."entityId"="Post"."id" AND  "R"."entityType"='Post' AND "R"."UserId"='${context.params.User.id}'
-  )`
+  )`;
   const friends = `(
      EXISTS(
       SELECT 1 FROM "User_friends" WHERE "User_friends"."UserId" = "Post"."UserId" AND "User_friends"."friendId" = '${params?.User?.id}'
@@ -139,7 +138,7 @@ SELECT
 
   const single = context.method === 'get';
   const queryString = /* isEmpty(where)
-    ? */{
+    ? */ {
     PostId: null,
     ...where,
     [Op.and]: {
@@ -162,7 +161,7 @@ SELECT
     attributes: {
       include: [
         [Sequelize.literal(amountOfComments), 'amountOfComments'],
-        [Sequelize.literal(amountOfReactions), 'amountOfReactions'],
+        [Sequelize.literal(amountOfKorems), 'amountOfKorems'],
         [Sequelize.literal(isReactor), 'isReactor'],
         [Sequelize.literal(WallUser), 'WallUser'],
         [Sequelize.literal(Original), 'Original'],

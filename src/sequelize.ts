@@ -12,25 +12,25 @@ if (process.env.NODE_ENV === 'test') {
   dbs.host = 'localhost';
 }
 
-
-// if (process.env.NODE_ENV === 'development') {
+// console.log('[dbs] settings', dbs);
+if (process.env.NODE_ENV === 'development') {
   dbs = {
     dialect: 'postgres',
     pool: { idle: 20000, acquire: 600000 },
     database: process.env.PGDATABASE,
     username: process.env.PGUSER,
     password: process.env.PGPASSWORD,
-    host: process.env.DB_HOST ,
+    host: process.env.DB_HOST,
     port: process.env.PGPORT,
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false,
-      }
-    }
+    // dialectOptions: {
+    //   ssl: {
+    //     require: true,
+    //     rejectUnauthorized: false,
+    //   }
+    // }
   };
-// }
-  console.log('dbs', dbs);
+  // console.log('[dbs --12] settings', dbs);
+}
 
 export default function (app: Application): void {
   const sequelize = dbSettings.url
@@ -55,7 +55,8 @@ export default function (app: Application): void {
     // Set up data relationships
     // Sync to the database
 
-    const syncOptions = process.env.NODE_ENV === 'development' ? { alter: true } : {};
+    const syncOptions =
+      process.env.NODE_ENV === 'development' ? { alter: true } : {};
     app.set('sequelizeSync', sequelize.sync(syncOptions));
 
     return result;

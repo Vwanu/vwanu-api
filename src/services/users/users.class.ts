@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { Params, Id } from '@feathersjs/feathers';
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
-import { BadRequest } from '@feathersjs/errors';
+// import { BadRequest } from '@feathersjs/errors';
 import { Application } from '../../declarations';
 
 // eslint-disable-next-line import/prefer-default-export
@@ -14,16 +14,18 @@ export class Users extends Service {
   }
 
   async get(id: Id, params: Params) {
+    // console.log('get', id, params);
     const idString = id.toString();
     if (idString === '1') {
-      if (!params.cognitoUser?.attributes?.sub) {
-        throw new BadRequest('You need to be logged in to get your profile');
-      }
-
+      // console.log('Id 1 params', params);
+      // if (!params.cognitoUser?.attributes?.sub) {
+      //   throw new BadRequest('You need to be logged in to get your profile');
+      // }
+      // console.log('Id 1 params.cognitoUser', params.cognitoUser);
       const existingUser = await this.app
         .get('sequelizeClient')
         .models.User.findOne({
-          where: { id: params.cognitoUser.attributes.sub },
+          where: { id: params.cognitoUser.id },
         });
 
       if (existingUser) {
@@ -31,12 +33,8 @@ export class Users extends Service {
       }
       // Create new user from Cognito details
       const newUser = await super.create({
-        id: params.cognitoUser.attributes.sub,
-        email: params.cognitoUser.attributes.email,
-        firstName: params.cognitoUser.attributes.given_name,
-        lastName: params.cognitoUser.attributes.family_name,
+        ...params.cognitoUser,
         nextCompletionStep: 1,
-        emailVerified: params.cognitoUser.attributes.email_verified === 'true',
       });
 
       return Promise.resolve(newUser);

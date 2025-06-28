@@ -10,7 +10,6 @@ import feathers from '@feathersjs/feathers';
 import configuration from '@feathersjs/configuration';
 import { Request, Response, NextFunction } from 'express';
 
-
 import channels from './channels';
 import database from './database';
 import services from './services';
@@ -33,13 +32,13 @@ app.use(cors());
 app.use(helmet());
 app.use(RequestBody);
 app.use(methodOverride('_method'));
-app.use(morgan('dev', { skip: morganMiddleware }));
+app.use(morgan(':method :url :status', { skip: morganMiddleware }));
 app.use(express.urlencoded({ extended: true }));
 
 // Set API configuration from environment variables
 const API_CONFIGURATION = {
-  host: process.env.API_HOST || '0.0.0.0',
-  port: process.env.API_PORT || 4000
+  host: process.env.API_HOST || 'localhost', // '0.0.0.0',
+  port: process.env.API_PORT || 3000,
 };
 app.set('API_CONFIGURATION', API_CONFIGURATION);
 
@@ -52,37 +51,30 @@ app.configure(channels);
 app.configure(database);
 app.get('startSequelize')();
 
-app.get('/health', healthCheck);
+app.use(async (req: Request, res: Response, next: NextFunction) => {
+  console.log(
+    `Method: ${req.method} , U: ${req.url} status: ${res.statusCode}, Path: ${req.path}`,
+  );
+  next();
+});
 
+app.get('/health', healthCheck);
 
 app.use(requireLogin);
 
 app.configure(services);
 
-
 app.use(express.notFound());
 app.use(express.errorHandler({ logger: Logger }));
 
 app.use(
-  (err: unknown | AppError, 
-    req: Request, res: Response, _: NextFunction) =>
-      
- { 
-  if(err instanceof AppError){
-  return res
-    .status(err?.status) 
-    .json({ error: err.message})
-  }
-  else{
-    return res
-    .status(500) 
-    .json({ error: err || 'Internal Server Error' })
-  }
-})
+  (err: unknown | AppError, req: Request, res: Response, _: NextFunction) => {
+    if (err instanceof AppError) {
+      return res.status(err?.status).json({ error: err.message });
+    } else {
+      return res.status(500).json({ error: err || 'Internal Server Error' });
+    }
+  },
+);
 
 export default app;
-
-
-
-
-

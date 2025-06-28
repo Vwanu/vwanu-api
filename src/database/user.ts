@@ -167,6 +167,11 @@ export default (sequelize: any, DataTypes: any) => {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
       },
+      nextCompletionStep: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: 0,
+      },
 
       coverPicture: {
         type: DataTypes.STRING,
@@ -189,7 +194,7 @@ export default (sequelize: any, DataTypes: any) => {
     {
       sequelize,
       modelName: 'User',
-    }
+    },
   );
   return User;
 };

@@ -3,9 +3,11 @@ import { ServiceAddons } from '@feathersjs/feathers';
 /** Local dependencies */
 import hooks from './posts.hook';
 import { Posts } from './posts.class';
+import { PostKore } from '../post-kore/post-kore.class';
 import { postStorage } from '../../cloudinary';
 import { Application } from '../../declarations';
 import transferUploadedFilesToFeathers from '../../middleware/PassFilesToFeathers/file-to-feathers.middleware';
+import requireLogin from '../../middleware/requireLogin';
 import {
   MEDIA_CONFIG_SCHEMA,
   MEDIA_CONFIG_TYPE,
@@ -36,10 +38,12 @@ export default function (app: Application): void {
         { name: 'postAudio', maxCount: configuration.maxPostAudios },
       ]),
       transferUploadedFilesToFeathers,
-      new Posts(options, app)
+      new Posts(options, app),
     );
 
     const service = app.service('posts');
     service.hooks(hooks);
+
+    app.use('/posts/:postId/kore', requireLogin, new PostKore(options, app));
   }
 }

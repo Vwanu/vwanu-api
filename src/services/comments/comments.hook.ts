@@ -1,5 +1,3 @@
-
-
 import addAssociation from '../../Hooks/AddAssociations';
 import autoOwn from '../../Hooks/AutoOwn';
 import LimitToOwner from '../../Hooks/LimitToOwner';
@@ -38,7 +36,17 @@ export default {
         ],
       }),
     ],
-    create: [autoOwn],
+    create: [
+      (context) => {
+        console.log('context in create b4 autoOwn', context.data);
+        return context;
+      },
+      autoOwn,
+      (context) => {
+        console.log('context in create after autoOwn', context.data);
+        return context;
+      },
+    ],
     update: [LimitToOwner],
     patch: [LimitToOwner],
     remove: [LimitToOwner],

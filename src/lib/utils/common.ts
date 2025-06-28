@@ -15,7 +15,7 @@ const Common = {
         next({
           message: err.message || 'Unidentified error occurred',
           status: err.status || 500,
-        })
+        }),
       );
     },
 
@@ -23,7 +23,7 @@ const Common = {
     response: Response,
     statusCode: number,
     data: any,
-    message: string
+    message: string,
   ) => {
     response.status(statusCode).json({
       status: 'ok',
@@ -45,7 +45,7 @@ const Common = {
   sendErrorResponse: (
     response: Response,
     statusCode: number,
-    errors: string | any[]
+    errors: string | any[],
   ): void => {
     // const errorFormat = errors?.array
     //   ? errors.array()
@@ -64,7 +64,7 @@ const Common = {
 
   getAcceptableQueryParams: (
     paramsArray: string[],
-    request: Request
+    request: Request,
   ): any[] => {
     const data = request.query;
 
@@ -77,7 +77,7 @@ const Common = {
   },
 
   getQueryPagesAndSize: (
-    request: Request
+    request: Request,
   ): {
     offsetAndLimit: { limit?: number; offset: number };
     getTotalPages: Function;
@@ -103,10 +103,8 @@ const Common = {
     return { offsetAndLimit, getTotalPages };
   },
 
-  getUploadedFiles: (mediaArray: string[], request): any => {
-    const data = request;
-
-    const documentFiles = request.UploadedMedia;
+  getUploadedFiles: (mediaArray: string[], data): any => {
+    const documentFiles = data.UploadedMedia;
     data.Media = [];
     if (data.mediaLinks) {
       data.mediaLinks.forEach((link: string) => {

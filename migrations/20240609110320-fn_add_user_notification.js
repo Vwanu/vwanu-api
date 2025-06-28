@@ -1,18 +1,20 @@
-const path = require('path');
-const fs = require('fs');
+'use strict';
 
-const query = fs.readFileSync(
-  path.resolve(__dirname, './queries', 'fn_add_user_notification.sql'),
-  'utf-8'
-);
-
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up(queryInterface) {
-    await queryInterface.sequelize.query(query);
-  },
-  async down(queryInterface) {
+  async up(queryInterface, Sequelize) {
+    // Drop the trigger first
     await queryInterface.sequelize.query(
-      'DROP FUNCTION IF EXISTS fn_add_user_notification'
+      'DROP TRIGGER IF EXISTS tr_add_user_notification ON "Users";',
     );
+
+    // Drop the function
+    await queryInterface.sequelize.query(
+      'DROP FUNCTION IF EXISTS fn_add_user_notification();',
+    );
+  },
+
+  async down(queryInterface, Sequelize) {
+    // No need to recreate in down migration since we're removing it
   },
 };

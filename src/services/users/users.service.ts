@@ -32,7 +32,7 @@ export default function (app: Application): void {
       { name: 'coverPicture', maxCount: 1 },
     ]),
     fileToFeathers,
-    new Users(options, app)
+    new Users(options, app),
   );
   const service = app.service('users');
   service.hooks(hooks);

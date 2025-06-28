@@ -1,12 +1,5 @@
 import commonHooks from 'feathers-hooks-common';
-import {
-  AutoOwn,
-  LimitToOwner,
-  IncludeAssociations,
-} from '../../Hooks';
-
-
-
+import { AutoOwn, LimitToOwner, IncludeAssociations } from '../../Hooks';
 
 const UserAttributes = [
   'firstName',
@@ -41,20 +34,20 @@ export default {
     find: [],
     get: [],
     create: [
-      async (context) => {
-        const { UserId } = await context.app
-          .service('posts')
-          .get(context.result.id);
-        await context.app.service('notification').create({
-          UserId: context.params.User.id,
-          to: UserId, //
-          message: 'Reacted on your post',
-          type: 'direct',
-          entityName: 'posts',
-          entityId: context.result.id, //
-        });
-        return context;
-      },
+      // async (context) => {
+      //   const { UserId } = await context.app
+      //     .service('posts')
+      //     .get(context.result.id);
+      //   await context.app.service('notification').create({
+      //     UserId: context.params.User.id,
+      //     to: UserId, //
+      //     message: 'Reacted on your post',
+      //     type: 'direct',
+      //     entityName: 'posts',
+      //     entityId: context.result.id, //
+      //   });
+      //   return context;
+      // },
     ],
     update: [],
     patch: [],
@@ -65,7 +58,14 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [
+      async (context) => {
+        console.log(`\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>`);
+        console.log('context in create', context.error);
+        console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n`);
+        return context;
+      },
+    ],
     update: [],
     patch: [],
     remove: [],

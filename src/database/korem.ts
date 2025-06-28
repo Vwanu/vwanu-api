@@ -16,7 +16,7 @@ export default (sequelize: any, DataTypes: any) => {
 
     static associate(models: any): void {
       Korem.belongsTo(models.User);
-      Korem.belongsTo(models.Service);
+      // Korem.belongsTo(models.Service);
     }
   }
   Korem.init(
@@ -32,11 +32,16 @@ export default (sequelize: any, DataTypes: any) => {
         type: DataTypes.UUID,
         allowNull: false,
       },
+      entityType: {
+        type: DataTypes.STRING,
+        defaultValue: 'Post',
+        allowNull: false,
+      },
     },
     {
       sequelize,
       modelName: 'Korem',
-    }
+    },
   );
   return Korem;
 };

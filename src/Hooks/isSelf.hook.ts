@@ -8,14 +8,14 @@ export default (context) => {
   }
 
   // For backwards compatibility
-  if (!context.params.User) {
-    context.params.User = {
-      id: cognitoUser.attributes.sub,
-    };
-  }
+  // if (!context.params.User) {
+  //   context.params.User = {
+  //     id: cognitoUser.attributes.sub,
+  //   };
+  // }
 
   // Check if the user is trying to modify their own profile
-  if (context.id.toString() !== cognitoUser.attributes.sub.toString()) {
+  if (context.id.toString() !== cognitoUser.id.toString()) {
     throw new BadRequest('Invalid Parameters', {
       message: 'You are not authorized to modify other users',
     });

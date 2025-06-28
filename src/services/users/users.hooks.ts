@@ -17,21 +17,43 @@ const hooks = {
     create: commonHooks.disallow(),
     update: commonHooks.disallow(),
     patch: [
+      (context) => {
+        console.log('patch1');
+        return context;
+      },
       isSelf,
+      (context) => {
+        console.log('patch2');
+        return context;
+      },
       commonHooks.iff(
         commonHooks.isProvider('external'),
-        commonHooks.preventChanges(true, ...['email'])
+        commonHooks.preventChanges(true, ...['email']),
       ),
+      (context) => {
+        console.log('patch3');
+        return context;
+      },
       saveProfilePicture(['profilePicture', 'coverPicture']),
+      async (context) => {
+        console.log('patch4');
+        // const app = context.app;
+        // const { data } = context;
+        // const { id } = data;
+        // const user = await app.service('users').get(id);
+        // console.log(user);
+        // console.log('updated user');
+        return context;
+      },
     ],
     remove: [isSelf],
   },
 
   after: {
-  all: [MediaStringToMediaObject(['profilePicture', 'coverPicture'])],
+    all: [MediaStringToMediaObject(['profilePicture', 'coverPicture'])],
 
-  find: [protectKeys],
-  get: [AddVisitor, protectKeys],
+    find: [protectKeys],
+    get: [AddVisitor, protectKeys],
     patch: [protectKeys, updateTsVector],
     remove: [protectKeys],
   },

@@ -6,9 +6,7 @@ import { BadRequest, GeneralError } from '@feathersjs/errors';
 import { Application } from '../../declarations';
 import common from '../../lib/utils/common';
 
-const {
-  getUploadedFiles,
-} = common;
+const { getUploadedFiles } = common;
 
 // eslint-disable-next-line import/prefer-default-export
 export class Comments extends Service {
@@ -22,23 +20,22 @@ export class Comments extends Service {
 
   async create(data, params: Params) {
     try {
-      const commentData = getUploadedFiles(['postImage', 'postVideo'], data);
+      const postId = data.postId;
 
-      const { PostId } = data;
+      if (!postId) throw new BadRequest('PostId is required');
 
       const db = this.app.get('sequelizeClient').models;
-      const post: any = await db.Post.findByPk(PostId);
-      if (!post) throw new BadRequest(`No post found with id ${PostId}`);
+      const post: any = await db.Post.findByPk(postId);
+      if (!post) throw new BadRequest(`No post found with id ${postId}`);
 
-      const comment = await post.createComment(
-        { ...commentData, PostId, UserId: params.User.id },
-        { include: [{ model: db.User }, { model: db.Media }] }
-      );
-
-      return Promise.resolve(comment);
+      return this.app
+        .service('posts')
+        .create(
+          { ...data, UserId: params.cognitoUser.id, PostId: postId },
+          params,
+        );
     } catch (error: unknown | any) {
       throw new GeneralError(error);
-
     }
   }
 }

@@ -17,6 +17,12 @@ export default {
     find: [GetTimeline],
     get: [GetTimeline],
     create: [
+      (context) => {
+        console.log(`\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>`);
+        console.log('context in create', context.data);
+        console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n`);
+        return context;
+      },
       AutoOwn,
       validateResource(schema.createPostSchema),
       CanPostInCommunity,
