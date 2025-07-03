@@ -37,7 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Set API configuration from environment variables
 const API_CONFIGURATION = {
-  host: process.env.API_HOST || 'localhost', // '0.0.0.0',
+  host:  process.env.API_HOST || 'localhost', // '0.0.0.0',
   port: process.env.API_PORT || 3000,
 };
 app.set('API_CONFIGURATION', API_CONFIGURATION);
@@ -51,12 +51,7 @@ app.configure(channels);
 app.configure(database);
 app.get('startSequelize')();
 
-app.use(async (req: Request, res: Response, next: NextFunction) => {
-  console.log(
-    `Method: ${req.method} , U: ${req.url} status: ${res.statusCode}, Path: ${req.path}`,
-  );
-  next();
-});
+
 
 app.get('/health', healthCheck);
 

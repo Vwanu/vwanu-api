@@ -16,7 +16,7 @@ export const include = (app) => [
   {
     model: app.get('sequelizeClient').models.Post,
     as: 'Comments',
-    attributes: ['id', 'posText', 'PostId', 'createdAt', 'updatedAt'],
+    attributes: ['id', 'postText', 'PostId', 'createdAt', 'updatedAt'],
     include: [
       {
         model: app.get('sequelizeClient').models.User,

@@ -186,7 +186,18 @@ SELECT
           attributes: UserAttributes,
         },
       },
+      {
+        model: Sequelize.models.Post,
+        as: 'Comments',
+        include: [
+          {
+            model: Sequelize.models.User,
+            attributes: UserAttributes,
+          }
+        ]
+      }
     ],
+    order: where.postId ? [['createdAt', 'ASC']] : [['createdAt', 'DESC']],
     raw: false,
   };
 

@@ -14,15 +14,15 @@ export default async (context: HookContext) => {
   // For backwards compatibility
   if (!params.User) {
     params.User = {
-      id: cognitoUser.attributes.sub,
+      id: cognitoUser.id,
     };
   }
 
   const entity = await service._get(id);
 
   // Check if the authenticated user is the owner
-  if (entity.UserId && entity.UserId !== cognitoUser.attributes.sub) {
-    throw new BadRequest('Not authorized');
+  if (entity.UserId && entity.UserId !== cognitoUser.id) {
+    throw new BadRequest('Only the owner can update a post');
   }
 
   return context;

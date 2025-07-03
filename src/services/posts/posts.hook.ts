@@ -29,7 +29,17 @@ export default {
       CanComment,
     ],
     update: [CanPostInCommunity],
-    patch: [LimitToOwner],
+    patch: [(context) => {
+      console.log(`\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>`);
+      console.log('b4 context in create', context.data);
+      console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n`);
+      return context;
+    },LimitToOwner,(context) => {
+      console.log(`\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>`);
+      console.log('af context in create', context.data);
+      console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n`);
+      return context;
+    },],
     remove: [DeletePost],
   },
 
@@ -49,7 +59,12 @@ export default {
     get: [],
     create: [],
     update: [],
-    patch: [],
+    patch: [(context) => {
+      console.log(`\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>`);
+      console.log('context in patch', context.error);
+      console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n`);
+      return context;
+    },],
     remove: [],
   },
 };

@@ -4,9 +4,9 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 
 import { BadRequest, GeneralError } from '@feathersjs/errors';
 import { Application } from '../../declarations';
-import common from '../../lib/utils/common';
+// import common from '../../lib/utils/common';
 
-const { getUploadedFiles } = common;
+// const { getUploadedFiles } = common;
 
 // eslint-disable-next-line import/prefer-default-export
 export class Comments extends Service {
@@ -25,7 +25,7 @@ export class Comments extends Service {
       if (!postId) throw new BadRequest('PostId is required');
 
       const db = this.app.get('sequelizeClient').models;
-      const post: any = await db.Post.findByPk(postId);
+      const post = await db.Post.findByPk(postId);
       if (!post) throw new BadRequest(`No post found with id ${postId}`);
 
       return this.app
