@@ -12,6 +12,7 @@ if (process.env.NODE_ENV === 'test') {
   dbs.host = 'localhost';
 }
 
+
 // console.log('[dbs] settings', dbs);
 if (process.env.NODE_ENV === 'development') {
   dbs = {
@@ -32,6 +33,7 @@ if (process.env.NODE_ENV === 'development') {
   // console.log('[dbs --12] settings', dbs);
 }
 
+console.log('dbSettings', dbSettings);
 export default function (app: Application): void {
   const sequelize = dbSettings.url
     ? new Sequelize(dbSettings.url)
