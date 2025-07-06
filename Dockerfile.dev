@@ -1,0 +1,60 @@
+# Development Dockerfile
+FROM node:20-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Install dependencies first for better caching
+COPY package*.json ./
+COPY tsconfig.json ./
+
+# Install all dependencies (including dev dependencies)
+RUN npm install
+
+# Install nodemon and ts-node globally for development
+RUN npm install -g nodemon ts-node
+
+# Copy config folder (needed for application configuration)
+COPY config/ ./config/
+
+# Copy source code
+COPY . .
+
+# Expose port
+EXPOSE 3000
+
+# Set environment variables for development
+ENV NODE_ENV=development
+ENV HOST=0.0.0.0
+ENV PORT=3000
+
+# Database environment variables (dummy values for testing)
+ENV DB_DATABASE=social-media
+ENV DB_HOST=localhost
+ENV DB_PASSWORD=postgres
+ENV DB_USER=vwanu
+ENV PGDATABASE=social-media-api
+ENV PGPASSWORD=postgres
+ENV PGPORT=5432
+ENV PGUSER=vwanu
+
+# Cognito configuration (dummy values for testing)
+ENV clientId=dummy-client-id
+ENV userPoolId=dummy-user-pool-id
+
+# Cloudinary configuration (dummy values for testing)
+ENV CLOUDINARY_API_SECRET=dummy-secret
+ENV CLOUDINARY_API_KEY=dummy-key
+ENV CLOUDINARY_CLOUD_NAME=dummy-cloud
+
+# Media configuration
+ENV maxPostVideos=5
+ENV maxPostAudios=3
+ENV maxPostImages=10
+ENV maxMessageImages=5
+ENV maxDiscussionVideos=3
+ENV maxDiscussionAudios=2
+ENV maxDiscussionImages=8
+
+# Start the application using ts-node with transpile-only (no type checking)
+CMD ["nodemon", "--exec", "ts-node", "--transpile-only", "-r", "dotenv/config", "src/bin/index.ts"] 

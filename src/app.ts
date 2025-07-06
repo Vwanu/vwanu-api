@@ -37,8 +37,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // Set API configuration from environment variables
 const API_CONFIGURATION = {
-  host:  process.env.API_HOST || 'localhost', // '0.0.0.0',
-  port: process.env.API_PORT || 3000,
+  host: process.env.HOST || '0.0.0.0',
+  port: process.env.PORT || 3000,
 };
 app.set('API_CONFIGURATION', API_CONFIGURATION);
 

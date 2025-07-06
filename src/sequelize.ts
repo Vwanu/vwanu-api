@@ -13,7 +13,7 @@ if (process.env.NODE_ENV === 'test') {
 }
 
 
-// console.log('[dbs] settings', dbs);
+// console.log('[dbs] settings', dbs );
 if (process.env.NODE_ENV === 'development') {
   dbs = {
     dialect: 'postgres',
