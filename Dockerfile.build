@@ -40,7 +40,7 @@ WORKDIR /app
 # Copy only necessary files for production
 COPY --from=builder /app/package.json ./package.json
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=builder /app/.build ./dist
+COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/config ./config
 
 # Set environment variables

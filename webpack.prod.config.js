@@ -48,8 +48,8 @@ module.exports = {
     },
   },
   output: {
-    path: path.resolve(__dirname, '.build'),
-    filename: 'index.js',
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'main.js',
     chunkFilename: '[name].[chunkhash].js',
     clean: true,
   },
