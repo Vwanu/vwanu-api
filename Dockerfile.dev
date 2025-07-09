@@ -1,0 +1,26 @@
+# Stage 1: Dependencies
+FROM node:20-alpine 
+
+# Set the working directory
+WORKDIR /app
+
+# Copy package files for better caching
+COPY package.json package-lock.json ./
+
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Set the environment variable
+ENV NODE_ENV=production
+
+# Build the TypeScript application
+RUN npm run build:webpack:prod
+
+
+# Expose the application port
+EXPOSE 3000
+
+# Run the application
+CMD ["node", "dist/main.js"]
