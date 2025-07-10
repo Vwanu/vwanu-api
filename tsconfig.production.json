@@ -1,39 +1,50 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "ES2021",
     "module": "commonjs",
     "allowJs": true,
-    "outDir": "./build",
+    "outDir": "./dist",
     "strict": false,
     "esModuleInterop": true,
     "baseUrl": "./src",
+    "sourceMap": true,
+    "declaration": false,
+     "removeComments": true,
+     "noImplicitAny": false,
+     "emitDecoratorMetadata": true,
+     "experimentalDecorators": true,
+    "strictFunctionTypes": false,
+     "strictNullChecks": false,
+     "strictPropertyInitialization": false,
+     "noUnusedLocals": false,
+     "noUnusedParameters": false,
+     "moduleResolution": "node",
+     "resolveJsonModule": true,
+     "lib": ["ES2021"],
+
 
     "paths": {
       "@config/*": ["../config/*"],
+      "@root/*": ["*"],
+      "@entity/*": ["entity/*"],
+      "@schema/*": ["schema/*"],
+      "@testing/*": ["testing/*"],
       "@controllers/*": ["controllers/*"],
       "@routes/*": ["routes/*"],
       "@middleware/*": ["middleware/*"],
-      "@service/*": ["services/*"]
+      "@service/*": ["services/*"],
     },
     "typeRoots": ["./custom_typings", "../node_modules/@types"],
 
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/app.ts", "src/bin/index.ts", "src/bin/server_helper.ts"],
+  "include": ["src/**/*"],
   "exclude": [
     "node_modules",
-    "build",
+    "dist",
     "test",
     "**/*.test.ts",
-    "**/*.spec.ts",
-    "src/service/**/*",
-    "src/database/**/*",
-    "src/lib/**/*",
-    "src/models/**/*",
-    "src/middleware/**/*",
-    "src/channels/**/*",
-    "src/declarations.ts",
-    "src/sequelize.ts"
+    "**/*.spec.ts"
   ]
 }

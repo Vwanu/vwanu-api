@@ -20,7 +20,7 @@
     "sourceMap": true,
     "allowJs": true,
     "target": "ES2021",
-    "outDir": ".build",
+    "outDir": "dist",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "lib": ["ES2021"],

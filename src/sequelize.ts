@@ -7,9 +7,6 @@ import { Application } from './declarations';
 
 const dbSettings = config.get('dbSettings');
 
-console.log('dbSettings', dbSettings);
-console.log('Environment check - DB_USER:', process.env.DB_USER);
-console.log('Environment check - DB_PASSWORD:', process.env.DB_PASSWORD);
 export default function (app: Application): void {
   const sequelize = dbSettings.url
     ? new Sequelize(dbSettings.url)
@@ -30,13 +27,7 @@ export default function (app: Application): void {
   app.setup = function (...args): Application {
     const result = oldSetup.apply(this, args);
 
-    // Set up data relationships
-    // Sync to the database
-
-    // const syncOptions =
-    //   process.env.NODE_ENV === 'development' ? { alter: false } : {};
-    // Temporarily disable sync to test connection - provide a resolved promise instead
-    app.set('sequelizeSync', Promise.resolve());
+  app.set('sequelizeSync', Promise.resolve());
 
     return result;
   };
