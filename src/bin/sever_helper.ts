@@ -39,9 +39,10 @@ export default {
   envConfigurationCheck(): void {
     const mustHaveEnvVars = [
       'DB_HOST',
-      'PGUSER',
-      'PGPASSWORD',
-      'PGDATABASE',
+      'DB_DATABASE',
+      'DB_PORT',
+      'DB_USER',
+      'DB_PASSWORD',
       'clientId',
       'userPoolId',
       'CLOUDINARY_API_SECRET',

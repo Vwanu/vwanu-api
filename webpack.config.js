@@ -48,7 +48,7 @@ module.exports = {
                 options: {
                     transpileOnly: true,
                     // Enable file caching, can be quite useful when running offline
-                    experimentalFileCaching: true,
+                    experimentalFileCaching: false,
                 },
             },
         ],

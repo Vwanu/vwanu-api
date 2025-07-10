@@ -33,10 +33,7 @@ ENV DB_DATABASE=social-media
 ENV DB_HOST=localhost
 ENV DB_PASSWORD=postgres
 ENV DB_USER=vwanu
-ENV PGDATABASE=social-media-api
-ENV PGPASSWORD=postgres
-ENV PGPORT=5432
-ENV PGUSER=vwanu
+
 
 # Cognito configuration (dummy values for testing)
 ENV clientId=dummy-client-id
