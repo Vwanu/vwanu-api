@@ -23,3 +23,13 @@ scripts/local-deploy.sh
 # npm logs
 .npm/
 log/
+
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfplan.*
+.terraformrc
+terraform.rc
