@@ -27,7 +27,7 @@ COPY --from=deps /app/dev_node_modules ./node_modules
 COPY . .
 
 # Set the environment variable
-ENV NODE_ENV=production
+ENV NODE_ENV=development
 
 # Build the TypeScript application
 RUN npm run build:webpack
