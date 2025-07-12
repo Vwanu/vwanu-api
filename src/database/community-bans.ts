@@ -1,84 +1,110 @@
-/* eslint-disable import/no-import-module-exports */
-
-import { Model } from 'sequelize';
+import { Table, Column, Model, DataType, ForeignKey, BelongsTo, AllowNull } from 'sequelize-typescript';
+import { User } from './user';
+import { Community } from './communities';
 
 export interface CommunityBanInterface {
-  user_id: string;
-  community_id: string;
-  by_user_id: string;
-  comment: string;
+  userId: string;
+  communityId: string;
+  byUserId: string;
+  comment?: string;
   until: Date;
+  createdAt?: Date;
 }
-export default (sequelize: any, DataTypes: any) => {
-  class CommunityBan
-    extends Model<CommunityBanInterface>
-    implements CommunityBanInterface
-  {
-    user_id!: string;
 
-    community_id!: string;
+@Table({
+  modelName: 'CommunityBans',
+})
+export class CommunityBan extends Model<CommunityBanInterface> implements CommunityBanInterface {
+  
+  @ForeignKey(() => User)
+  @AllowNull(false)
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+    field: 'user_id',
+  })
+  userId!: string;
 
-    by_user_id!: string;
+  @ForeignKey(() => Community)
+  @AllowNull(false)
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+    field: 'community_id',
+  })
+  communityId!: string;
 
-    comment!: string;
+  @ForeignKey(() => User)
+  @AllowNull(false)
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+    field: 'by_user_id',
+  })
+  byUserId!: string;
 
-    until!: Date;
+  @Column({
+    type: DataType.TEXT,
+    allowNull: true,
+  })
+  comment?: string;
 
-    static associate(models: any): void {
-      CommunityBan.belongsTo(models.User);
-      CommunityBan.belongsTo(models.Community, {});
-    }
+  @AllowNull(false)
+  @Column({
+    type: DataType.DATE,
+    allowNull: false,
+  })
+  until!: Date;
+
+  // Associations
+  @BelongsTo(() => User, 'userId')
+  bannedUser!: User;
+
+  @BelongsTo(() => Community, 'communityId')
+  community!: Community;
+
+  @BelongsTo(() => User, 'byUserId')
+  bannedByUser!: User;
+
+  // Instance methods for better encapsulation
+  public isActive(): boolean {
+    return new Date() < this.until;
   }
-  CommunityBan.init(
-    {
-      user_id: {
-        type: DataTypes.UUID,
-        primaryKey: false,
-        references: {
-          model: 'Users',
-          key: 'id',
-        },
-        allowNull: false,
-      },
 
-      community_id: {
-        type: DataTypes.UUID,
-        primaryKey: false,
-        references: {
-          model: 'Communities',
-          key: 'id',
-        },
-        allowNull: false,
-      },
+  public isExpired(): boolean {
+    return !this.isActive();
+  }
 
-      by_user_id: {
-        type: DataTypes.UUID,
-        primaryKey: false,
-        references: {
-          model: 'Users',
-          key: 'id',
-        },
-        allowNull: false,
-      },
+  public getRemainingTime(): number {
+    if (this.isExpired()) return 0;
+    return this.until.getTime() - Date.now();
+  }
 
-      comment: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-      },
+  public getRemainingDays(): number {
+    return Math.ceil(this.getRemainingTime() / (1000 * 60 * 60 * 24));
+  }
 
-      until: {
-        type: DataTypes.DATE,
-        allowNull: false,
-      },
-    },
+  public getRemainingHours(): number {
+    return Math.ceil(this.getRemainingTime() / (1000 * 60 * 60));
+  }
 
-    {
-      sequelize,
-      modelName: 'CommunityBans',
-      tableName: 'community_bans',
-      underscored: true,
-      updatedAt: false,
-    }
-  );
-  return CommunityBan;
-};
+  public getBanDuration(): number {
+    return this.until.getTime() - this.createdAt.getTime();
+  }
+
+  public getBanDurationInDays(): number {
+    return Math.ceil(this.getBanDuration() / (1000 * 60 * 60 * 24));
+  }
+
+  public isPermanent(): boolean {
+    // Consider bans longer than 100 years as permanent
+    const oneHundredYears = 100 * 365 * 24 * 60 * 60 * 1000;
+    return this.getBanDuration() > oneHundredYears;
+  }
+
+  public getStatus(): 'active' | 'expired' | 'permanent' {
+    if (this.isPermanent()) return 'permanent';
+    if (this.isActive()) return 'active';
+    return 'expired';
+  }
+}

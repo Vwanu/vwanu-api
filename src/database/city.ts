@@ -1,49 +1,54 @@
-/* eslint-disable import/no-import-module-exports */
-
-import { Model } from 'sequelize';
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import { State } from './state';
 
 export interface CityInterface {
-  id: number;
+  id: string;
   name: string;
+  stateId: string;
 }
-export default (sequelize: any, DataTypes: any) => {
-  class City extends Model<CityInterface> implements CityInterface {
-    id: number;
 
-    name: string;
+@Table({
+  modelName: 'City',
+})
+export class City extends Model<CityInterface> implements CityInterface {
+  
+  @PrimaryKey
+  @Column({
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
+    allowNull: false,
+  })
+  id!: string;
 
-    static associate(models: any): void {
-      City.belongsTo(models.State);
-    }
+  @AllowNull(false)
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  name!: string;
+
+  @ForeignKey(() => State)
+  @AllowNull(false)
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+    field: 'state_id',
+  })
+  stateId!: string;
+
+  // Associations
+  @BelongsTo(() => State, 'stateId')
+  state!: State;
+
+  // Instance methods
+  public getFullName(): string {
+    return `${this.name}, ${this.state?.name || 'Unknown State'}`;
   }
-  City.init(
-    {
-      id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        allowNull: false,
-        primaryKey: true,
-      },
 
-      name: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: false,
-      },
-    },
-
-    {
-      // hooks: {
-      //   afterFind: (name, option) => {
-      //     // console.log('\n\n\n Some thing ');
-      //     // console.log({name, option});
-      //   },
-      // },
-      sequelize,
-      modelName: 'City',
-      tableName: 'cities',
-      underscored: true,
+  public getFullLocation(): string {
+    if (!this.state?.country) {
+      return this.getFullName();
     }
-  );
-  return City;
-};
+    return `${this.name}, ${this.state.name}, ${this.state.country.name}`;
+  }
+}

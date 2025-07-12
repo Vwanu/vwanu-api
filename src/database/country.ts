@@ -1,55 +1,45 @@
-/* eslint-disable import/no-import-module-exports */
-
-import { Model } from 'sequelize';
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull, Unique, HasMany } from 'sequelize-typescript';
+import { State } from './state';
 
 export interface CountryInterface {
-  id: number;
+  id: string;
   name: string;
-  initials: string;
+  initials?: string;
 }
-export default (sequelize: any, DataTypes: any) => {
-  class Country extends Model<CountryInterface> implements CountryInterface {
-    id: number;
 
-    name: string;
+@Table({
+  modelName: 'Country',
+})
+export class Country extends Model<CountryInterface> implements CountryInterface {
+  
+  @PrimaryKey
+  @Column({
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
+    allowNull: false,
+  })
+  id!: string;
 
-    initials: string;
+  @AllowNull(false)
+  @Unique
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  name!: string;
 
-    static associate(models: any): void {
-      Country.hasMany(models.State);
-    }
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  initials?: string;
+
+  // Associations
+  @HasMany(() => State)
+  states!: State[];
+
+  // Instance methods
+  public getDisplayName(): string {
+    return this.initials ? `${this.name} (${this.initials})` : this.name;
   }
-  Country.init(
-    {
-      id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        allowNull: false,
-        primaryKey: true,
-      },
-
-      name: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-      },
-      initials: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-    },
-
-    {
-      // hooks: {
-      //   afterFind: (name, option) => {
-      //     // console.log('\n\n\n Some thing ');
-      //     // console.log({name, option});
-      //   },
-      // },
-      sequelize,
-      modelName: 'Country',
-      tableName: 'countries',
-    }
-  );
-  return Country;
-};
+}

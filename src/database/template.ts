@@ -1,45 +1,120 @@
-/* eslint-disable import/no-import-module-exports */
-import { Model } from 'sequelize';
+import { 
+  Table, 
+  Column, 
+  Model, 
+  DataType, 
+  PrimaryKey, 
+  AllowNull, 
+  Unique 
+} from 'sequelize-typescript';
 
-// Custom imports
-import { MessageTemplateInterface } from '../schema/messageTemplate';
+export interface TemplateMessageInterface {
+  snug: string;
+  templateBody: string;
+  requiredFields: object;
+}
 
-export default (sequelize: any, DataTypes: any) => {
-  class Templates extends Model implements MessageTemplateInterface {
-    id: string;
+@Table({
+  modelName: 'Template'
+})
+export class Template extends Model<TemplateMessageInterface> implements TemplateMessageInterface {
+  
+  @PrimaryKey
+  @AllowNull(false)
+  @Unique
+  @Column
+  snug!: string;
 
-    snug: string;
+  @Unique
+  @AllowNull(false)
+  @Column({
+    type: DataType.TEXT,
+    field: 'template_body',
+  })
+  templateBody!: string;
 
-    type: string;
+  @AllowNull(false)
+  @Column({
+    type: DataType.JSON,
+    field: 'required_fields',
+  })
+  requiredFields!: JSON;
 
-    // eslint-disable-next-line no-unused-vars
-    static associate(models: any) {
-      // define association here
-    }
+  // Instance methods for better encapsulation
+  public getDisplayName(): string {
+    return this.snug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   }
-  Templates.init(
-    {
-      id: {
-        type: DataTypes.STRING,
-        primaryKey: true,
-        unique: true,
-      },
 
-      snug: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-      },
+  public getTemplateData(): TemplateMessageInterface {
+    return {
+      snug: this.snug,
+      templateBody: this.templateBody,
+      requiredFields: this.requiredFields,
+    };
+  }
 
-      type: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-    },
-    {
-      sequelize,
-      modelName: 'Template',
+  public hasRequiredFields(): boolean {
+    return this.requiredFields && Object.keys(this.requiredFields).length > 0;
+  }
+
+  public getRequiredFieldNames(): string[] {
+    if (!this.hasRequiredFields()) return [];
+    return Object.keys(this.requiredFields);
+  }
+
+  public validateRequiredFields(data: Record<string, unknown>): {
+    isValid: boolean;
+    missingFields: string[];
+  } {
+    const requiredFieldNames = this.getRequiredFieldNames();
+    const missingFields = requiredFieldNames.filter(field => 
+      !(field in data) || data[field] === null || data[field] === undefined
+    );
+
+    return {
+      isValid: missingFields.length === 0,
+      missingFields,
+    };
+  }
+
+  public renderTemplate(data: Record<string, unknown>): string {
+    let rendered = this.templateBody;
+    
+    // Simple template variable replacement: {{variableName}}
+    for (const [key, value] of Object.entries(data)) {
+      const placeholder = `{{${key}}}`;
+      rendered = rendered.replace(new RegExp(placeholder, 'g'), String(value || ''));
     }
-  );
-  return Templates;
-};
+    
+    return rendered;
+  }
+
+  public getTemplateVariables(): string[] {
+    const variableRegex = /\{\{([^}]+)\}\}/g;
+    const variables: string[] = [];
+    let match;
+    
+    while ((match = variableRegex.exec(this.templateBody)) !== null) {
+      if (!variables.includes(match[1].trim())) {
+        variables.push(match[1].trim());
+      }
+    }
+    
+    return variables;
+  }
+
+  public isValidTemplate(): boolean {
+    // Check if template has valid syntax (no unclosed braces, etc.)
+    const openBraces = (this.templateBody.match(/\{\{/g) || []).length;
+    const closeBraces = (this.templateBody.match(/\}\}/g) || []).length;
+    return openBraces === closeBraces;
+  }
+
+  public getTemplateLength(): number {
+    return this.templateBody.length;
+  }
+
+  public getSlug(): string {
+    return this.snug;
+  }
+}

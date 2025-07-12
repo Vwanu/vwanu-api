@@ -1,46 +1,73 @@
-/* eslint-disable import/no-import-module-exports */
-import { Model } from 'sequelize';
-// Custom imports
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull } from 'sequelize-typescript';
 
-interface VisitorInterface {}
-export default (sequelize: any, DataTypes: any) => {
-  class Visitor extends Model<VisitorInterface> implements VisitorInterface {
-    id: number | undefined;
+export interface VisitorInterface {
+  id: number;
+  userId: number;
+  visitorId: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
-    // UserId: number;
+@Table({
+  modelName: 'Visitor',
+})
+export class Visitor extends Model<VisitorInterface> implements VisitorInterface {
+  @PrimaryKey
+  @Column({
+    type: DataType.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  })
+  id!: number;
 
-    // VisitorId: number;
+  @AllowNull(false)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+    field: 'userId',
+  })
+  userId!: number;
 
-    static associate(models: any) {
-      Visitor.belongsTo(models.User, {
-        as: 'Visitor',
-        constraints: false,
-      });
+  @AllowNull(false)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+    field: 'visitorId',
+  })
+  visitorId!: number;
 
-      Visitor.belongsTo(models.User, {
-        as: 'User',
-        constraints: false,
-      });
-    }
+  // Instance methods for better encapsulation
+  public getUserId(): number {
+    return this.userId;
   }
-  Visitor.init(
-    {
-      id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-      },
-      //   UserId: {
-      //     type: DataTypes.INTEGER,
-      //   },
-      //   VisitorId: {
-      //     type: DataTypes.INTEGER,
-      //   },
-    },
-    {
-      sequelize,
-      modelName: 'Visitor',
-    }
-  );
-  return Visitor;
-};
+
+  public getVisitorId(): number {
+    return this.visitorId;
+  }
+
+  public getVisitedAt(): Date | undefined {
+    return this.createdAt;
+  }
+
+  public isRecentVisit(hoursAgo = 24): boolean {
+    if (!this.createdAt) return false;
+    const hoursAgoMs = hoursAgo * 60 * 60 * 1000;
+    return (Date.now() - this.createdAt.getTime()) < hoursAgoMs;
+  }
+
+  public isSameUser(): boolean {
+    return this.userId === this.visitorId;
+  }
+
+  public getVisitData(): VisitorInterface {
+    return {
+      id: this.id,
+      userId: this.userId,
+      visitorId: this.visitorId,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+    };
+  }
+}
+
+export default Visitor;

@@ -1,66 +1,125 @@
 
-import { Model } from 'sequelize';
-import { UserNotificationTypesInterface } from '../schema/user_notifications_types';
+import { Table, Column, Model, DataType, PrimaryKey, Default, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import { User } from './user';
+import { NotificationSlug } from '../types/enums';
 
-/**
- * Represents a notification setting in the database.
- */
-export default (sequelize: any, DataTypes: any) => {
-  class UserNotificationType
-    extends Model<UserNotificationTypesInterface>
-    implements UserNotificationTypesInterface {
-    user_id: string;
-    notification_slug: string;
-    text: boolean;
-    email: boolean;
-    sound: boolean;
+export interface UserNotificationTypesInterface {
+  userId: string;
+  notificationSlug: NotificationSlug;
+  text: boolean;
+  email: boolean;
+  sound: boolean;
+  inApp: boolean;
+}
 
+@Table({
+  modelName: 'UserNotificationTypes',
+})
+export class UserNotificationTypes extends Model<UserNotificationTypesInterface> implements UserNotificationTypesInterface {
+  
+  @ForeignKey(() => User)
+  @PrimaryKey
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+    field: 'user_id',
+  })
+  userId!: string;
+
+  @PrimaryKey
+  @Column({
+    type: DataType.ENUM(...Object.values(NotificationSlug)),
+    allowNull: false,
+    field: 'notification_slug',
+  })
+  notificationSlug!: NotificationSlug;
+
+  @Default(false)
+  @Column({
+    type: DataType.BOOLEAN,
+    defaultValue: false,
+    allowNull: false,
+  })
+  text!: boolean;
+
+  @Default(true)
+  @Column({
+    type: DataType.BOOLEAN,
+    defaultValue: true,
+    allowNull: false,
+  })
+  email!: boolean;
+
+  @Default(true)
+  @Column({
+    type: DataType.BOOLEAN,
+    defaultValue: true,
+    allowNull: false,
+  })
+  sound!: boolean;
+
+  @Default(true)
+  @Column({
+    type: DataType.BOOLEAN,
+    defaultValue: true,
+    allowNull: false,
+    field: 'in_app',
+  })
+  inApp!: boolean;
+
+  // Associations
+  @BelongsTo(() => User, 'userId')
+  user!: User;
+
+  // Business logic methods
+  public isEnabledForEmail(): boolean {
+    return this.email;
   }
 
-  UserNotificationType.init(
-    {
-      user_id: {
-        type: DataTypes.UUID,
-        // primaryKey: true,
-        references: {
-          model: 'Users',
-          key: 'id'
-        }
-      },
-      notification_slug: {
-        type: DataTypes.STRING,
-        // unique: true,
-        allowNull: false,
-        primaryKey: true,
-        references: {
-          model: 'notification_types',
-          key: 'notification_slug'
-        }
-      },
-      text: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
-      },
-      email: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
-      },
-      sound: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: true
-      },
-    },
-    {
-      sequelize,
-      modelName: 'UserNotificationTypes',
-      tableName: 'user_notification_types',
-      timestamps: false,
-      underscored: true,
-    }
-  );
+  public isEnabledForSMS(): boolean {
+    return this.text;
+  }
 
-  return UserNotificationType;
-};
+  public isEnabledForInApp(): boolean {
+    return this.inApp;
+  }
+
+  public isEnabledForSound(): boolean {
+    return this.sound;
+  }
+
+  public getEnabledChannels(): string[] {
+    const channels: string[] = [];
+    if (this.inApp) channels.push('in_app');
+    if (this.email) channels.push('email');
+    if (this.text) channels.push('sms');
+    if (this.sound) channels.push('sound');
+    return channels;
+  }
+
+  public isCompletelyDisabled(): boolean {
+    return !this.inApp && !this.email && !this.text && !this.sound;
+  }
+
+  public enableAll(): void {
+    this.inApp = true;
+    this.email = true;
+    this.text = true;
+    this.sound = true;
+  }
+
+  public disableAll(): void {
+    this.inApp = false;
+    this.email = false;
+    this.text = false;
+    this.sound = false;
+  }
+
+  public enableChannel(channel: 'email' | 'text' | 'sound' | 'inApp'): void {
+    this[channel] = true;
+  }
+
+  public disableChannel(channel: 'email' | 'text' | 'sound' | 'inApp'): void {
+    this[channel] = false;
+  }
+}

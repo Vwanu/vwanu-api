@@ -1,67 +1,84 @@
-/* eslint-disable import/no-import-module-exports */
-
-import { Model } from 'sequelize';
+import { Table, Column, Model, DataType, ForeignKey, BelongsTo, AllowNull, CreatedAt } from 'sequelize-typescript';
+import { User } from './user';
+import { Community } from './communities';
 
 export interface CommunityHistoryInterface {
-  user_id: string;
-  community_id: string;
+  userId: string;
+  communityId: string;
   joined: boolean;
+  createdAt?: Date;
 }
-export default (sequelize: any, DataTypes: any) => {
-  class CommunityHistory
-    extends Model<CommunityHistoryInterface>
-    implements CommunityHistoryInterface
-  {
-    user_id!: string;
 
-    community_id!: string;
+@Table({
+  modelName: 'CommunityHistory',
+})
+export class CommunityHistory extends Model<CommunityHistoryInterface> implements CommunityHistoryInterface {
+  
+  @ForeignKey(() => User)
+  @AllowNull(false)
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+    field: 'user_id',
+  })
+  userId!: string;
 
-    joined!: boolean;
+  @ForeignKey(() => Community)
+  @AllowNull(false)
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+    field: 'community_id',
+  })
+  communityId!: string;
 
-    static associate(models: any): void {
-      CommunityHistory.belongsTo(models.User);
-      CommunityHistory.belongsTo(models.Community, {
-        // foreignKey: {
-        //   allowNull: false,
-        //   key: 'community_id',
-        // },
-      });
-      CommunityHistory.belongsTo(models.CommunityRoles);
-    }
+  @AllowNull(false)
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+  })
+  joined!: boolean;
+
+  @CreatedAt
+  @Column({
+    type: DataType.DATE,
+    allowNull: false,
+    field: 'created_at',
+  })
+  createdAt!: Date;
+
+  // Note: updatedAt is disabled for this model as per original config
+
+  // Associations
+  @BelongsTo(() => User, 'userId')
+  user!: User;
+
+  @BelongsTo(() => Community, 'communityId')
+  community!: Community;
+
+  // Instance methods for better encapsulation
+  public isJoinEvent(): boolean {
+    return this.joined === true;
   }
-  CommunityHistory.init(
-    {
-      user_id: {
-        type: DataTypes.UUID,
-        references: {
-          model: 'Users',
-          key: 'id',
-        },
-        allowNull: false,
-      },
 
-      community_id: {
-        type: DataTypes.UUID,
-        references: {
-          model: 'Communities',
-          key: 'id',
-        },
-        allowNull: false,
-      },
+  public isLeaveEvent(): boolean {
+    return this.joined === false;
+  }
 
-      joined: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-      },
-    },
+  public getEventType(): 'joined' | 'left' {
+    return this.joined ? 'joined' : 'left';
+  }
 
-    {
-      sequelize,
-      modelName: 'CommunityHistory',
-      tableName: 'community_history',
-      underscored: true,
-      updatedAt: false,
-    }
-  );
-  return CommunityHistory;
-};
+  public getEventDescription(): string {
+    const action = this.joined ? 'joined' : 'left';
+    return `User ${action} the community`;
+  }
+
+  public getTimeSinceEvent(): number {
+    return Date.now() - this.createdAt.getTime();
+  }
+
+  public getTimeSinceEventInDays(): number {
+    return Math.floor(this.getTimeSinceEvent() / (1000 * 60 * 60 * 24));
+  }
+}

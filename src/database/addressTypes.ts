@@ -1,66 +1,85 @@
-/* eslint-disable import/no-import-module-exports */
-
-import { Model } from 'sequelize';
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull, Unique, Default } from 'sequelize-typescript';
 
 export interface AddressTypeInterface {
-  id: number;
+  id: string;
   description: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
-export default (sequelize: any, DataTypes: any) => {
-  class AddressType
-    extends Model<AddressTypeInterface>
-    implements AddressTypeInterface
-  {
-    id: number;
 
-    description: string;
+@Table({
+  modelName: 'AddressTypes',
+})
+export class AddressType extends Model<AddressTypeInterface> implements AddressTypeInterface {
+  @PrimaryKey
+  @Default(DataType.UUIDV4)
+  @Column({
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
+    allowNull: false,
+    primaryKey: true,
+  })
+  id!: string;
 
-    static associate(models: any): void {
-      AddressType.hasMany(models.Address);
-    }
-  }
-  AddressType.init(
-    {
-      id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        allowNull: false,
-        primaryKey: true,
-      },
-
-      description: {
-        type: DataTypes.STRING,
-        unique: true,
-        allowNull: false,
-        validate: {
-          customValidator: (value) => {
-            if (
-              ![
-                'Work',
-                'Home',
-                'Billing',
-                'Shipping',
-                'School',
-                'Other',
-              ].includes(value)
-            ) {
-              throw new Error(`${value} is not a valid option for description`);
-            }
-          },
-        },
+  @Unique
+  @AllowNull(false)
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+    validate: {
+      notEmpty: true,
+      isIn: {
+        args: [['Work', 'Home', 'Billing', 'Shipping', 'School', 'Other']],
+        msg: 'Description must be one of: Work, Home, Billing, Shipping, School, Other',
       },
     },
+  })
+  description!: string;
 
-    {
-      // hooks: {
-      //   afterFind: (name, option) => {
-      //     // console.log('\n\n\n Some thing ');
-      //     // console.log({name, option});
-      //   },
-      // },
-      sequelize,
-      modelName: 'AddressTypes',
-    }
-  );
-  return AddressType;
-};
+  // Instance methods for better encapsulation
+  public getDescription(): string {
+    return this.description;
+  }
+
+  public getId(): string {
+    return this.id;
+  }
+
+  public isWorkAddress(): boolean {
+    return this.description === 'Work';
+  }
+
+  public isHomeAddress(): boolean {
+    return this.description === 'Home';
+  }
+
+  public isBillingAddress(): boolean {
+    return this.description === 'Billing';
+  }
+
+  public isShippingAddress(): boolean {
+    return this.description === 'Shipping';
+  }
+
+  public isSchoolAddress(): boolean {
+    return this.description === 'School';
+  }
+
+  public isOtherAddress(): boolean {
+    return this.description === 'Other';
+  }
+
+  public getDisplayName(): string {
+    return this.description;
+  }
+
+  public static getValidTypes(): string[] {
+    return ['Work', 'Home', 'Billing', 'Shipping', 'School', 'Other'];
+  }
+
+  public static isValidType(type: string): boolean {
+    return this.getValidTypes().includes(type);
+  }
+}
+
+export default AddressType;

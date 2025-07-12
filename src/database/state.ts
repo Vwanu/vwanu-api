@@ -1,57 +1,70 @@
-/* eslint-disable import/no-import-module-exports */
-
-import { Model } from 'sequelize';
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull, ForeignKey, BelongsTo, HasMany } from 'sequelize-typescript';
+import { Country } from './country';
+import { City } from './city';
 
 export interface StateInterface {
-  id: number;
+  id: string;
   name: string;
-  areaCode: string;
-  initials: string;
+  areaCode?: string;
+  initials?: string;
+  countryId: string;
 }
-export default (sequelize: any, DataTypes: any) => {
-  class State extends Model<StateInterface> {
-    static associate(models: any): void {
-      State.hasMany(models.City);
-      State.belongsTo(models.Country, {
-        foreignKey: { allowNull: false },
-      });
-    }
+
+@Table({
+  modelName: 'State',
+})
+export class State extends Model<StateInterface> implements StateInterface {
+  
+  @PrimaryKey
+  @Column({
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
+    allowNull: false,
+  })
+  id!: string;
+
+  @AllowNull(false)
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  name!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  initials?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+    field: 'area_code',
+  })
+  areaCode?: string;
+
+  @ForeignKey(() => Country)
+  @AllowNull(false)
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+    field: 'country_id',
+  })
+  countryId!: string;
+
+  // Associations
+  @BelongsTo(() => Country, 'countryId')
+  country!: Country;
+
+  @HasMany(() => City)
+  cities!: City[];
+
+  // Instance methods
+  public getDisplayName(): string {
+    return this.initials ? `${this.name} (${this.initials})` : this.name;
   }
-  State.init(
-    {
-      id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        allowNull: false,
-        primaryKey: true,
-      },
 
-      name: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      initials: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      areaCode: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-    },
-
-    {
-      // hooks: {
-      //   afterFind: (name, option) => {
-      //     // console.log('\n\n\n Some thing ');
-      //     // console.log({name, option});
-      //   },
-      // },
-      sequelize,
-      modelName: 'State',
-      tableName: 'states',
-      underscored: true,
-    }
-  );
-  return State;
-};
+  public getFullName(): string {
+    return `${this.name}, ${this.country?.name || 'Unknown Country'}`;
+  }
+}

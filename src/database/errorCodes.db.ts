@@ -1,43 +1,49 @@
-/* eslint-disable import/no-import-module-exports */
-import { Model } from 'sequelize';
-import { ErrorCodeInterface } from '../schema/errorCode.schema';
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull, Unique } from 'sequelize-typescript';
 
-export default (sequelize: any, DataTypes: any) => {
-  class ErroCode extends Model<ErrorCodeInterface> implements ErrorCodeInterface {
-   error_code: string
-   error_message :string
-   description:string
+export interface ErrorCodeInterface {
+  error_code: string;
+  error_message: string;
+  description: string;
+}
 
-    static associate(models: any): void {
-      
-    }
-  }
-  ErroCode.init(
-    {
-      error_code: {
-        type: DataTypes.STRING,
-        primaryKey: true,
-        unique:true
-      },
-
-      error_message: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      description: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
+@Table({
+  modelName: 'ErrorCodes',
+})
+export class ErrorCode extends Model<ErrorCodeInterface> implements ErrorCodeInterface {
+  @PrimaryKey
+  @AllowNull(false)
+  @Unique
+  @Column({
+    type: DataType.STRING(50),
+    allowNull: false,
+    validate: {
+      notEmpty: true,
+      len: [1, 50],
     },
+  })
+  error_code!: string;
 
-    {
-      
-      sequelize,
-      modelName: 'ErroCodes',
-      tableName:'error_codes',
-      underscored:true,
-      timestamps:false,
-    }
-  );
-  return ErroCode;
-};
+  @AllowNull(false)
+  @Column({
+    type: DataType.STRING(500),
+    allowNull: false,
+    validate: {
+      notEmpty: true,
+      len: [1, 500],
+    },
+  })
+  error_message!: string;
+
+  @AllowNull(false)
+  @Column({
+    type: DataType.TEXT,
+    allowNull: false,
+    validate: {
+      notEmpty: true,
+      len: [1, 1000],
+    },
+  })
+  description!: string;
+}
+
+export default ErrorCode;

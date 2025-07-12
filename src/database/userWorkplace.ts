@@ -1,62 +1,82 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable import/no-import-module-exports */
 
-import { Model } from 'sequelize';
+import { Table, Column, DataType, PrimaryKey, AllowNull, Model, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import { User } from './user';
+import Place from './places';
+import Addres from './address';
 
 export interface UserWorkPlaceInterface {
-  description: string;
+  position: string;
+  description?: string;
   from: Date;
-  to: Date;
+  to?: Date;
 }
-export default (sequelize: any, DataTypes: any) => {
-  class UserWorkPlace
-    extends Model<UserWorkPlaceInterface>
-    implements UserWorkPlaceInterface
-  {
-    description: string;
+@Table({
+  modelName: 'UserWorkPlace',
+})
+export class UserWorkPlace extends Model<UserWorkPlaceInterface> implements UserWorkPlaceInterface {
+  @ForeignKey(() => User)
+  @AllowNull(false)
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+    field: 'UserId',
+  })
+  UserId!: string;
 
-    from: Date;
+  @ForeignKey(() => Place)
+  @AllowNull(false)
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+    field: 'workPlace_id',
+  })
+  WorkPlaceId!: string;
 
-    to: Date;
+  @Column({
+    type: DataType.TEXT,
+    allowNull: true,
+  })
+  description?: string;
 
-    static associate(models: any): void {
-      UserWorkPlace.belongsTo(models.User, {
-        foreignKey: {
-          name: 'UserId',
-          allowNull: false,
-        },
-      });
+  @Column({
+    type: DataType.TEXT,
+    allowNull: true,
+  })
+  position: string;
 
-      UserWorkPlace.belongsTo(models.WorkPlace, {
-        foreignKey: {
-          name: 'WorkPlaceId',
-          allowNull: false,
-        },
-      });
-    }
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  from: Date;
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  to?: Date;
+
+  @BelongsTo(() => User, 'UserId')
+  user!: User;
+
+  @BelongsTo(() => Place, 'WorkPlaceId')
+  workPlace!: Place;
+  @BelongsTo(() => Addres, 'addressId')
+  address!: Addres;
+  
+  // Instance methods
+  public isCurrentJob(): boolean {
+    return !this.to || this.to > new Date();
   }
-  UserWorkPlace.init(
-    {
-      description: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-      },
 
-      from: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-      },
+  public getDuration(): number | null {
+    if (!this.from) return null;
+    const endDate = this.to || new Date();
+    return Math.floor((endDate.getTime() - this.from.getTime()) / (1000 * 60 * 60 * 24 * 365.25)); // Years
+  }
 
-      to: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-      },
-    },
+  public getDescription(): string {
+    return this.description || '';
+  }
+}
 
-    {
-      sequelize,
-      modelName: 'UserWorkPlace',
-    }
-  );
-  return UserWorkPlace;
-};

@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import { Model } from 'sequelize';
+import { Table, Column, Model, DataType, BeforeSave } from 'sequelize-typescript';
 import slugify from '../lib/utils/slugify';
 import sanitizeHtml from '../lib/utils/sanitizeHtml';
 
@@ -14,103 +14,89 @@ export interface BlogInterface {
   amountOfComments: number;
   search_vector: string;
 }
-export default (sequelize: any, DataTypes: any) => {
-  class Blog extends Model<BlogInterface> implements BlogInterface {
-    id: string;
 
-    blogText: string;
+@Table({
+  modelName: 'Blog',
+})
+export class Blog extends Model<BlogInterface> implements BlogInterface {
+  @Column({
+    type: DataType.UUID,
+    primaryKey: true,
+    defaultValue: DataType.UUIDV4,
+    allowNull: false,
+  })
+  id!: string;
 
-    blogTitle: string;
+  @Column({
+    type: DataType.TEXT,
+    allowNull: false,
+  })
+  blogText!: string;
 
-    publish: boolean;
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  blogTitle!: string;
 
-    coverPicture: string;
+  @Column({
+    type: DataType.BOOLEAN,
+    defaultValue: false,
+    allowNull: false,
+  })
+  publish!: boolean;
 
-    slug: string;
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  coverPicture!: string;
 
-    amountOfLikes: number;
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  slug!: string;
 
-    amountOfComments: number;
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: 0,
+    allowNull: false,
+  })
+  amountOfLikes!: number;
 
-    search_vector: string;
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: 0,
+    allowNull: false,
+  })
+  amountOfComments!: number;
 
-    static associate(models: any): void {
-      Blog.belongsTo(models.User);
-      // Blog.belongsToMany(models.Media, {
-      //   through: 'Blog_Media',
-      // });
-      Blog.belongsToMany(models.Interest, { through: 'Blog_Interest' });
+  @Column({
+    type: DataType.TEXT,
+    allowNull: true,
+  })
+  search_vector!: string;
 
-      Blog.hasMany(models.Reaction, {
-        foreignKey: 'entityId',
-        constraints: false,
-        scope: {
-          entityType: 'Blog',
-        },
-      });
-      Blog.hasMany(models.BlogResponse);
-      // Blog.hasMany(models.Reaction);
-
-      // Blogs will be associated with likes
-    }
+  @BeforeSave
+  static sanitizeAndSlugify(instance: Blog) {
+    instance.blogText = sanitizeHtml(instance.blogText);
+    instance.blogTitle = sanitizeHtml(instance.blogTitle);
+    instance.slug = slugify(instance.blogTitle, {
+      replacement: '-',
+      lower: true,
+      strict: true,
+    });
   }
-  Blog.init(
-    {
-      id: {
-        type: DataTypes.UUID,
-        primaryKey: true,
-        defaultValue: DataTypes.UUIDV4,
-        allowNull: false,
-      },
-      coverPicture: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      slug: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-        // @ts-ignore
-        level: 'B',
-      },
-      blogText: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-        // @ts-ignore
-        level: 'C',
-      },
-      blogTitle: {
-        type: DataTypes.TEXT,
-        allowNull: false,
-        // @ts-ignore
-        level: 'A',
-      },
-      amountOfLikes: { type: DataTypes.INTEGER, defaultValue: 0 },
-      amountOfComments: { type: DataTypes.INTEGER, defaultValue: 0 },
-      publish: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-      },
-      search_vector: {
-        type: DataTypes.TSVECTOR,
-        allowNull: true,
-      },
-    },
 
-    {
-      hooks: {
-        beforeSave: (data) => {
-          data.blogText = sanitizeHtml(data.blogText);
-          data.blogTitle = sanitizeHtml(data.blogTitle);
-          data.slug = slugify(data.blogTitle, {
-            replacement: '-',
-            lower: true,
-            strict: true,
-          });
-        },
-      },
-      sequelize,
-      modelName: 'Blog',
-    }
-  );
-  return Blog;
-};
+  // TODO: Add associations with decorators
+  // @BelongsTo(() => User)
+  // user!: User;
+  
+  
+  // @BelongsToMany(() => Interest, () => BlogInterest)
+  // interests!: Interest[];
+  
+  // @HasMany(() => Korem, { foreignKey: 'entityId', constraints: false, scope: { entityType: 'Blog' } })
+  // reactions!: Korem[];
+}

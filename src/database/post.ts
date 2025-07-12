@@ -1,105 +1,237 @@
-/* eslint-disable import/no-import-module-exports */
-
-import { Model } from 'sequelize';
+import { Table, Column, Model, DataType, AllowNull, Default, ForeignKey, BelongsTo, HasMany, BelongsToMany, PrimaryKey } from 'sequelize-typescript';
+import { User } from './user';
+import { Media } from './media';
+import { Korem } from './korem';
+import { Community } from './communities';
+import { CommunityPrivacyType } from '../types/enums';
 
 export interface PostInterface {
-  id: string;
+  id?: string; // Optional - will be auto-generated
   postText: string;
-  privacyType: string;
+  privacyType: CommunityPrivacyType;
   locked: boolean;
-  originalType: string;
+  userId: string;
+  communityId?: string; // Optional - post may not be part of a community
 }
-export default (sequelize: any, DataTypes: any) => {
-  class Post extends Model<PostInterface> implements PostInterface {
-    id: string;
 
-    postText: string;
+@Table({
+  modelName: 'Post',
+})
+export class Post extends Model<PostInterface> implements PostInterface {
 
-    privacyType: string;
+  @PrimaryKey
+  @Column({
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4, // Auto-generate UUID
+    allowNull: false,
+    field: 'id',
+  })
+  id?: string; 
 
-    locked: boolean;
+  @Column({
+    type: DataType.TEXT,
+    allowNull: true,
+    field: 'post_text',
+  })
+  postText!: string;
 
-    originalType: string;
+  @Default(CommunityPrivacyType.PUBLIC)
+  @Column({
+    type: DataType.ENUM(...Object.values(CommunityPrivacyType)),
+    defaultValue: CommunityPrivacyType.PUBLIC,
+    allowNull: false,
+    field: 'privacy_type',
+  })
+  privacyType!: CommunityPrivacyType;
 
-    static associate(models: any): void {
-      Post.belongsTo(models.User);
-      Post.belongsTo(models.Community, { onDelete: 'CASCADE' });
-      Post.belongsToMany(models.Media, {
-        through: 'Post_Media',
-      });
+  @Default(false)
+  @Column({
+    type: DataType.BOOLEAN,
+    defaultValue: false,
+    allowNull: false,
+  })
+  locked!: boolean;
 
-      Post.belongsTo(models.User, { as: 'wall' });
+  @ForeignKey(() => User)
+  @AllowNull(false)
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+    field: 'user_id',
+  })
+  userId!: string;
 
-      Post.belongsTo(models.Post, {
-        foreignKey: 'originalId',
-        constraints: false,
-        scope: {
-          originalType: 'Post',
-        },
-      });
-      Post.belongsTo(models.Discussion, {
-        foreignKey: 'originalId',
-        constraints: false,
-      });
+  @ForeignKey(() => Community)
+  @Column({
+    type: DataType.UUID,
+    allowNull: true, 
+    field: 'community_id',
+  })
+  communityId?: string;
 
-      Post.belongsTo(models.Blog, {
-        foreignKey: 'originalId',
-        constraints: false,
-      });
+  @ForeignKey(() => Post)
+  @Column({
+    type: DataType.UUID,
+    allowNull: true,
+    field: 'post_id',
+  })
+  PostId?: string;
 
-      // Post.belongsTo(models.Media, {
-      //   as: 'Media-comment',
-      //   foreignKey: 'mediaId',
-      // });
-      Post.hasMany(models.Post, { as: 'Comments' });
-      Post.hasMany(models.Reaction, {
-        foreignKey: 'entityId',
-        constraints: false,
-        scope: {
-          entityType: 'Post',
-        },
-      });
-    }
+  // TODO: Convert these associations to decorators when other models are converted
+  @BelongsTo(() => User)
+  user!: User;
+  
+  @BelongsTo(() => Community, { onDelete: 'SET NULL' }) // Use SET NULL instead of CASCADE for optional relationship
+  community?: Community; // Optional - post may not be part of a community   
+  
+  @BelongsToMany(() => Media, {
+    through: 'post_media', // String-based junction table
+    foreignKey: 'post_id',
+    otherKey: 'media_id',
+  })
+  media!: Media[]; // Optional - posts can exist without media (empty array)
+  
+  
+  @HasMany(() => Post, { as: 'Comments' })
+  comments!: Post[];
+
+  @BelongsToMany(() => Korem, { 
+    through: 'post_reactions', // Junction table for reactions
+    foreignKey: 'entityId',
+    otherKey: 'koremId',
+    constraints: false,
+    scope: { entityType: 'Post' }
+  })
+  reactions!: Korem[];
+
+  // Instance methods for better encapsulation
+  public isPublic(): boolean {
+    return this.privacyType === CommunityPrivacyType.PUBLIC;
   }
-  Post.init(
-    {
-      id: {
-        type: DataTypes.UUID,
-        primaryKey: true,
-        defaultValue: DataTypes.UUIDV4,
-        allowNull: false,
-      },
 
-      postText: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-      },
+  public isPrivate(): boolean {
+    return this.privacyType === CommunityPrivacyType.PRIVATE;
+  }
 
-      originalType: {
-        type: DataTypes.STRING,
-        defaultValue: 'public',
-      },
-      privacyType: {
-        type: DataTypes.STRING,
-        defaultValue: 'public',
-      },
+  public isHidden(): boolean {
+    return this.privacyType === CommunityPrivacyType.HIDDEN;
+  }
 
-      locked: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-      },
-    },
+  public isLocked(): boolean {
+    return this.locked;
+  }
 
-    {
-      // hooks: {
-      //   afterFind: (name, option) => {
-      //     // console.log('\n\n\n Some thing ');
-      //     // console.log({name, option});
-      //   },
-      // },
-      sequelize,
-      modelName: 'Post',
+  public canBeViewed(): boolean {
+    return !this.locked;
+  }
+
+  public canBeCommentedOn(): boolean {
+    return !this.locked;
+  }
+
+  public lock(): void {
+    this.locked = true;
+  }
+
+  public unlock(): void {
+    this.locked = false;
+  }
+
+  public getPreview(maxLength = 150): string {
+    if (!this.postText) return '';
+    return this.postText.length > maxLength 
+      ? `${this.postText.substring(0, maxLength)}...` 
+      : this.postText;
+  }
+
+  public isOwnedBy(userId: string): boolean {
+    return this.userId === userId;
+  }
+
+  public isPartOfCommunity(): boolean {
+    return !!this.communityId;
+  }
+
+  public hasMedia(): boolean {
+    return this.media && this.media.length > 0;
+  }
+
+  public getCommunityName(): string {
+    return this.community?.name || 'No Community';
+  }
+
+  public getPostType(): string {
+    if (this.isPartOfCommunity()) {
+      return 'Community Post';
     }
-  );
-  return Post;
-};
+    return 'Personal Post';
+  }
+
+  public getStatusText(): string {
+    if (this.locked) return 'Locked';
+    return 'Active';
+  }
+
+  public getPrivacyDisplayText(): string {
+    const displayNames = {
+      [CommunityPrivacyType.PUBLIC]: 'Public',
+      [CommunityPrivacyType.PRIVATE]: 'Private',
+      [CommunityPrivacyType.HIDDEN]: 'Hidden',
+    };
+    return displayNames[this.privacyType];
+  }
+
+  public hasContent(): boolean {
+    return !!this.postText && this.postText.trim().length > 0;
+  }
+
+  public getWordCount(): number {
+    if (!this.postText) return 0;
+    return this.postText.trim().split(/\s+/).length;
+  }
+
+  public isLongPost(threshold = 500): boolean {
+    return this.postText ? this.postText.length > threshold : false;
+  }
+
+  public canBeShared(): boolean {
+    // Posts can be shared if they're public and not locked
+    return this.isPublic() && !this.isLocked();
+  }
+
+  public getVisibilityScope(): string {
+    if (this.isPartOfCommunity()) {
+      return `${this.getPrivacyDisplayText()} in ${this.getCommunityName()}`;
+    }
+    return `${this.getPrivacyDisplayText()} Personal Post`;
+  }
+
+  public getMediaCount(): number {
+    return this.media ? this.media.length : 0;
+  }
+
+  public isTextOnly(): boolean {
+    return this.hasContent() && !this.hasMedia();
+  }
+
+  public isMediaOnly(): boolean {
+    return this.hasMedia() && !this.hasContent();
+  }
+
+  public isMixedContent(): boolean {
+    return this.hasContent() && this.hasMedia();
+  }
+
+  public getContentType(): string {
+    if (this.isMixedContent()) return 'Text & Media';
+    if (this.isMediaOnly()) return 'Media Only';
+    if (this.isTextOnly()) return 'Text Only';
+    return 'Empty';
+  }
+
+  // Validation method
+  public isValid(): boolean {
+    // A post must have either text content or media
+    return this.hasContent() || this.hasMedia();
+  }
+}

@@ -1,8 +1,8 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable import/no-import-module-exports */
-
-import { Model } from 'sequelize';
+import { Table, Column, Model, DataType, BeforeSave, BelongsTo , ForeignKey} from 'sequelize-typescript';
 import config from 'config';
+import { User } from './user';
+// import { Post } from './post';
+// import { Album } from './album';
 
 const tinySize = config.get('tinySize');
 const smallSize = config.get('smallSize');
@@ -15,72 +15,91 @@ export interface MediaInterface {
   medium: string;
   small: string;
   tiny: string;
+  userId: string;
 }
-export default (sequelize: any, DataTypes: any) => {
-  class Media extends Model<MediaInterface>   {
 
-    static associate(models: any): void {
-      Media.belongsTo(models.User);
-      Media.belongsToMany(models.Post, {
-        through: 'Post_Media',
-      });
-      // Media.hasMany(models.Post, {
-      //   onDelete: 'CASCADE',
-      // });
-    }
+@Table({
+  modelName: 'Media',
+})
+export class Media extends Model<MediaInterface> implements MediaInterface {
+  @Column({
+    type: DataType.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  })
+  id!: number;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  original!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  medium!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  large!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  small!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  tiny!: string;
+
+  @ForeignKey(() => User)
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+    field: 'user_id',
+  })
+  userId!: string;
+
+  @BeforeSave
+  static generateImageSizes(instance: Media) {
+    const { tiny, small, medium, original } = instance;
+
+    instance.medium =
+      medium !== undefined
+        ? medium
+        : original.replace(/upload\//g, `upload/${mediumSize}/`);
+    instance.small =
+      small !== undefined
+        ? small
+        : original.replace(/upload\//g, `upload/${smallSize}/`);
+    instance.tiny =
+      tiny !== undefined
+        ? tiny
+        : original.replace(/upload\//g, `upload/${tinySize}/`);
   }
-  Media.init(
-    {
-      id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-      },
-      original: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      medium: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      large: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      small: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      tiny: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-    },
 
-    {
-      hooks: {
-        beforeSave: (record) => {
-          const { tiny, small, medium, original } = record;
+  // TODO: Add associations with decorators when other models are converted
+  @BelongsTo(() => User)
+  user!: User;
+  
+  // @BelongsToMany(() => Post, {
+  //   through: 'post_media', // String-based junction table
+  //   foreignKey: 'media_id',
+  //   otherKey: 'post_id',
+  // })
+  // posts!: Post[];
 
-          record.medium =
-            medium !== undefined
-              ? medium
-              : original.replace(/upload\//g, `upload/${mediumSize}/`);
-          record.small =
-            small !== undefined
-              ? small
-              : original.replace(/upload\//g, `upload/${smallSize}/`);
-          record.tiny =
-            tiny !== undefined
-              ? tiny
-              : original.replace(/upload\//g, `upload/${tinySize}/`);
-        },
-      },
-
-      sequelize,
-      modelName: 'Media',
-    }
-  );
-  return Media;
-};
+  // @BelongsToMany(() => Album, {
+  //   through: 'album_Media', // String-based junction table
+  //   foreignKey: 'media_id',
+  //   otherKey: 'album_id',
+  // })
+  // albums!: Album[];
+}

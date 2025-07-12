@@ -1,105 +1,81 @@
-/* eslint-disable global-require */
-/* eslint-disable import/no-dynamic-require */
+import {Call} from './call';
+import {Post} from './post';
+import {User} from './user';
+import {City} from './city';
+import {Blog} from './blog';
+import {Album} from './album';
+import {Media} from './media';
+import {State} from './state';
+import {Korem} from './korem';
+import {Friend} from './Friends';
+import {Address} from './address';
+import {Country} from './country';
+import {Message} from './message';
+import {Visitor} from './Visitors';
+import {Interest} from './interest';
+// import {Template} from './template';
+import {Community} from './communities';
+import {Discussion} from './discussion';
+import {AddressType} from './addressTypes';
+import {EntityAddress} from './userAddresses';
+import {Conversation} from './conversation';
+// import {Notification} from './notification';
+import {BlogResponse} from './blog-response';
+import {CommunityUser} from './community-users';
+import {CommunityInvitationRequest} from './communityInvitationRequest';
+import {Forum} from './forums';
+import {Place} from './places';
+// import {UserWorkPlace} from './userWorkplace';
+import {CommunityBan} from './community-bans';
+import {CommunityHistory} from './community-history';
+// import {NotificationsSettings} from './notifications_types';
+// import {UserNotificationsSettings} from './user_notifications_settings';
+import {ErrorCode} from './errorCodes.db'; 
+import {ExpiryTime} from './expiryTime';
+// import {UserNotificationTypes} from './user_notification_types';
 
-import Sequelize from 'sequelize';
-
-/** Local dependencies */
-import { Application } from '../declarations';
-/** Tables */
-
-import call from './call';
-import post from './post';
-import user from './user';
-import city from './city';
-import blog from './blog';
-import album from './album';
-import Media from './media';
-import state from './state';
-import Korem from './korem';
-import friend from './Friends';
-import address from './address';
-import country from './country';
-import message from './message';
-import service from './service';
-import Visitors from './Visitors';
-import interest from './interest';
-import template from './template';
-import reaction from './reaction';
-import community from './communities';
-import discussion from './discussion';
-import addressType from './addressTypes';
-import userAddress from './userAddresses';
-import conversation from './conversation';
-import notification from './notification';
-import BlogResponse from './blog-response';
-import refreshToken from './refresh-token';
-import communityRoles from './community-roles';
-import communityUsers from './community-users';
-import communityInvitationRequest from './communityInvitationRequest';
-import forumCatergory from './forumCatergory';
-import workplace from './workplace';
-import userWorkplace from './userWorkplace';
-import communityBans from './community-bans';
-import communityHistory from './community-history';
-import notificationsSettings from './notifications_types';
-import UserNotificationsSettings from './user_notifications_settings';
-import phone from './phones';
-import userPhoneVerification from './userPhoneVerification';
-import errorCodes from './errorCodes.db';
-import expiryTime from './expiryTime';
-import templateMessages from './templateMessages';
-import userNotificationTypes from './user_notification_types';
-
-const tables = [
-  call,
-  user,
-  city,
-  city,
-  post,
-  blog,
-  album,
-  state,
+export default [
+  Call,
+  User,
+  City,
+  Post,
+  Blog,
+  Album,
+ Media,
+  State,
   Korem,
-  Media,
-  friend,
-  address,
-  message,
-  country,
-  service,
-  interest,
-  template,
-  Visitors,
-  reaction,
-  community,
-  discussion,
-  addressType,
-  userAddress,
-  conversation,
-  notification,
+  Friend,
+  Address,
+  Country,
+  Message,
+  Visitor,
+  Interest,
+  // Template,
+  Community,
+  Discussion,
+  AddressType,
+  EntityAddress,
+  Conversation,
+  // Notification,
   BlogResponse,
-  refreshToken,
-  communityUsers,
-  communityRoles,
-  communityBans,
-  communityHistory,
-  communityInvitationRequest,
-  forumCatergory,
-  workplace,
-  userWorkplace,
-  notificationsSettings,
-  UserNotificationsSettings,
-  phone,
-  userPhoneVerification,
-  errorCodes,
-  expiryTime,
-  templateMessages,
-  userNotificationTypes,
+  CommunityUser,
+  CommunityBan,
+  CommunityHistory,
+  CommunityInvitationRequest,
+  Forum,
+  Place,
+  // UserWorkPlace,
+  // // NotificationsSettings,
+  // // UserNotificationsSettings,
+  ErrorCode,
+  ExpiryTime,
+  // UserNotificationTypes,
 ];
 
-export default function (app: Application): void {
-  const sequelize = app.get('sequelizeClient');
+// export default function (app: Application): void {
+//   const sequelize = app.get('sequelizeClient');
 
-  tables.forEach((table) => {
-    table(sequelize, Sequelize);
-  });
-}
+//   tables.forEach((table) => {
+//     table(sequelize, Sequelize);
+//   });
+// }

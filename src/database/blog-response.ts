@@ -1,69 +1,70 @@
-/* eslint-disable import/no-import-module-exports */
-
-import { Model } from 'sequelize';
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  BelongsTo,
+  ForeignKey,
+  HasMany,
+} from 'sequelize-typescript';
+import { User } from './user';
+import { Blog } from './blog';
 
 export interface BlogResponseInterface {
   id: string;
   responseText: string;
-  banned: boolean;
-  bannedReason: string;
-  bannedBy: number;
 }
-export default (sequelize: any, DataTypes: any) => {
-  class BlogResponse
-    extends Model<BlogResponseInterface>
-    implements BlogResponseInterface
-  {
-    id: string;
 
-    responseText: string;
+@Table({
+  modelName: 'BlogResponse',
+})
+export class BlogResponse extends Model<BlogResponseInterface> implements BlogResponseInterface {
+  @Column({
+    type: DataType.UUID,
+    primaryKey: true,
+    defaultValue: DataType.UUIDV4,
+    allowNull: false,
+  })
+  id!: string;
 
-    banned: boolean;
+  @Column({
+    type: DataType.TEXT,
+    allowNull: false,
+  })
+  responseText!: string;
 
-    bannedReason: string;
+  // Foreign keys
+  @ForeignKey(() => User)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  userId!: number;
 
-    bannedBy: number;
+  @ForeignKey(() => Blog)
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+  })
+  blogId!: string;
 
-    static associate(models: any): void {
-      BlogResponse.belongsTo(models.User);
-      BlogResponse.belongsTo(models.Blog);
-      BlogResponse.hasMany(models.BlogResponse, { as: 'SubResponse' });
-    }
-  }
-  BlogResponse.init(
-    {
-      id: {
-        type: DataTypes.UUID,
-        primaryKey: true,
-        defaultValue: DataTypes.UUIDV4,
-        allowNull: false,
-      },
+  @ForeignKey(() => BlogResponse)
+  @Column({
+    type: DataType.UUID,
+    allowNull: true,
+  })
+  parentResponseId?: string;
 
-      responseText: {
-        type: DataTypes.TEXT,
-        allowNull: false,
-      },
+  // Relationships
+  @BelongsTo(() => User)
+  user!: User;
 
-      banned: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-      },
+  @BelongsTo(() => Blog)
+  blog!: Blog;
 
-      bannedReason: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-      },
+  @BelongsTo(() => BlogResponse, 'parentResponseId')
+  parentResponse?: BlogResponse;
 
-      bannedBy: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-      },
-    },
-
-    {
-      sequelize,
-      modelName: 'BlogResponse',
-    }
-  );
-  return BlogResponse;
-};
+  @HasMany(() => BlogResponse, 'parentResponseId')
+  subResponses!: BlogResponse[];
+}

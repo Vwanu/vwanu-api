@@ -1,50 +1,107 @@
-import { Model } from 'sequelize';
+import { Table, Column, Model, DataType, PrimaryKey, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import { User } from './user';
 
-import { UserNotificationSettingsInterface } from '../schema/user_notifications_settings';
+export enum NotificationStatus {
+  SOUND = 'sound',
+  EMAIL = 'email',
+  SOUND_EMAIL = 'sound_email',
+  DISABLE = 'disable'
+}
 
-export default (sequelize: any, DataTypes: any) => {
-  class UserNotificationSetting
-    extends Model<UserNotificationSettingsInterface>
-    implements UserNotificationSettingsInterface
-  {
-    user_id: number;
-    notification_setting_id: number;
-    notification_status: string;
+export interface UserNotificationSettingsInterface {
+  userId: string;
+  notificationSettingId: string;
+  notificationStatus: NotificationStatus;
+}
 
-    static associate(models: any): void {
-      // UserNotificationSetting.hasOne(models.User, {
-      //   foreignKey: 'user_id',
-      // });
-      // UserNotificationSetting.hasOne(models.NotificationSettings, {
-      //   foreignKey: 'notification_setting_id',
-      // });
-    }
+@Table({
+  modelName: 'UserNotificationSettings',
+})
+export class UserNotificationSettings extends Model<UserNotificationSettingsInterface> implements UserNotificationSettingsInterface {
+  
+  @ForeignKey(() => User)
+  @PrimaryKey
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+    field: 'user_id',
+  })
+  userId!: string;
+
+  @PrimaryKey
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+    field: 'notification_setting_id',
+  })
+  notificationSettingId!: string;
+
+  @Column({
+    type: DataType.ENUM(...Object.values(NotificationStatus)),
+    allowNull: false,
+    field: 'notification_status',
+  })
+  notificationStatus!: NotificationStatus;
+
+  // Associations
+  @BelongsTo(() => User, 'userId')
+  user!: User;
+
+  // Business logic methods
+  public isEnabled(): boolean {
+    return this.notificationStatus !== NotificationStatus.DISABLE;
   }
-  UserNotificationSetting.init(
-    {
-      user_id: {
-        type: DataTypes.UUID,
-        primaryKey: true,
-      },
-      notification_setting_id: {
-        type: DataTypes.STRING,
-        unique: true,
-        allowNull: false,
-      },
-      notification_status: {
-        type: DataTypes.STRING,
-        unique: true,
-        allowNull: false,
-      },
-    },
 
-    {
-      sequelize,
-      modelName: 'UserNotificationSettings',
-      tableName: 'user_notification_settings',
-      timestamps: false,
-      underscored: true,
-    }
-  );
-  return UserNotificationSetting;
-};
+  public isDisabled(): boolean {
+    return this.notificationStatus === NotificationStatus.DISABLE;
+  }
+
+  public hasSound(): boolean {
+    return this.notificationStatus === NotificationStatus.SOUND || 
+           this.notificationStatus === NotificationStatus.SOUND_EMAIL;
+  }
+
+  public hasEmail(): boolean {
+    return this.notificationStatus === NotificationStatus.EMAIL || 
+           this.notificationStatus === NotificationStatus.SOUND_EMAIL;
+  }
+
+  public getNotificationMethods(): string[] {
+    if (this.isDisabled()) return [];
+    
+    const methods: string[] = [];
+    if (this.hasSound()) methods.push('sound');
+    if (this.hasEmail()) methods.push('email');
+    return methods;
+  }
+
+  public enable(): void {
+    this.notificationStatus = NotificationStatus.SOUND_EMAIL;
+  }
+
+  public disable(): void {
+    this.notificationStatus = NotificationStatus.DISABLE;
+  }
+
+  public setEmailOnly(): void {
+    this.notificationStatus = NotificationStatus.EMAIL;
+  }
+
+  public setSoundOnly(): void {
+    this.notificationStatus = NotificationStatus.SOUND;
+  }
+
+  public setBoth(): void {
+    this.notificationStatus = NotificationStatus.SOUND_EMAIL;
+  }
+
+  public getStatusDisplayText(): string {
+    const displayNames = {
+      [NotificationStatus.SOUND]: 'Sound Only',
+      [NotificationStatus.EMAIL]: 'Email Only',
+      [NotificationStatus.SOUND_EMAIL]: 'Sound & Email',
+      [NotificationStatus.DISABLE]: 'Disabled',
+    };
+    return displayNames[this.notificationStatus];
+  }
+}

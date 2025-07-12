@@ -1,68 +1,60 @@
 /* eslint-disable no-param-reassign */
-import { Model } from 'sequelize';
-
+import {Table, Column, Model, BelongsTo, ForeignKey, DataType} from 'sequelize-typescript';
+import {User} from './user'; // Assuming User model is defined in user.ts
+import { CallStatus, CallType } from '../types/enums';
 // Customs dependencies:
-import { CallInterface, CallStatus } from '../schema/call';
+import { CallInterface } from '../schema/call';
 
-export default (sequelize: any, DataTypes: any) => {
-  class Call extends Model<CallInterface> implements CallInterface {
-    id: string;
+@Table({
+  modelName: 'Call',
+})
+export class Call extends Model<CallInterface> {
+  @Column({
+    type: DataType.UUID,
+    primaryKey: true,
+    defaultValue: DataType.UUIDV4,
+    allowNull: false,
+  })
+  id!: string;
 
-    startTime: number;
+  @Column({ 
+    type: DataType.DATE, 
+    allowNull: true 
+  })
+  startTime!: number;
 
-    endTime: number;
+  @Column({ 
+    type: DataType.DATE, 
+    allowNull: true 
+  })
+  endTime!: number;
 
-    status: string;
+  @Column({
+    type: DataType.ENUM(...Object.values(CallStatus)),
+    defaultValue: CallStatus.INITIATED,
+    allowNull: false,
+  })
+  status!: CallStatus;
 
-    type: string;
+  @Column({
+    type: DataType.ENUM(...Object.values(CallType)),
+    allowNull: false,
+  })
+  type!: CallType;
 
-    static associate(models: any): void {
-      Call.belongsTo(models.User, { as: 'caller' });
-      Call.belongsTo(models.User, { as: 'receiver' });
-    }
-  }
-  Call.init(
-    {
-      id: {
-        type: DataTypes.UUID,
-        primaryKey: true,
-        defaultValue: DataTypes.UUIDV4,
-        allowNull: false,
-      },
+  // Relationships with proper typing
+  @ForeignKey(() => User)
+  @Column
+  callerId!: number;
 
-      startTime: { type: DataTypes.DATE, allowNull: true },
-      endTime: { type: DataTypes.DATE, allowNull: true },
+  @BelongsTo(() => User, 'callerId')
+  caller!: User;
 
-      status: {
-        type: DataTypes.STRING,
-        defaultValue: 'initiated',
-        allowNull: false,
-        validate: {
-          customValidator: (value) => {
-            if (!CallStatus.includes(value)) {
-              throw new Error(`${value} is not a valid option for call status`);
-            }
-          },
-        },
-      },
-      type: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        validate: {
-          customValidator: (value) => {
-            if (!['video', 'audio'].includes(value)) {
-              throw new Error(`${value} is not a valid option for call type`);
-            }
-          },
-        },
-      },
-    },
+  @ForeignKey(() => User)
+  @Column
+  receiverId!: number;
 
-    {
-      hooks: {},
-      sequelize,
-      modelName: 'Call',
-    }
-  );
-  return Call;
-};
+  @BelongsTo(() => User, 'receiverId')
+  receiver!: User;
+
+} 
