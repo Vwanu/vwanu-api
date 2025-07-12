@@ -30,7 +30,7 @@ COPY . .
 ENV NODE_ENV=production
 
 # Build the TypeScript application
-RUN npm run build:webpack:prod
+RUN npm run build:webpack
 
 # Final stage: Create the production image
 FROM node:20-alpine
