@@ -10,11 +10,16 @@ const entry =
     /*Object.keys(slsw.lib.entries).length > 1
         ? slsw.lib.entries
         :*/ './src/bin/index.ts';
+const entries = slsw.lib.entries['index'] || './src/bin/index.ts';
+// -         --- IGNORE ---
 const mode = slsw.lib.webpack.isLocal
+
     ? 'development'
     : process.env.NODE_ENV === 'development'
         ? 'development'
         : 'production';
+console.log(`Webpack mode: ${mode}`);
+console.log(`Webpack entry: ${entries}`);
 
 module.exports = {
     mode,

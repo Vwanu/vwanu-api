@@ -13,8 +13,10 @@ declare module '../../declarations' {
 }
 
 export default function (app: Application): void {
+  const models = app.get('sequelizeClient').models;
+  console.log('Initializing userWorkPlaces service with models:', models);
   const options = {
-    Model: app.get('sequelizeClient').models.UserWorkPlace,
+    Model: app.get('sequelizeClient').models.Place,
     paginate: app.get('paginate'),
   };
 

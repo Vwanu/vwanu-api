@@ -1,6 +1,7 @@
 import { HookContext } from '@feathersjs/feathers';
 import { BadRequest } from '@feathersjs/errors';
-import Logger from '../../../lib/utils/logger';
+import {createLogger} from '../../../lib/utils/logger';
+const Logger = createLogger('AddWorkplace');
 
 export default async (context: HookContext): Promise<HookContext> => {
   const { data } = context;
@@ -28,7 +29,7 @@ export default async (context: HookContext): Promise<HookContext> => {
       },
     });
   } catch (err) {
-    Logger.error(err);
+    Logger.error('Error saving workplace', err);
     throw new BadRequest('Error saving workplace');
   }
 

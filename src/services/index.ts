@@ -2,100 +2,101 @@ import { Application } from '../declarations';
 /** Local dependencies */
 import post from './posts/posts.service';
 import users from './users/users.service';
-import search from './search/search.service';
+// import search from './search/search.service';
 import friend from './friends/friends.service';
 import comments from './comments/comments.service';
 import followers from './followers/followers.service';
 import userVisitors from './userVisitors/user-visitors.service';
-import friendRequest from './friendRequest/friendRequests.service';
-import undesiredFriend from './undesiredFriends/undesiredFriends.service';
+// import friendRequest from './friendRequest/friendRequests.service';
+// import undesiredFriend from './undesiredFriends/undesiredFriends.service';
 import timeline from './timeline/timeline.service';
 import blogs from './blogs/blogs.service';
-import timelineBlogs from './timeline-blogs/timeline-blogs.service';
+// import timelineBlogs from './timeline-blogs/timeline-blogs.service';
 import albums from './albums/albums.service';
-import notification from './notification/notification.service';
+// import notification from './notification/notification.service';
 import interests from './interests/interests.service';
 import medias from './medias/medias.service';
 import communities from './communities/communities.service';
 import discussion from './discussion/discussion.service';
 import blogResponse from './blog-response/blog-response.service';
 import korem from './korem/korem.service';
-import blogKorem from './blog-korem/blog-korem.service';
-import communityUsers from './community-users/community-users.service';
-import communityRole from './community-role/community-role.service';
+// import blogKorem from './blog-korem/blog-korem.service';
+// import communityUsers from './community-users/community-users.service';
 import communityInvitationRequest from './community-invitation-request/community-invitation-request.service';
-import registration from './communityRegistration/communityRegistration.service';
-import communityJoin from './community-join/community-join.service';
+// import registration from './communityRegistration/communityRegistration.service';
+// import communityJoin from './community-join/community-join.service';
 import conversation from './conversation/conversation.service';
 import message from './message/message.service';
-import convesationUsers from './convesation-users/convesation-users.service';
+// import convesationUsers from './convesation-users/convesation-users.service';
 import country from './country/country.service';
 import state from './state/state.service';
 import city from './city/city.service';
 import address from './address/address.service';
 import addressTypes from './address-types/address-types.service';
 import userAddress from './user-address/user-address.service';
-import searchBlog from './search-blog/search-blog.service';
-import searchCommunity from './search-community/search-community.service';
-import forumCategories from './forum-categories/forum-categories.service';
-import templates from './templates/templates.service';
-import template from './template/template.service';
+// import searchBlog from './search-blog/search-blog.service';
+// import searchCommunity from './search-community/search-community.service';
+// import forumCategories from './forum-categories/forum-categories.service';
+// import templates from './templates/templates.service';
+// import template from './template/template.service';
 import workplace from './workplace/workplace.service';
-import userWorkPlaces from './user-work-places/user-work-places.service';
+// import userWorkPlaces from './user-work-places/user-work-places.service';
 import communityBans from './community-bans/community-bans.service';
-import communityHistory from './community-history/community-history.service';
-import phone from './phone/phone.service';
-import templateMessage from './templateMessages/templateMessage.service';
-import notificationTypes from './notification_types/notification_types.service';
-import userNotificationTypes from './user_notification_types/user_notification_types.service';
+// import communityHistory from './community-history/community-history.service';
+// import templateMessage from './templateMessages/templateMessage.service';
+// import notificationTypes from './notification_types/notification_types.service';
+// import userNotificationTypes from './user_notification_types/user_notification_types.service';
 
+const services =[
+  // search,
+  post,
+  users,
+  friend,
+  timeline,
+  comments,
+  followers,
+  userVisitors,
+  // friendRequest,
+  // undesiredFriend,
+  blogs,
+  // timelineBlogs,
+  albums,
+  // notification,
+  interests,
+  medias,
+  communities,
+  discussion,
+  blogResponse,
+  korem,
+  // blogKorem,
+  // communityUsers,
+  // communityRole,
+  communityInvitationRequest,
+  // registration,
+  // communityJoin,
+  conversation,
+  message,
+  // convesationUsers,
+  country,
+  state,
+  city,
+  address,
+  addressTypes,
+  userAddress,
+  // searchBlog,
+  // searchCommunity,
+  // forumCategories,
+  // templates,
+  // template,
+  workplace,
+  // userWorkPlaces,
+  communityBans,
+  // communityHistory,
+  // templateMessage,
+  // notificationTypes,
+  // userNotificationTypes,
+]
 export default function (app: Application): void {
-  app.configure(search);
-  app.configure(post);
-  app.configure(users);
-  app.configure(friend);
-  app.configure(timeline);
-  app.configure(comments);
-  app.configure(followers);
-  app.configure(userVisitors);
-  app.configure(friendRequest);
-  app.configure(undesiredFriend);
-  app.configure(blogs);
-  app.configure(timelineBlogs);
-  app.configure(albums);
-  app.configure(notification);
-  app.configure(interests);
-  app.configure(medias);
-  app.configure(communities);
-  app.configure(discussion);
-  app.configure(blogResponse);
-  app.configure(korem);
-  app.configure(blogKorem);
-  app.configure(communityUsers);
-  app.configure(communityRole);
-  app.configure(communityInvitationRequest);
-  app.configure(registration);
-  app.configure(communityJoin);
-  app.configure(conversation);
-  app.configure(message);
-  app.configure(convesationUsers);
-  app.configure(country);
-  app.configure(state);
-  app.configure(city);
-  app.configure(address);
-  app.configure(addressTypes);
-  app.configure(userAddress);
-  app.configure(searchBlog);
-  app.configure(searchCommunity);
-  app.configure(forumCategories);
-  app.configure(templates);
-  app.configure(template);
-  app.configure(workplace);
-  app.configure(userWorkPlaces);
-  app.configure(communityBans);
-  app.configure(communityHistory);
-  app.configure(phone);
-  app.configure(templateMessage);
-  app.configure(notificationTypes);
-  app.configure(userNotificationTypes);
-}
+ services.forEach(service => app.configure(service));
+  }
+

@@ -1,5 +1,6 @@
 import { HookContext } from '@feathersjs/feathers';
-import Logger from '../../../lib/utils/logger';
+import {createLogger} from '../../../lib/utils/logger';
+const Logger = createLogger('NewConversation');
 
 export default async (context: HookContext): Promise<HookContext> => {
   const {
@@ -30,7 +31,7 @@ export default async (context: HookContext): Promise<HookContext> => {
       app.channel(`conversation-${result.id}`).join(connection);
     });
   } catch (error) {
-    Logger.error(error);
+    Logger.error('Error in NewConversation hook', error);
   }
 
   return context;

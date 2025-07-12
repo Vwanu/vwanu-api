@@ -1,5 +1,8 @@
 /* eslint-disable no-underscore-dangle */
-import Logger from './logger';
+
+import { createLogger } from './logger';
+
+const logger = createLogger('getEntityById');
 
 /**
  * This function gets an entity by id from a the database it throws an error if the entity is not found in the database
@@ -13,7 +16,7 @@ export default async (service: any, id: string | number) => {
     const entity = await service._get(id);
     return entity;
   } catch (error) {
-    Logger.error(error);
-     throw error
+    logger.error('Error getting entity by id', error);
+    throw error;
   }
 };

@@ -50,8 +50,8 @@ export default async (context: HookContext): Promise<HookContext> => {
   const isAReactor = `(
   EXISTS(
     SELECT 1
-    FROM "Reactions" AS "R"
-    WHERE "R"."entityId"="Blog"."id" AND  "R"."entityType"='Blog' AND "R"."UserId"='${context.params.User.id}'
+    FROM "Korems" AS "K"
+    WHERE "K"."entity_id"="Blog"."id" AND  "K"."entity_type"='Blog' AND "K"."user_id"='${context.params.User.id}'
     )
   )`;
   const isAResponder = `(
@@ -74,9 +74,9 @@ SELECT
 
   const amountOfReactions = `(
       SELECT 
-      COUNT("R"."id") 
-      FROM "Reactions" AS "R"
-      WHERE "R"."entityId" = "Blog"."id" AND "R"."entityType"='Blog'
+      COUNT("K"."id") 
+      FROM "Korems" AS "K"
+      WHERE "K"."entity_id" = "Blog"."id" AND "K"."entity_type"='Blog'
     )::int`;
   const amountOfComments = `(
      SELECT 

@@ -15,7 +15,7 @@ declare module '../../declarations' {
 export default function (app: Application): void {
   const sequelizeClient = app.get('sequelizeClient');
   const options = {
-    Model: sequelizeClient.models.WorkPlace,
+    Model: sequelizeClient.models.Places,
     paginate: app.get('paginate'),
   };
 

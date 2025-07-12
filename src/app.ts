@@ -11,7 +11,6 @@ import configuration from '@feathersjs/configuration';
 import { Request, Response, NextFunction } from 'express';
 
 import channels from './channels';
-import database from './database';
 import services from './services';
 import sequelize from './sequelize';
 import middleware from './middleware';
@@ -48,15 +47,10 @@ app.configure(sequelize);
 
 app.configure(middleware);
 app.configure(channels);
-app.configure(database);
-app.get('startSequelize')();
-
-
 
 app.get('/health', healthCheck);
 
 app.use(requireLogin);
-
 app.configure(services);
 
 app.use(express.notFound());

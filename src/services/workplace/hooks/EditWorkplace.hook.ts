@@ -1,7 +1,9 @@
 import { HookContext } from '@feathersjs/feathers';
 import { BadRequest } from '@feathersjs/errors';
 
-import Logger from '../../../lib/utils/logger';
+import {createLogger} from '../../../lib/utils/logger';
+
+const Logger = createLogger('EditWorkplace');
 
 export default async (context: HookContext): Promise<HookContext> => {
   const { data } = context;
@@ -49,7 +51,7 @@ export default async (context: HookContext): Promise<HookContext> => {
     }
     context.result = { message: 'Workplace updated' };
   } catch (err) {
-    Logger.error(err);
+    Logger.error('Error Updating workplace', err);
     throw new BadRequest('Error Updating workplace');
   }
 

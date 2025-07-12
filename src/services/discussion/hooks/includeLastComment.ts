@@ -31,9 +31,9 @@ const IncludeLast = (single: boolean) => async (context) => {
 
   const amountOfReactions = `(
       SELECT 
-      COUNT("R"."id") 
-      FROM "Reactions" AS "R"
-      WHERE "R"."entityId" = "Discussion"."id" AND "R"."entityType"='Discussion'
+      COUNT("K"."id") 
+      FROM "Korems" AS "K"
+      WHERE "K"."entity_id" = "Discussion"."id" AND "K"."entity_type"='Discussion'
     )::int`;
   const lastComment = `(
     SELECT   
@@ -62,12 +62,12 @@ SELECT
     json_build_object(
      'id', "R"."id",
      'content',"R"."content",
-     'createdAt',"R"."createdAt",
-     'updatedAt',"R"."updatedAt"
+     'createdAt',"K"."createdAt",
+     'updatedAt',"K"."updatedAt"
     ) 
     ) 
-    FROM "Reactions" AS "R"
-    WHERE "R"."entityId"="Discussion"."id" AND  "R"."entityType"='Discussion' AND "R"."UserId"='${context.params.User.id}'
+    FROM "Korems" AS "K"
+    WHERE "K"."entity_id"="Discussion"."id" AND  "K"."entity_type"='Discussion' AND "K"."user_id"='${context.params.User.id}'
   )`;
 
   const OnCategory = (categoryId) =>

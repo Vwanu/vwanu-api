@@ -1,4 +1,6 @@
-import Logger from "../lib/utils/logger"
+import {createLogger} from "../lib/utils/logger"
+
+const Logger = createLogger('AppError');
 
 export default class AppError extends Error {
   status: number
@@ -7,6 +9,6 @@ export default class AppError extends Error {
     super()
     this.message = message
     this.status = status
-    Logger.error({message, status})
+    Logger.error(message, {status})
   }
 }

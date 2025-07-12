@@ -68,7 +68,7 @@ module.exports = {
         ],
         options: {
           transpileOnly: true, // Use transpileOnly for faster builds
-          experimentalFileCaching: true,
+          experimentalFileCaching: false,
           configFile: 'tsconfig.production.json',
         },
       },

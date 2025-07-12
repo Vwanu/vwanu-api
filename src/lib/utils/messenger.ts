@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
-import Logger from './logger';
+import {createLogger} from './logger';
+const Logger = createLogger('Messenger');
 import { Application } from '../../declarations';
 import Notifier from './notifier/not';
 import { EmailerService } from './outReach';
@@ -61,7 +62,7 @@ export default function (app: Application) {
           sanitizedUser
         );
       } catch (error) {
-        Logger.error(error);
+        Logger.error( 'Unknown error in notifier', error);
         throw error;
       }
     },

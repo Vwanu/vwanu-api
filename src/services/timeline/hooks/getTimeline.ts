@@ -1,5 +1,4 @@
 // import isEmpty from 'lodash/isEmpty';
-import { Op } from '@sequelize/core';
 import { HookContext } from '@feathersjs/feathers';
 
 const UserAttributes = [
@@ -12,6 +11,7 @@ const UserAttributes = [
 export default (context: HookContext): HookContext => {
   const { app, params } = context;
   const Sequelize = app.get('sequelizeClient');
+  const { Op } = Sequelize;
 
   const amountOfComments = `(
       SELECT 
