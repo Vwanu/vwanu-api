@@ -27,10 +27,10 @@ COPY --from=deps /app/dev_node_modules ./node_modules
 COPY . .
 
 # Set the environment variable
-ENV NODE_ENV=development
+ENV NODE_ENV=production
 
 # Build the TypeScript application
-RUN npm run build:webpack
+RUN npm run build:webpack:prod
 
 # Final stage: Create the production image
 FROM node:20-alpine
@@ -44,7 +44,7 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/config ./config
 
 # Set environment variables
-ENV NODE_ENV=development
+ENV NODE_ENV=production
 ENV NODE_CONFIG_DIR=/app/config
 ENV HOST=0.0.0.0
 
