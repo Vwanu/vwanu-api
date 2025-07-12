@@ -44,7 +44,7 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/config ./config
 
 # Set environment variables
-ENV NODE_ENV=production
+ENV NODE_ENV=development
 ENV NODE_CONFIG_DIR=/app/config
 ENV HOST=0.0.0.0
 
