@@ -24,15 +24,21 @@ export default (app: Application) =>
   ): Promise<MessageTemplateInterface> => {
     const TemplateServiceName = notifierOptions.source === 'email' ? 'template' : 'template_messages';
 
+    console.log({app, TemplateServiceName, snug, notifierOptions});
     return new Promise((resolve, reject) => {
+    // rejecct(new Error('Not implemented')) // TODO: Implement this function
+      // app
+      // resolve({
+      //   id: '1',
+      //   snug,
+      //   subject: 'Test Subject',
+      //   body: 'Test Body',
+      //   type: notifierOptions.source,
+      // } as unknown as MessageTemplateInterface);
+      // })
       app
-        .service(TemplateServiceName)
-        ._find({ query: { snug }, paginate: false })
-        .then((response) => {
-          resolve(response[0] as any);
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    })
-  };
+        .service('posts')
+        .find({ query: { snug }, paginate: false })
+        .then((response) => {resolve(response[0] as any)})
+        .catch((error) => {reject(error)})
+  })}

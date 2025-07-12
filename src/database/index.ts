@@ -13,26 +13,26 @@ import {Country} from './country';
 import {Message} from './message';
 import {Visitor} from './Visitors';
 import {Interest} from './interest';
-// import {Template} from './template';
+import {Template} from './template';
 import {Community} from './communities';
 import {Discussion} from './discussion';
 import {AddressType} from './addressTypes';
 import {EntityAddress} from './userAddresses';
 import {Conversation} from './conversation';
-// import {Notification} from './notification';
+import {Notification} from './notification';
 import {BlogResponse} from './blog-response';
 import {CommunityUser} from './community-users';
 import {CommunityInvitationRequest} from './communityInvitationRequest';
 import {Forum} from './forums';
 import {Place} from './places';
-// import {UserWorkPlace} from './userWorkplace';
+import {UserWorkPlace} from './userWorkplace';
 import {CommunityBan} from './community-bans';
 import {CommunityHistory} from './community-history';
-// import {NotificationsSettings} from './notifications_types';
-// import {UserNotificationsSettings} from './user_notifications_settings';
+import {NotificationType} from './notifications_types';
+import {UserNotificationSettings} from './user_notifications_settings';
 import {ErrorCode} from './errorCodes.db'; 
 import {ExpiryTime} from './expiryTime';
-// import {UserNotificationTypes} from './user_notification_types';
+import {UserNotificationTypes} from './user_notification_types';
 
 export default [
   Call,
@@ -50,13 +50,13 @@ export default [
   Message,
   Visitor,
   Interest,
-  // Template,
+  Template,
   Community,
   Discussion,
   AddressType,
   EntityAddress,
   Conversation,
-  // Notification,
+  Notification,
   BlogResponse,
   CommunityUser,
   CommunityBan,
@@ -64,18 +64,12 @@ export default [
   CommunityInvitationRequest,
   Forum,
   Place,
-  // UserWorkPlace,
-  // // NotificationsSettings,
-  // // UserNotificationsSettings,
+  UserWorkPlace,
+  NotificationType,
+  UserNotificationSettings,
   ErrorCode,
   ExpiryTime,
-  // UserNotificationTypes,
+  UserNotificationTypes,
 ];
 
-// export default function (app: Application): void {
-//   const sequelize = app.get('sequelizeClient');
 
-//   tables.forEach((table) => {
-//     table(sequelize, Sequelize);
-//   });
-// }

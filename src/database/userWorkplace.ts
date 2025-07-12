@@ -1,8 +1,7 @@
 
-import { Table, Column, DataType, PrimaryKey, AllowNull, Model, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import { Table, Column, DataType, AllowNull, Model, ForeignKey, BelongsTo } from 'sequelize-typescript';
 import { User } from './user';
 import Place from './places';
-import Addres from './address';
 
 export interface UserWorkPlaceInterface {
   position: string;
@@ -19,7 +18,7 @@ export class UserWorkPlace extends Model<UserWorkPlaceInterface> implements User
   @Column({
     type: DataType.UUID,
     allowNull: false,
-    field: 'UserId',
+    field: 'user_id',
   })
   UserId!: string;
 
@@ -28,7 +27,7 @@ export class UserWorkPlace extends Model<UserWorkPlaceInterface> implements User
   @Column({
     type: DataType.UUID,
     allowNull: false,
-    field: 'workPlace_id',
+    field: 'place_id',
   })
   WorkPlaceId!: string;
 
@@ -61,9 +60,7 @@ export class UserWorkPlace extends Model<UserWorkPlaceInterface> implements User
 
   @BelongsTo(() => Place, 'WorkPlaceId')
   workPlace!: Place;
-  @BelongsTo(() => Addres, 'addressId')
-  address!: Addres;
-  
+
   // Instance methods
   public isCurrentJob(): boolean {
     return !this.to || this.to > new Date();
