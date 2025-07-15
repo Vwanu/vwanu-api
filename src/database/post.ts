@@ -31,7 +31,7 @@ export class Post extends Model<PostInterface> implements PostInterface {
   @Column({
     type: DataType.TEXT,
     allowNull: true,
-    field: 'post_text',
+    // field: 'post_text',
   })
   postText!: string;
 
@@ -40,7 +40,7 @@ export class Post extends Model<PostInterface> implements PostInterface {
     type: DataType.ENUM(...Object.values(CommunityPrivacyType)),
     defaultValue: CommunityPrivacyType.PUBLIC,
     allowNull: false,
-    field: 'privacy_type',
+    // field: 'privacy_type',
   })
   privacyType!: CommunityPrivacyType;
 
@@ -57,7 +57,8 @@ export class Post extends Model<PostInterface> implements PostInterface {
   @Column({
     type: DataType.UUID,
     allowNull: false,
-    field: 'user_id',
+    // field: 'user_id',
+    field: 'UserId',
   })
   userId!: string;
 
@@ -65,7 +66,8 @@ export class Post extends Model<PostInterface> implements PostInterface {
   @Column({
     type: DataType.UUID,
     allowNull: true, 
-    field: 'community_id',
+    // field: 'community_id',
+    field: 'CommunityId',
   })
   communityId?: string;
 
@@ -73,7 +75,8 @@ export class Post extends Model<PostInterface> implements PostInterface {
   @Column({
     type: DataType.UUID,
     allowNull: true,
-    field: 'post_id',
+    // field: 'post_id',
+    field: 'PostId',
   })
   PostId?: string;
 
@@ -85,18 +88,18 @@ export class Post extends Model<PostInterface> implements PostInterface {
   community?: Community; // Optional - post may not be part of a community   
   
   @BelongsToMany(() => Media, {
-    through: 'post_media', // String-based junction table
-    foreignKey: 'post_id',
-    otherKey: 'media_id',
+    through: 'Post_Media',
+    foreignKey: 'PostId',
+    otherKey: 'MediumId',
   })
-  media!: Media[]; // Optional - posts can exist without media (empty array)
+  media!: Media[];
   
   
   @HasMany(() => Post, { as: 'Comments' })
   comments!: Post[];
 
-  @BelongsToMany(() => Korem, { 
-    through: 'post_reactions', // Junction table for reactions
+  @HasMany(() => Korem, { 
+    //through: 'post_reactions', // Junction table for reactions
     foreignKey: 'entityId',
     otherKey: 'koremId',
     constraints: false,

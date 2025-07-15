@@ -6,7 +6,7 @@ import { EntityType } from '../types/enums';
 export interface KoremInterface {
   entityId: string;
   entityType: EntityType;
-  userId: string;
+  UserId: string;
 }
 
 @Table({
@@ -26,7 +26,7 @@ export class Korem extends Model<KoremInterface> implements KoremInterface {
   @Column({
     type: DataType.UUID,
     allowNull: false,
-    field: 'entity_id',
+    // field: 'entity_id',
   })
   entityId!: string;
 
@@ -35,7 +35,7 @@ export class Korem extends Model<KoremInterface> implements KoremInterface {
     type: DataType.ENUM(...Object.values(EntityType)),
     defaultValue: EntityType.POST,
     allowNull: false,
-    field: 'entity_type',
+    // field: 'entity_type',
   })
   entityType!: EntityType;
 
@@ -44,13 +44,14 @@ export class Korem extends Model<KoremInterface> implements KoremInterface {
   @Column({
     type: DataType.UUID,
     allowNull: false,
-    field: 'user_id',
+    // field: 'user_id',
+    field:'UserId', // Adjusted to match the User model's field name
   })
-  userId!: string;
+  UserId!: string;
 
   // Associations
-  @BelongsTo(() => User, 'userId')
-  user!: User;
+  @BelongsTo(() => User, 'UserId')
+  User!: User;
 
   // Polymorphic associations - commented until all target models are converted
   // @BelongsTo(() => Post, { foreignKey: 'entityId', constraints: false })
@@ -96,7 +97,7 @@ export class Korem extends Model<KoremInterface> implements KoremInterface {
   }
 
   public isLikeBy(userId: string): boolean {
-    return this.userId === userId;
+    return this.UserId === userId;
   }
 
   public getDisplayText(): string {

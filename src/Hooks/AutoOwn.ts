@@ -7,7 +7,7 @@ export default function (context) {
   }
 
   // Use the sub attribute as the user ID
-  context.data.UserId = cognitoUser.id;
+  context.data.userId = cognitoUser.id;
 
   // For backwards compatibility
   context.params.User = {

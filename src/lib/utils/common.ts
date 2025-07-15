@@ -126,7 +126,7 @@ const Common = {
             if (doc.path)
               data.Media.push({
                 original: doc.path,
-                UserId: data.UserId,
+                UserId: data.userId,
               });
           });
         }

@@ -41,7 +41,7 @@ export default [
   Post,
   Blog,
   Album,
- Media,
+  Media,
   State,
   Korem,
   Friend,

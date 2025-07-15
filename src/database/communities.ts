@@ -40,7 +40,8 @@ export class Community extends Model<CommunityInterface> {
   @Column({
     type: DataType.UUID,
     allowNull: false,
-    field: 'creator_id', // Maps to snake_case DB column
+    // field: 'creator_id', // Maps to snake_case DB column
+    field:'UserId'
   })
   creatorId!: string;
 
@@ -48,7 +49,9 @@ export class Community extends Model<CommunityInterface> {
     type: DataType.INTEGER,
     defaultValue: 0,
     allowNull: false,
-    field: 'num_members',
+    // field: 'num_members',
+    field:'numMembers', // Use camelCase for consistency with other models
+    
   })
   numMembers!: number;
 
@@ -56,7 +59,8 @@ export class Community extends Model<CommunityInterface> {
     type: DataType.INTEGER,
     defaultValue: 0,
     allowNull: false,
-    field: 'num_admins',
+    // field: 'num_admins',
+    field:'numAdmins', // Use camelCase for consistency with other models
   })
   numAdmins!: number;
 
@@ -75,14 +79,16 @@ export class Community extends Model<CommunityInterface> {
     type: DataType.ENUM(...Object.values(CommunityPrivacyType)),
     defaultValue: CommunityPrivacyType.PUBLIC,
     allowNull: false,
-    field: 'privacy_type',
+    // field: 'privacy_type',
+    field: 'privacyType', // Use camelCase for consistency with other models
   })
   privacyType!: CommunityPrivacyType;
 
   @Column({
     type: DataType.STRING,
     allowNull: true,
-    field: 'cover_picture',
+    // field: 'cover_picture',
+    field: 'coverPicture', // Use camelCase for consistency with other models
     validate: {
       isUrl: {
         msg: 'Cover picture must be a valid URL'
@@ -104,7 +110,8 @@ export class Community extends Model<CommunityInterface> {
   @Column({
     type: DataType.STRING,
     allowNull: true,
-    field: 'profile_picture',
+    // field: 'profile_picture',
+    field: 'profilePicture', // Use camelCase for consistency with other models
     validate: {
       isUrl: {
         msg: 'Profile picture must be a valid URL'
@@ -117,7 +124,8 @@ export class Community extends Model<CommunityInterface> {
     type: DataType.ENUM(...Object.values(CommunityPermissionLevel)),
     defaultValue: CommunityPermissionLevel.ADMINS,
     allowNull: false,
-    field: 'can_invite',
+    // field: 'can_invite',
+    field: 'canInvite', // Use camelCase for consistency with other models
   })
   canInvite!: CommunityPermissionLevel;
 
@@ -125,7 +133,8 @@ export class Community extends Model<CommunityInterface> {
     type: DataType.ENUM(...Object.values(CommunityPermissionLevel)),
     defaultValue: CommunityPermissionLevel.ADMINS,
     allowNull: false,
-    field: 'can_post',
+    // field: 'can_post',
+    field: 'canInPost', // Use camelCase for consistency with other models
   })
   canPost!: CommunityPermissionLevel;
 
@@ -133,7 +142,8 @@ export class Community extends Model<CommunityInterface> {
     type: DataType.ENUM(...Object.values(CommunityPermissionLevel)),
     defaultValue: CommunityPermissionLevel.ADMINS,
     allowNull: false,
-    field: 'can_message_in_group',
+    // field: 'can_message_in_group',
+    field: 'canMessageInGroup', // Use camelCase for consistency with other models
   })
   canMessageInGroup!: CommunityPermissionLevel;
 
@@ -142,7 +152,8 @@ export class Community extends Model<CommunityInterface> {
     type: DataType.BOOLEAN,
     defaultValue: true,
     allowNull: false,
-    field: 'have_discussion_forum',
+    // field: 'have_discussion_forum',
+    field:'haveDiscussionForum'
   })
   haveDiscussionForum!: boolean;
 

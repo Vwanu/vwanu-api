@@ -13,33 +13,16 @@ import CanComment from '../../Hooks/NoCommentOnLockParents';
 
 export default {
   before: {
- 
     find: [GetTimeline],
     get: [GetTimeline],
     create: [
-      (context) => {
-        console.log(`\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>`);
-        console.log('context in create', context.data);
-        console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n`);
-        return context;
-      },
       AutoOwn,
       validateResource(schema.createPostSchema),
       CanPostInCommunity,
       CanComment,
     ],
     update: [CanPostInCommunity],
-    patch: [(context) => {
-      console.log(`\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>`);
-      console.log('b4 context in create', context.data);
-      console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n`);
-      return context;
-    },LimitToOwner,(context) => {
-      console.log(`\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>`);
-      console.log('af context in create', context.data);
-      console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n`);
-      return context;
-    },],
+    patch: [LimitToOwner],
     remove: [DeletePost],
   },
 
@@ -59,12 +42,7 @@ export default {
     get: [],
     create: [],
     update: [],
-    patch: [(context) => {
-      console.log(`\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>`);
-      console.log('context in patch', context.error);
-      console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n`);
-      return context;
-    },],
+    patch: [],
     remove: [],
   },
 };

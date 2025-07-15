@@ -1,26 +1,33 @@
-# Stage 1: Dependencies
-FROM node:20-alpine 
+# Simple development Dockerfile
+# 
+# To run with proper network and environment:
+# docker run --network dv --env-file .env -p 3000:3000 comuzi-app-dev
+# 
+# Or with docker-compose for easier management:
+# docker-compose up dev
+#
+FROM node:20-alpine
 
-# Set the working directory
+# Set working directory
 WORKDIR /app
 
-# Copy package files for better caching
-COPY package.json package-lock.json ./
+# Copy package files
+COPY package*.json ./
 
+# Install dependencies
 RUN npm install
 
 # Copy source code
 COPY . .
 
-# Set the environment variable
-ENV NODE_ENV=production
+# Copy environment variables
+COPY .env* ./
 
-# Build the TypeScript application
-RUN npm run build:webpack:prod
+# Set environment to development
+ENV NODE_ENV=development
 
+# Expose port
+EXPOSE 3000
 
-# Expose the application port
-EXPOSE 3000 
-
-# Run the application
-CMD ["node", "dist/main.js"]
+# Start the application with TypeScript compilation
+CMD ["npm", "run", "dev"]

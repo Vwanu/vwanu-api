@@ -27,7 +27,7 @@ export class PostKore extends Service {
       post = await this.app.service('posts').get(postId, params);
     } catch (e) {
       console.log('[PostKore] Error getting post', e);
-      throw new BadRequest(`No post found with id ${postId}`);
+      throw new BadRequest(`Error finding post ${postId}`);
     }
 
     if (!post) {

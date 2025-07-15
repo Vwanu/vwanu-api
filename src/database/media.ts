@@ -1,6 +1,7 @@
-import { Table, Column, Model, DataType, BeforeSave, BelongsTo , ForeignKey} from 'sequelize-typescript';
+import { Table, Column, Model, DataType, BeforeSave, BelongsTo , ForeignKey, BelongsToMany} from 'sequelize-typescript';
 import config from 'config';
 import { User } from './user';
+import { Post } from './post';
 // import { Post } from './post';
 // import { Album } from './album';
 
@@ -15,7 +16,7 @@ export interface MediaInterface {
   medium: string;
   small: string;
   tiny: string;
-  userId: string;
+  UserId: string;
 }
 
 @Table({
@@ -63,9 +64,10 @@ export class Media extends Model<MediaInterface> implements MediaInterface {
   @Column({
     type: DataType.UUID,
     allowNull: false,
-    field: 'user_id',
+    // field: 'user_id',
+    field: 'UserId', // Use camelCase for consistency with other models
   })
-  userId!: string;
+  UserId!: string;
 
   @BeforeSave
   static generateImageSizes(instance: Media) {
@@ -87,7 +89,14 @@ export class Media extends Model<MediaInterface> implements MediaInterface {
 
   // TODO: Add associations with decorators when other models are converted
   @BelongsTo(() => User)
-  user!: User;
+  User!: User;
+
+  @BelongsToMany(() => Post, {
+    through: 'Post_Media',
+    foreignKey: 'MediumId',
+    otherKey: 'PostId',
+  })
+  posts!: Post[]
   
   // @BelongsToMany(() => Post, {
   //   through: 'post_media', // String-based junction table

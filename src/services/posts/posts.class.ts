@@ -2,7 +2,6 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 
 import common from '../../lib/utils/common';
 import { Application } from '../../declarations';
-import { include } from '../../lib/utils/commentPostInclude';
 
 const { getUploadedFiles } = common;
 
@@ -17,9 +16,21 @@ export class Posts extends Service {
 
   async create(data, params) {
     const postData = getUploadedFiles(['postImage', 'postVideo'], data);
+    
+    const { Media: mediaData, ...postFields } = postData;
+    
+    // Create the post first
     const post = await this.app
       .service('posts')
-      .Model.create(postData, { include: include(this.app) });
+      .Model.create(postFields);
+
+    if (mediaData && mediaData.length > 0) {
+      const mediaRecords = await this.app
+        .get('sequelizeClient')
+        .models.Media.bulkCreate(mediaData);
+      
+      await post.addMedia(mediaRecords);
+    }
 
     const updatedPost = await this.app.service('posts').get(post.id, params);
     return Promise.resolve(updatedPost);

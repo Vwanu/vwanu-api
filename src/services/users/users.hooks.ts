@@ -6,7 +6,7 @@ import isSelf from '../../Hooks/isSelf.hook';
 import saveProfilePicture from '../../Hooks/SaveProfilePictures.hooks';
 import MediaStringToMediaObject from '../../Hooks/ProfileCoverToObject';
 
-import { AddVisitor } from './hook';
+// import { AddVisitor } from './hook';
 import updateTsVector from './hook/updateTsVector';
 
 const { protect } = local.hooks;
@@ -53,7 +53,7 @@ const hooks = {
     all: [MediaStringToMediaObject(['profilePicture', 'coverPicture'])],
 
     find: [protectKeys],
-    get: [AddVisitor, protectKeys],
+    // get: [AddVisitor, protectKeys],
     patch: [protectKeys, updateTsVector],
     remove: [protectKeys],
   },

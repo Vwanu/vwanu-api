@@ -7,6 +7,8 @@ export const userAttributes = ['firstName', 'lastName', 'id', 'profilePicture'];
 export const include = (app) => [
   {
     model: app.get('sequelizeClient').models.Media,
+    as: 'media',
+    through: { attributes: [] }, // Hide junction table attributes
   },
 
   {

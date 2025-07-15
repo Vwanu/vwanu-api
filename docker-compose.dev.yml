@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  comuzi-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    networks:
+      - dv
+    volumes:
+      # Mount source code for hot reloading
+      - ./src:/app/src
+      - ./config:/app/config
+      # Exclude node_modules to avoid conflicts
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    restart: unless-stopped
+
+networks:
+  dv:
+    external: true

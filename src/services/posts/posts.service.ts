@@ -21,8 +21,6 @@ declare module '../../declarations' {
 }
 
 export default function (app: Application): void {
-  console.log('Posts service - app type:', typeof app);
-  console.log('Posts service - app.get type:', typeof app.get);
   const sequelize = app.get('sequelizeClient');
   const options = {
     Model: sequelize.models.Post,

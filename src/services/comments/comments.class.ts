@@ -8,7 +8,7 @@ import { Application } from '../../declarations';
 
 // const { getUploadedFiles } = common;
 
-// eslint-disable-next-line import/prefer-default-export
+
 export class Comments extends Service {
   app: Application;
 
@@ -31,11 +31,11 @@ export class Comments extends Service {
       return this.app
         .service('posts')
         .create(
-          { ...data, UserId: params.cognitoUser.id, PostId: postId },
+          { ...data, userId: params.cognitoUser.id, PostId: postId },
           params,
         );
     } catch (error: unknown | any) {
-      throw new GeneralError(error);
+      throw new GeneralError('Error creating comment');
     }
   }
 }
