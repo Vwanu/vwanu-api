@@ -46,6 +46,7 @@
     "@feathersjs/socketio": "^4.5.14",
     "@feathersjs/transport-commons": "^5.0.0-pre.20",
     "@jackywxd/feathers-refresh-token": "^0.2.0",
+    "@sequelize/core": "^7.0.0-alpha.46",
     "@types/config": "^3.3.5",
     "@types/morgan": "^1.9.3",
     "aws-jwt-verify": "^5.0.0",

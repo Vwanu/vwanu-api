@@ -1,20 +1,20 @@
 // // import {Call} from './call';
-// import {Post} from './post';
-// import {User} from './user';
-// import {City} from './city';
-// import {Blog} from './blog';
+import {Post} from './post';
+import {User} from './user';
+import {City} from './city';
+import {Blog} from './blog';
 // import {Album} from './album';
-// import {Media} from './media';
-// import {State} from './state';
-// import {Korem} from './korem';
+import {Media} from './media';
+import {State} from './state';
+import {Korem} from './korem';
 // import {Friend} from './Friends';
 // import {Address} from './address';
-// import {Country} from './country';
+import {Country} from './country';
 // import {Message} from './message';
 // import {Visitor} from './Visitors';
 import {Interest} from './interest';
 // import {Template} from './template';
-// import {Community} from './communities';
+import {Community} from './communities';
 // import {Discussion} from './discussion';
 // import {AddressType} from './addressTypes';
 // import {EntityAddress} from './userAddresses';
@@ -36,22 +36,22 @@ import {Interest} from './interest';
 
 export default [
 //   // Call,
-  // User,
-//   City,
-//   Post,
-//   Blog,
-//   Album,
-//   Media,
-//   State,
-//   Korem,
+  User,
+  City,
+  Post,
+  Blog,
+  // Album,
+  Media,
+  State,
+  Korem,
 //   Friend,
 //   Address,
-//   Country,
+  Country,
 //   Message,
 //   Visitor,
   Interest,
 //   Template,
-//   Community,
+  Community,
 //   Discussion,
 //   AddressType,
 //   EntityAddress,

@@ -1,5 +1,5 @@
 
-import { Table, Column, Model as SequelizeModel,DataType } from 'sequelize-typescript';
+import { Table, Column, Model, DataType } from 'sequelize-typescript';
 
 import { UpUserInterface as UserInterface } from '../schema/user';
 
@@ -9,7 +9,7 @@ export const authorizationEnums = ['public', 'private', 'friend'];
 ({
   modelName: 'User',
 })
-export class User extends SequelizeModel<UserInterface> {
+export class User extends Model<UserInterface> {
 
   @Column({
     type: DataType.UUID,

@@ -4,7 +4,7 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 // import { BadRequest } from '@feathersjs/errors';
 import { Application } from '../../declarations';
 
-// eslint-disable-next-line import/prefer-default-export
+
 export class Users extends Service {
   app: Application;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -42,16 +42,14 @@ export class Users extends Service {
     //   return Promise.resolve(newUser);
     // }
     if (idString === params.cognitoUser.id) {
-  await this
-    .app.get('sequelizeClient')
-    .models.User
-    .findOrCreate({ 
-      where: { id: idString },
-      defaults: {
-        ...params.cognitoUser,
-        nextCompletionStep: 1,
-      },
-    });
+      // @ts-ignore`
+      await this.app.get('sequelizeClient').model('User').findOrCreate({ 
+        where: { id: idString },
+        defaults: {
+          ...params.cognitoUser,
+          nextCompletionStep: 1,
+        },
+      });
     }
     // return Promise.resolve(user);
     return super.get(id, params);

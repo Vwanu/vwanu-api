@@ -23,7 +23,7 @@ export class Comments extends Service {
       const postId = data.postId;
 
       if (!postId) throw new BadRequest('PostId is required');
-
+       //@ts-ignore
       const db = this.app.get('sequelizeClient').models;
       const post = await db.Post.findByPk(postId);
       if (!post) throw new BadRequest(`No post found with id ${postId}`);

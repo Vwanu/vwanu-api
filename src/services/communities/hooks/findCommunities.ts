@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Op } from '@sequelize/core';
 import { HookContext } from '@feathersjs/feathers';
 
 export default async (context: HookContext) => {

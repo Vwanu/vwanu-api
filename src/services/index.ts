@@ -1,10 +1,10 @@
 import { Application } from '../declarations';
 // /** Local dependencies */
-// import post from './posts/posts.service';
-// import users from './users/users.service';
+import post from './posts/posts.service';
+import users from './users/users.service';
 // import search from './search/search.service';
 // import friend from './friends/friends.service';
-// import comments from './comments/comments.service';
+import comments from './comments/comments.service';
 // import followers from './followers/followers.service';
 // import userVisitors from './userVisitors/user-visitors.service';
 // import friendRequest from './friendRequest/friendRequests.service';
@@ -15,10 +15,10 @@ import { Application } from '../declarations';
 // import notification from './notification/notification.service';
 import interests from './interests/interests.service';
 // import medias from './medias/medias.service';
-// import communities from './communities/communities.service';
+import communities from './communities/communities.service';
 // import discussion from './discussion/discussion.service';
 // import blogResponse from './blog-response/blog-response.service';
-// import korem from './korem/korem.service';
+import korem from './korem/korem.service';
 // import blogKorem from './blog-korem/blog-korem.service';      
 // import communityUsers from './community-users/community-users.service';
 // import communityInvitationRequest from './community-invitation-request/community-invitation-request.service';
@@ -45,11 +45,11 @@ import interests from './interests/interests.service';
 
 const services =[
 //   search,
-//   post,
-//   users,
+  post,
+  users,
 //   friend,
 //   timeline,
-//   comments,
+  comments,
 //   followers,
 //   userVisitors,
 //   friendRequest,
@@ -59,10 +59,10 @@ const services =[
 //   notification,
   interests,
 //   medias,
-//   communities,
+  communities,
 //   discussion,
 //   blogResponse,
-//   korem,
+  korem,
 //   blogKorem,
 //   communityUsers,
 //   // communityRole,
