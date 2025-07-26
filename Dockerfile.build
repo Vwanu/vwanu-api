@@ -30,7 +30,7 @@ COPY . .
 ENV NODE_ENV=production
 
 # Build the TypeScript application using tsc directly
-RUN npm run dev
+RUN npm run build
 
 # Final stage: Create the production image
 FROM node:20-alpine
