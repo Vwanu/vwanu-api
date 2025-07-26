@@ -1,5 +1,5 @@
 import isNill from 'lodash/isNil';
-import { Op } from '@sequelize/core';
+import { Op } from 'sequelize';
 
 const addressToString = (address) => {
   if (isNill(address)) return '';

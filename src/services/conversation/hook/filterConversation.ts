@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import { HookContext } from '@feathersjs/feathers';
 import isNill from 'lodash/isNil';
-import { Op } from '@sequelize/core';
+import { Op } from 'sequelize';
 
 export default async (context: HookContext) => {
   const { params, app, method } = context;

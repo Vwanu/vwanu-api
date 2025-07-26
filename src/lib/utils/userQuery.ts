@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import { Op } from '@sequelize/core';
+import { Op } from 'sequelize';
 
 export const AreFriends = (UserId, Sequelize) => {
   const friends = `(

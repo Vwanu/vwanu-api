@@ -1,4 +1,4 @@
-import { Op } from '@sequelize/core';
+import { Op } from 'sequelize';
 import { HookContext, Id } from '@feathersjs/feathers';
 
 import notBanned from './notBanned.utils';

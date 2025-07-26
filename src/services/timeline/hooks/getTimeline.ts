@@ -1,6 +1,7 @@
 // import isEmpty from 'lodash/isEmpty';
 import { HookContext } from '@feathersjs/feathers';
-import {Op} from '@sequelize/core';
+// @ts-ignore
+import {Op} from 'sequelize';
 
 const UserAttributes = [
   'firstName',

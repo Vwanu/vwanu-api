@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { Op, QueryTypes } from '@sequelize/core';
+import { Op, QueryTypes } from 'sequelize';
 import { Params, Id } from '@feathersjs/feathers';
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { BadRequest } from '@feathersjs/errors';

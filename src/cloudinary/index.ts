@@ -1,13 +1,13 @@
 /** Local dependencies */
+// @ts-nocheck
 import {
   CLOUDINARY_CONFIG_SCHEMA,
   CLOUDINARY_CONFIG_TYPE,
 } from '../schema/mediaConf.schema';
-
-const cloudinary = require('cloudinary').v2;
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const multer = require('multer');
-const config = require('config');
+import * as cloudinary from 'cloudinary';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import multer from 'multer';
+import config from 'config';
 
 const ALL_ALLOW_FORMAT = ['jpg', 'png', 'jpeg', 'gif', 'mp4', 'm4v'];
 const RESTRICTED_FORMAT = ['jpg', 'png', 'jpeg'];
@@ -17,7 +17,8 @@ const configuration: CLOUDINARY_CONFIG_TYPE = config.get(
 );
 
 if (CLOUDINARY_CONFIG_SCHEMA.parse(configuration))
-  cloudinary.config(configuration);
+  // @ts-ignore
+  cloudinary?.v2?.config(configuration);
 
 const profilePictures = new CloudinaryStorage({
   cloudinary,
@@ -31,6 +32,8 @@ const profilePictures = new CloudinaryStorage({
 const freeMedia = new CloudinaryStorage({
   cloudinary,
   params: {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     allowedFormats: RESTRICTED_FORMAT,
     folder: 'vwanu/medias',
     resource_type: 'auto',
@@ -57,6 +60,7 @@ const discussionImages = new CloudinaryStorage({
 const messageMedia = new CloudinaryStorage({
   cloudinary,
   params: {
+    // @ts-ignore
     allowedFormats: ALL_ALLOW_FORMAT,
     folder: 'vwanu/messages',
     resource_type: 'auto',

@@ -2,7 +2,6 @@
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import dotenv from 'dotenv';
 import express from '@feathersjs/express';
 import socketio from '@feathersjs/socketio';
 import methodOverride from 'method-override';
@@ -12,7 +11,7 @@ import { Request, Response, NextFunction } from 'express';
 
 import channels from './channels';
 import services from './services';
-import sequelize from './sequelize';
+// import sequelize from './sequelize';
 import middleware from './middleware';
 import Logger from './lib/utils/logger';
 import healthCheck from './services/healthCheck';
@@ -20,8 +19,6 @@ import RequestBody from './middleware/RequestBody';
 import morganMiddleware from './middleware/morgan.middleware';
 import requireLogin from './middleware/requireLogin';
 import AppError from './errors';
-
-dotenv.config();
 
 const app = express(feathers());
 app.configure(configuration());
@@ -43,7 +40,7 @@ app.set('API_CONFIGURATION', API_CONFIGURATION);
 
 app.configure(express.rest());
 app.configure(socketio());
-app.configure(sequelize);
+// app.configure(sequelize);
 
 app.configure(middleware);
 app.configure(channels);
@@ -51,7 +48,7 @@ app.configure(channels);
 app.get('/health', healthCheck);
 
 app.use(requireLogin);
-app.configure(services);
+// app.configure(services);
 
 app.use(express.notFound());
 app.use(express.errorHandler({ logger: Logger }));

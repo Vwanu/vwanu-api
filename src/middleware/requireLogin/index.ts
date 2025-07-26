@@ -30,7 +30,7 @@ export default helper.catchAsync(
         authToken,
         idToken as string,
       );
-      req.user = userDetails;
+      (<any>req).user = userDetails;
       // console.log('req.user', req.user);
       (req as any).feathers = {
         cognitoUser: userDetails,

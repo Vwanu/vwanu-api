@@ -1,7 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 
 import request from 'supertest';
-import { Op } from '@sequelize/core';
+import { Op } from 'sequelize';
 /** Local dependencies */
 import app from '../../src/app';
 import {

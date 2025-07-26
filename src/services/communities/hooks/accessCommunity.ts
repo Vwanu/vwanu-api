@@ -1,4 +1,4 @@
-import { QueryTypes } from '@sequelize/core';
+import { QueryTypes } from 'sequelize';
 import { BadRequest } from '@feathersjs/errors';
 import { HookContext, Id } from '@feathersjs/feathers';
 

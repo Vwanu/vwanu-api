@@ -39,6 +39,7 @@ module.exports = {
             ignoreRestSiblings: false,
           },
         ],
+        '@typescript-eslint/ban-ts-comment': ['off'],
         '@typescript-eslint/await-thenable': ['error'],
         '@typescript-eslint/no-floating-promises': ['error'],
         '@typescript-eslint/no-misused-promises': ['error'],

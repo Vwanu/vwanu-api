@@ -1,4 +1,4 @@
-import { Op } from '@sequelize/core';
+import { Op } from 'sequelize';
 import addAssociation from '../../Hooks/AddAssociations';
 
 // import IncludeAssociations from '../../Hooks/IncludeAssociations';

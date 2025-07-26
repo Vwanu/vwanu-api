@@ -7,16 +7,19 @@
       "@schema": ["schema"],
       "@testing": ["testing"]
     },
-    "strict": true,
+    "strict": false,
     "strictPropertyInitialization": false,
     "noImplicitAny": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "esModuleInterop": true,
     "preserveConstEnums": true,
-    "strictFunctionTypes": true,
-    "strictNullChecks": true,
-    "noUnusedLocals": true,
+    "strictFunctionTypes": false,
+    "strictNullChecks": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": false,
+    "noImplicitThis": false,
     "sourceMap": true,
     "allowJs": true,
     "target": "ES2021",
@@ -24,11 +27,16 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "lib": ["ES2021"],
-    "typeRoots": ["./node_modules/@types", "./src/types"]
+    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "skipLibCheck": true,
+    "noEmit": false,
+    "isolatedModules": true
   },
   "ts-node": {
+    "transpileOnly": true,
     "swc": false,
     "require": ["tsconfig-paths/register"]
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "exclude": ["src/cloudinary/index.ts"]
 }

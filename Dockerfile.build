@@ -11,7 +11,7 @@ COPY package.json package-lock.json ./
 # This is more efficient than running npm install twice
 RUN npm ci || npm install
 RUN cp -R node_modules dev_node_modules
-RUN npm ci --omit=dev || npm install --omit=dev && rm -rf node_modules/typescript
+RUN npm ci --omit=dev || npm install --omit=dev
 
 # Stage 2: Build the application
 FROM node:20-alpine AS builder
@@ -29,8 +29,8 @@ COPY . .
 # Set the environment variable
 ENV NODE_ENV=production
 
-# Build the TypeScript application
-RUN npm run build:webpack:prod
+# Build the TypeScript application using tsc directly
+RUN npm run build
 
 # Final stage: Create the production image
 FROM node:20-alpine
@@ -52,4 +52,4 @@ ENV HOST=0.0.0.0
 EXPOSE 3000
 
 # Run the application
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/bin/index.js"]

@@ -1,4 +1,4 @@
-import { QueryTypes } from '@sequelize/core';
+import { QueryTypes } from 'sequelize';
 import { Params } from '@feathersjs/feathers';
 import { BadRequest } from '@feathersjs/errors';
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
