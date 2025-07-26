@@ -14,48 +14,6 @@ Resources:
         - Name: containerInsights
           Value: enabled
 
-  # Redis Cluster
-  # RedisCluster:
-  #   Type: AWS::ElastiCache::CacheCluster
-  #   Properties:
-  #     CacheNodeType: cache.t3.micro
-  #     Engine: redis
-  #     NumCacheNodes: 1
-  #     VpcSecurityGroupIds:
-  #       - !Ref RedisSecurityGroup
-  #     CacheSubnetGroupName: !Ref RedisSubnetGroup
-  #     ClusterName: ${self:service}-${self:provider.stage}-redis
-  #     Tags:
-  #       - Key: Name
-  #         Value: ${self:service}-${self:provider.stage}-redis
-
-  # RedisSecurityGroup:
-  #   Type: AWS::EC2::SecurityGroup
-  #   Properties:
-  #     GroupDescription: 'Security group for Redis allowing access from ECS tasks'
-  #     VpcId: !Ref vwanuVPC
-  #     SecurityGroupIngress:
-  #       - IpProtocol: tcp
-  #         FromPort: 6379
-  #         ToPort: 6379
-  #         SourceSecurityGroupId: !Ref ECSTaskSecurityGroup
-  #     SecurityGroupEgress:
-  #       - IpProtocol: -1
-  #         FromPort: -1
-  #         ToPort: -1
-  #         CidrIp: 0.0.0.0/0
-  #     Tags:
-  #       - Key: Name
-  #         Value: ${self:service}-${self:provider.stage}-redis-sg
-
-  # RedisSubnetGroup:
-  #   Type: AWS::ElastiCache::SubnetGroup
-  #   Properties:
-  #     Description: 'Subnet group for Redis in ${self:service}-${self:provider.stage}'
-  #     SubnetIds:
-  #       - !Ref PrivateSubnet1
-  #       - !Ref PrivateSubnet2
-
   # Task Definition
   ECSTaskDefinitionHttpServer:
     Type: AWS::ECS::TaskDefinition
@@ -75,17 +33,6 @@ Resources:
         Fn::GetAtt: [ECSTaskRole, Arn]
       ContainerDefinitions:
         - Name: http-server
-          # To login locally do this from your host machine:
-          # Replace --profile as needed
-          # aws ecr get-login-password --profile vwanu --region us-west-2 | docker login --username AWS --password-stdin 745128203536.dkr.ecr.us-west-2.amazonaws.com
-
-          # Currently we build and push from the host machine
-          # STAGE=dev-1
-          # VERSION=v0.1
-          # docker build -f Dockerfile.build -t Vwanu/wurtec-s3c-avt-backend-$STAGE:$VERSION .
-          # docker tag Vwanu/wurtec-s3c-avt-backend-$STAGE:$VERSION 745128203536.dkr.ecr.us-west-2.amazonaws.com/Vwanu/wurtec-s3c-avt-backend-$STAGE:$VERSION
-          # docker push 745128203536.dkr.ecr.us-west-2.amazonaws.com/Vwanu/wurtec-s3c-avt-backend-$STAGE:$VERSION
-          # npm run sls deploy --stage $STAGE --param="imageTag=$VERSION"
           Image:
             Fn::Join:
               - ''
@@ -93,7 +40,7 @@ Resources:
                 - ':'
                 - ${self:custom.ecr.imageTag}
           PortMappings:
-            - ContainerPort: 4000
+            - ContainerPort: 3000
               Protocol: tcp
           Essential: true
           # TODO: Add the environment variables
@@ -104,52 +51,6 @@ Resources:
               awslogs-group: /ecs/${self:service}-${self:provider.stage}
               awslogs-region: ${self:provider.region}
               awslogs-stream-prefix: ecs
-
-  # Task Definition
-  # ECSTaskDefinitionWebSocketServer:
-  #   Type: AWS::ECS::TaskDefinition
-  #   Properties:
-  #     Family: ${self:service}-${self:provider.stage}-ws-server-task
-  #     Cpu:
-  #       Fn::If:
-  #         - IsProdCondition
-  #         - '1024'
-  #         - '512'
-  #     Memory:
-  #       Fn::If:
-  #         - IsProdCondition
-  #         - '2048'
-  #         - '1024'
-  #     RuntimePlatform:
-  #       CpuArchitecture: ARM64
-  #       OperatingSystemFamily: LINUX
-  #     NetworkMode: awsvpc
-  #     RequiresCompatibilities:
-  #       - FARGATE
-  #     ExecutionRoleArn:
-  #       Fn::GetAtt: [ECSTaskExecutionRole, Arn]
-  #     TaskRoleArn:
-  #       Fn::GetAtt: [ECSTaskRole, Arn]
-  #     ContainerDefinitions:
-  #       - Name: ws-server
-  #         Image:
-  #           Fn::Join:
-  #             - ''
-  #             - - ${self:custom.ecr.repositoryUri}
-  #               - ':'
-  #               - ${self:custom.ecr.imageTag}
-  #         PortMappings:
-  #           - ContainerPort: 4000
-  #             Protocol: tcp
-  #         Essential: true
-  #         # TODO: Add the environment variables
-  #         Environment: ${file(resources/ecs/environment.yml)}
-  #         LogConfiguration:
-  #           LogDriver: awslogs
-  #           Options:
-  #             awslogs-group: /ecs/${self:service}-${self:provider.stage}
-  #             awslogs-region: ${self:provider.region}
-  #             awslogs-stream-prefix: ecs
 
   # ECS Service
   HttpServerECSService:
@@ -175,44 +76,13 @@ Resources:
         - TargetGroupArn:
             Ref: HttpTargetGroup
           ContainerName: http-server
-          ContainerPort: 4000
-      DeploymentConfiguration:
-        DeploymentCircuitBreaker:
-          Enable: true
-          Rollback: true
-        MaximumPercent: 200
-        MinimumHealthyPercent: 50
-
-  # WebSocketServerECSService:
-  #   Type: AWS::ECS::Service
-  #   DependsOn: ApplicationLoadBalancerListener
-  #   Properties:
-  #     ServiceName: ${self:service}-${self:provider.stage}-ws-server-service
-  #     Cluster:
-  #       Ref: ECSCluster
-  #     LaunchType: FARGATE
-  #     DesiredCount: 2 # TODO: After testing adjust the desired number of tasks, we probably want to start with 2 in staging and production
-  #     TaskDefinition:
-  #       Ref: ECSTaskDefinitionWebSocketServer
-  #     NetworkConfiguration:
-  #       AwsvpcConfiguration:
-  #         AssignPublicIp: DISABLED
-  #         Subnets:
-  #           - Ref: PrivateSubnet1
-  #           - Ref: PrivateSubnet2
-  #         SecurityGroups:
-  #           - Ref: ECSTaskSecurityGroup
-  #     LoadBalancers:
-  #       - TargetGroupArn:
-  #           Ref: WebSocketTargetGroup
-  #         ContainerName: ws-server
-  #         ContainerPort: 4000
-  #     DeploymentConfiguration:
-  #       DeploymentCircuitBreaker:
-  #         Enable: true
-  #         Rollback: true
-  #       MaximumPercent: 200
-  #       MinimumHealthyPercent: 50
+          ContainerPort: 3000
+      # DeploymentConfiguration:
+      #   DeploymentCircuitBreaker:
+      #     Enable: true
+      #     Rollback: true
+      #   MaximumPercent: 200
+      #   MinimumHealthyPercent: 50
 
   # Application Load Balancer
   ApplicationLoadBalancer:
@@ -239,6 +109,10 @@ Resources:
           FromPort: 443
           ToPort: 443
           CidrIp: 0.0.0.0/0 # Allow inbound HTTPS traffic from anywhere
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0 # Allow inbound HTTP traffic from anywhere
       SecurityGroupEgress:
         - IpProtocol: -1
           FromPort: -1
@@ -257,8 +131,8 @@ Resources:
         Ref: VwanuVPC
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: 4000
-          ToPort: 4000
+          FromPort: 3000
+          ToPort: 3000
           SourceSecurityGroupId:
             Ref: ALBSecurityGroup
       SecurityGroupEgress:
@@ -274,7 +148,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       Name: ${self:custom.shortServiceName}-${self:provider.stage}-http
-      Port: 4000
+      Port: 3000
       Protocol: HTTP
       VpcId:
         Ref: VwanuVPC
@@ -287,24 +161,6 @@ Resources:
       Tags:
         - Key: Name
           Value: ${self:service}-${self:provider.stage}-http-tg
-
-  # WebSocketTargetGroup:
-  #   Type: AWS::ElasticLoadBalancingV2::TargetGroup
-  #   Properties:
-  #     Name: ${self:custom.shortServiceName}-${self:provider.stage}-ws
-  #     Port: 4000
-  #     Protocol: HTTP
-  #     VpcId:
-  #       Ref: VwanuVPC
-  #     TargetType: ip
-  #     HealthCheckIntervalSeconds: 30
-  #     HealthCheckProtocol: HTTP
-  #     HealthCheckPath: /health
-  #     Matcher:
-  #       HttpCode: '200'
-  #     Tags:
-  #       - Key: Name
-  #         Value: ${self:service}-${self:provider.stage}-ws-tg
 
   # ALB Listener
   ApplicationLoadBalancerListener:
@@ -323,20 +179,18 @@ Resources:
           TargetGroupArn:
             Ref: HttpTargetGroup
 
-  # WebSocketListenerRule:
-  #   Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
-  #   Properties:
-  #     Conditions:
-  #       - Field: path-pattern
-  #         Values:
-  #           - '/subscriptions*'
-  #     Actions:
-  #       - Type: forward
-  #         TargetGroupArn:
-  #           Ref: WebSocketTargetGroup
-  #     ListenerArn:
-  #       Ref: ApplicationLoadBalancerListener
-  #     Priority: 1
+  # HTTP Listener (Port 80)
+  ApplicationLoadBalancerHttpListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn:
+        Ref: ApplicationLoadBalancer
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn:
+            Ref: HttpTargetGroup
 
   # IAM Roles
   ECSTaskExecutionRole:
@@ -536,14 +390,6 @@ Resources:
       Principal: lambda.alarms.cloudwatch.amazonaws.com
       SourceArn: !GetAtt HighCpuTaskRestartAlarm.Arn
 
-  # Add permission for the WebSocket CPU Alarm too
-  # TaskRestartLambdaPermissionWebSocketCpu:
-  #   Type: AWS::Lambda::Permission
-  #   Properties:
-  #     FunctionName: !Ref TaskRestartLambda
-  #     Action: lambda:InvokeFunction
-  #     Principal: lambda.alarms.cloudwatch.amazonaws.com
-  #     SourceArn: !GetAtt WebSocketHighCpuTaskRestartAlarm.Arn
 
   # CloudWatch Alarm for HTTP 5XX Errors
   High5xxErrorAlarm:
@@ -597,27 +443,6 @@ Resources:
       AlarmActions:
         - !GetAtt TaskRestartLambda.Arn
 
-  # CloudWatch Alarm to Trigger on High CPU for WebSocket Server
-  # WebSocketHighCpuTaskRestartAlarm:
-  #   Type: AWS::CloudWatch::Alarm
-  #   Properties:
-  #     AlarmName: !Sub '${AWS::StackName}-WS-HighCPU-RestartTasks'
-  #     AlarmDescription: 'Trigger Lambda to restart WebSocket tasks when CPU > 75%'
-  #     Namespace: AWS/ECS
-  #     MetricName: CPUUtilization
-  #     Dimensions:
-  #       - Name: ClusterName
-  #         Value: !Ref ECSCluster
-  #       - Name: ServiceName
-  #         Value: !GetAtt WebSocketServerECSService.Name
-  #     Statistic: Average
-  #     Period: 60
-  #     EvaluationPeriods: 1
-  #     Threshold: 75
-  #     ComparisonOperator: GreaterThanThreshold
-  #     AlarmActions:
-  #       - !GetAtt TaskRestartLambda.Arn
-
   # Auto Scaling
   ECSAutoScalingRole:
     Type: AWS::IAM::Role
@@ -661,27 +486,3 @@ Resources:
         ScaleOutCooldown: 300
         DisableScaleIn: false
 
-  # WebSocket Server Auto Scaling
-  # WebSocketServerScalableTarget:
-  #   Type: AWS::ApplicationAutoScaling::ScalableTarget
-  #   Properties:
-  #     MaxCapacity: 4
-  #     MinCapacity: 2
-  #     ResourceId: !Sub 'service/${self:service}-${self:provider.stage}-cluster/${self:service}-${self:provider.stage}-ws-server-service'
-  #     ScalableDimension: ecs:service:DesiredCount
-  #     ServiceNamespace: ecs
-  #     RoleARN: !GetAtt ECSAutoScalingRole.Arn
-
-  # WebSocketServerScalingPolicy:
-  #   Type: AWS::ApplicationAutoScaling::ScalingPolicy
-  #   Properties:
-  #     PolicyName: ws-auto-scaling-policy-${self:provider.stage}
-  #     PolicyType: TargetTrackingScaling
-  #     ScalingTargetId: !Ref WebSocketServerScalableTarget
-  #     TargetTrackingScalingPolicyConfiguration:
-  #       TargetValue: 70.0 # 70% CPU utilization
-  #       PredefinedMetricSpecification:
-  #         PredefinedMetricType: ECSServiceAverageCPUUtilization
-  #       ScaleInCooldown: 300
-  #       ScaleOutCooldown: 60
-  #       DisableScaleIn: false

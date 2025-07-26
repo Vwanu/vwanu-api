@@ -27,10 +27,6 @@ jobs:
       AWS_REGION: ${{ vars.AWS_REGION }}
       AWS_DEFAULT_REGION: ${{ vars.AWS_REGION }}
     steps:
-      # - name: Slack Notification
-      #   uses: rtCamp/action-slack-notify@v2
-      #   env:
-      #     SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 
       - name: Git Get Short SHA
         id: git_short_sha
@@ -110,10 +106,6 @@ jobs:
 
       - name: Deploy to ECS using Serverless Framework
         env:
-          SENTRY_PROJECT: vwanu-api-backend
-          SENTRY_ORG: webvitals
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_RELEASE: ${{ steps.git_short_sha.outputs.SHORT_SHA }}
           IMAGE_TAG: ${{ steps.git_short_sha.outputs.SHORT_SHA }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

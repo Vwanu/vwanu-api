@@ -73,7 +73,7 @@ plugins:
 custom:
   shortServiceName: vwanu
   ecr:
-    repositoryUri: '058264272613.dkr.ecr.us-east-1.amazonaws.com/vwanu-api'
+    repositoryUri: '058264272613.dkr.ecr.us-east-1.amazonaws.com/webvital/vwanu'
     imageTag: ${param:imageTag}
   isOffline: ${env:IS_OFFLINE, "false"}
   offlineConfig:
