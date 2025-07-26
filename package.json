@@ -13,7 +13,7 @@
     "seed": "sequelize db:seed:all",
     "test:local": "jest --watch --no-cache --detectOpenHandles",
     "test": "jest --coverage --passWithNoTests --detectOpenHandles --verbose",
-    "build": "npm run clean && tsc -p tsconfig.production.json",
+    "build": "npm run clean && tsc",
     "clean": "rm -rf dist/",
     "start": "node -r tsconfig-paths/register dist/bin/index.js",
     "dev": "npm run clean && tsc && concurrently --kill-others-on-fail --prefix-colors \"blue,green\" --prefix \"[{name}]\" --names \"tsc,nodemon\" \"tsc --watch\" \"nodemon\"",
