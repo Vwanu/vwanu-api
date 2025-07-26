@@ -1,4 +1,4 @@
-import { QueryTypes } from '@sequelize/core';
+import { QueryTypes } from 'sequelize';
 import { HookContext } from '@feathersjs/feathers';
 
 export default async (context: HookContext) => {

@@ -67,7 +67,6 @@ provider:
    # REDIS_ENDPOINT: ${ssm:/${sls:stage}/redisEndpoint}
 
 plugins:
-  - serverless-webpack
   - serverless-prune-plugin
   - serverless-lift
 
@@ -111,13 +110,6 @@ custom:
   prune:
     automatic: true
     number: 3
-  webpack:
-    includeModules:
-      forceInclude:
-        - pg
-      forceExclude:
-        - glob
-    excludeFiles: '**/*.spec.ts'
 
 resources:
   # Network

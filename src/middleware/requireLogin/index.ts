@@ -1,8 +1,8 @@
 import { Response, Request, NextFunction } from 'express';
 import { Forbidden, GeneralError } from '@feathersjs/errors';
 
-import AppError from '@root/errors';
-import helper from '@root/lib/utils/common';
+import AppError from '../../errors';
+import helper from '../../lib/utils/common';
 import { AuthManager } from '../../lib/authManagement.class';
 
 export default helper.catchAsync(
@@ -30,7 +30,7 @@ export default helper.catchAsync(
         authToken,
         idToken as string,
       );
-      req.user = userDetails;
+      (<any>req).user = userDetails;
       // console.log('req.user', req.user);
       (req as any).feathers = {
         cognitoUser: userDetails,

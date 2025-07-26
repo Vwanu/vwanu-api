@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import { HookContext } from '@feathersjs/feathers';
-import { Op } from '@sequelize/core';
+import { Op } from 'sequelize';
 import isNill from 'lodash/isNil';
 
 export default async (context: HookContext) => {

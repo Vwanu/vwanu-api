@@ -4,6 +4,7 @@ import { Application } from '../../declarations';
 import { Korem } from './korem.class';
 
 import hooks from './korem.hooks';
+import { Korem as KoremModel } from '../../database/korem';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -15,7 +16,7 @@ declare module '../../declarations' {
 
 export default function (app: Application): void {
   const options = {
-    Model: app.get('sequelizeClient').models.Korem,
+    Model: KoremModel,
     paginate: app.get('paginate'),
   };
 

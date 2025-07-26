@@ -9,14 +9,11 @@ const Common = {
     return token;
   },
 
-  catchAsync: (fn: Function) =>
+  catchAsync: (fn: (req: Request, res: Response, next: NextFunction) => Promise<void>) =>
     function (req: Request, res: Response, next: NextFunction) {
-      fn(req, res, next).catch((err: any) =>
-        next({
-          message: err.message || 'Unidentified error occurred',
-          status: err.status || 500,
-        }),
-      );
+      fn(req, res, next).catch((err: any) => {
+        next(err);
+      });
     },
 
   sendResponse: (

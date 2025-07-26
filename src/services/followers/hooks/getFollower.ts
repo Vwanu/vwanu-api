@@ -1,6 +1,6 @@
 import { HookContext } from '@feathersjs/feathers';
 import { BadRequest } from '@feathersjs/errors';
-import { Op } from '@sequelize/core';
+import { Op } from 'sequelize';
 
 import userQuery from '../../../lib/utils/userQuery';
 

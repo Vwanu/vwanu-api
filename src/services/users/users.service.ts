@@ -5,6 +5,7 @@ import hooks from './users.hooks';
 import { Application } from '../../declarations';
 import { profilesStorage } from '../../cloudinary';
 import fileToFeathers from '../../middleware/PassFilesToFeathers/file-to-feathers.middleware';
+import { User } from '../../database/user';
 
 declare module '../../declarations' {
   // eslint-disable-next-line no-unused-vars
@@ -14,10 +15,8 @@ declare module '../../declarations' {
 }
 
 export default function (app: Application): void {
-  const sequelize = app.get('sequelizeClient');
-  const UserModel = sequelize.models.User;
   const options = {
-    Model: UserModel,
+    Model: User,
     paginate: {
       default: 10,
       max: 50,

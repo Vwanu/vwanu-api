@@ -1,9 +1,11 @@
 {
   "watch": ["dist"],
   "ext": "js,json",
-  "exec": "node -r dotenv/config dist/main.js",
+  "exec": "node -r dotenv/config -r tsconfig-paths/register dist/bin/index.js",
   "delay": "500",
-  "ignore": ["*.test.js", "node_modules/*"],
+  "restartable": "rs",
+  "runOnChangeOnly": false,
+  "ignore": ["*.test.js", "*.spec.js", "node_modules/*", "src/*"],
   "env": {
     "NODE_ENV": "development"
   }

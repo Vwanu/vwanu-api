@@ -1,4 +1,5 @@
-import { Op } from '@sequelize/core';
+// import { Op } from '@sequelize/core';
+import { Op } from 'sequelize';
 import { userAttributes } from './commentPostInclude';
 
 export const getRequesterAndRequest = async (

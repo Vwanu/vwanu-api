@@ -12,6 +12,7 @@ import {
   MEDIA_CONFIG_SCHEMA,
   MEDIA_CONFIG_TYPE,
 } from '../../schema/mediaConf.schema';
+import { Post } from '../../database/post';
 // Add this service to the service type index
 declare module '../../declarations' {
   // eslint-disable-next-line no-unused-vars
@@ -21,9 +22,8 @@ declare module '../../declarations' {
 }
 
 export default function (app: Application): void {
-  const sequelize = app.get('sequelizeClient');
   const options = {
-    Model: sequelize.models.Post,
+    Model: Post,
     paginate: app.get('paginate'),
   };
 

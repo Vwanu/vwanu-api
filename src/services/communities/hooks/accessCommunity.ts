@@ -1,4 +1,3 @@
-import { QueryTypes } from '@sequelize/core';
 import { BadRequest } from '@feathersjs/errors';
 import { HookContext, Id } from '@feathersjs/feathers';
 
@@ -118,7 +117,7 @@ ${hasAccess(
            LIMIT 1`;
   const community = await Sequelize.query(query, {
     name: 'Query',
-    type: QueryTypes.SELECT,
+    type: 'SELECT',
   });
   if (!community[0])
     throw new BadRequest(

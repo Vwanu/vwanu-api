@@ -1,0 +1,11 @@
+{
+  "dbSettings": {
+    "dialect": "postgres",
+    "pool": { "idle": 20000, "acquire": 600000 },
+    "database": "social-media-api",
+    "username": "vwanu",
+    "password": "1234567890",
+    "host": "localhost",
+    "port": 5432
+  }
+}

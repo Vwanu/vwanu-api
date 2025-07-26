@@ -1,5 +1,5 @@
 import { HookContext } from '@feathersjs/feathers';
-import { Op } from '@sequelize/core';
+import { Op } from 'sequelize';
 import userQuery from '../../../lib/utils/userQuery';
 
 export default (context: HookContext): HookContext => {

@@ -14,6 +14,7 @@ import { profilesStorage } from '../../cloudinary';
 import fileToFeathers from '../../middleware/PassFilesToFeathers/file-to-feathers.middleware';
 
 import updateTheTSVector from '../search/tsquery-and-search.hook';
+import { Community } from '../../database/communities';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -25,10 +26,9 @@ declare module '../../declarations' {
 }
 
 export default function (app: Application): void {
-  const sequelize = app.get('sequelizeClient');
-  const CommunityModel = sequelize.models.Community;
+
   const options = {
-    Model: CommunityModel,
+    Model: Community,
     paginate: app.get('paginate'),
   };
 
@@ -57,19 +57,19 @@ export default function (app: Application): void {
       create: [
         ...hooks.after.create,
         updateTheTSVector({
-          model: CommunityModel,
+          model: Community,
           searchColumn: 'search_vector',
         }),
       ],
       update: [
         updateTheTSVector({
-          model: CommunityModel,
+          model: Community,
           searchColumn: 'search_vector',
         }),
       ],
       patch: [
         updateTheTSVector({
-          model: CommunityModel,
+          model: Community,
           searchColumn: 'search_vector',
         }),
       ],

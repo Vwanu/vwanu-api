@@ -29,5 +29,5 @@ ENV NODE_ENV=development
 # Expose port
 EXPOSE 3000
 
-# Start the application with TypeScript compilation
+# Start the application with nodemon (which now uses ts-node)
 CMD ["npm", "run", "dev"]

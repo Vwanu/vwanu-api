@@ -1,4 +1,4 @@
-import { Op } from '@sequelize/core';
+import { Op } from 'sequelize';
 // @ts-ignore
 import  {Sequelize}  from 'sequelize';
 import queryConverter from 'pg-tsquery';

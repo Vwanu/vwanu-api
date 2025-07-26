@@ -1,5 +1,5 @@
 // import IncludeAssociations from '../../../Hooks/IncludeAssociations';
-import { Op } from '@sequelize/core';
+import { Op } from 'sequelize';
 import isEmpty from 'lodash/isEmpty';
 
 const UserAttributes = [
