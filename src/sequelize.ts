@@ -1,48 +1,29 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import config from 'config';
-import { Sequelize } from 'sequelize-typescript';
+import { Sequelize, SequelizeOptions } from 'sequelize-typescript';
 
-import Models from './database'; 
+import Models from './database';
 import { Application } from './declarations';
+import {DBConfigurationType} from './schema/serverConf.schema';
 
-const dbSettings = config.get('dbSettings');   
+const dbSettings = config.get<DBConfigurationType>('dbSettings');
+
+interface  Options  extends SequelizeOptions{
+  logging: boolean;
+};
 
 export default function (app: Application): void {
+
+  const options: Options = {
+    ...dbSettings,
+    logging: false,
+  };
+
   const sequelize = dbSettings.url
-    ? new Sequelize(dbSettings.url)
-    : new Sequelize({
-        logging: false,
-        ...dbSettings,
-        seederStorge: 'sequelize',
-      });
+    ? new Sequelize(dbSettings.url, options)
+    : new Sequelize(options);
 
-      sequelize.addModels(Models);
+  sequelize.addModels(Models);
 
-
-  // sequelize.query = async function (...args) {
-  //   return await Sequelize.prototype.query.apply(this, args);
-  // };
-
-  // const oldSetup = app.setup;
-  app.set('sequelizeClient', sequelize);
-
-  // // eslint-disable-next-line no-param-reassign
-  // app.setup = function (...args): Application {
-  //   const result = oldSetup.apply(this, args);
-
-  // app.set('sequelizeSync', Promise.resolve());
-
-  //   return result;
-  // };
-  // function startSequelize() {
-  //   const { models } = sequelize;
-  //   Object.keys(models).forEach((name) => {
-  //     if ('associate' in models[name]) {
-  //       (models[name] as ModelWithAssociate).associate?.(models);
-  //     }
-  //   });
-  // }
-  // app.set('startSequelize', startSequelize);
-
-
+  app.set('sequelizeClient', sequelize as Sequelize);
 }

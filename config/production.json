@@ -1,0 +1,81 @@
+{
+  "port": "API_PORT",
+  "host": "HOST",
+  "dbSettings": {
+    "dialect": "postgres",
+    "seederStorage": "sequelize"
+  },
+  "maxPostImages": 10,
+  "maxDiscussionImages": 10,
+  "maxMessageImages": 4,
+  "maxPostVideos": 1,
+  "maxPostAudios": 1,
+  "maxDiscussionVideos": 1,
+  "maxDiscussionAudios": 1,
+  "BASE_URL": "http//localhost:",
+  "mediumSize": "w_70,h_53,c_scale",
+  "smallSize": "w_70,h_53,c_scale",
+  "tinySize": "w_70,h_53,c_scale",
+
+  "MAX_NUMBER_OF_ADMIN": 3,
+
+  "cloudinary": {
+    "CLOUDINARY_API_SECRET": "add your own",
+    "CLOUDINARY_API_KEY": "your key ",
+    "CLOUDINARY_CLOUD_NAME": "your name"
+  },
+
+  "authentication": {
+    "entity": "User",
+    "service": "users",
+    "secret": "AUTHENTICATION_SECRET",
+    "authStrategies": ["jwt", "local", "facebook", "google"],
+    "jwtOptions": {
+      "header": {
+        "typ": "access"
+      },
+      "audience": "https://yourdomain.com",
+      "issuer": "feathers",
+      "algorithm": "HS256",
+      "expiresIn": "1d"
+    },
+    "local": {
+      "usernameField": "email",
+      "passwordField": "password"
+    },
+    "oauth": {
+      "redirect": "http://localhost:4000/oauth/",
+      "facebook": {
+        "key": "OAUTH_FACEBOOK_KEY",
+        "secret": "OAUTH_FACEBOOK_SECRET",
+        "scope": ["email, public_profile"]
+      },
+      "google": {
+        "key": "OAUTH_GOOGLE_KEY",
+        "secret": "OAUTH_GOOGLE_SECRET",
+        "scope": ["email", "profile", "openid"],
+        "callback": "OAUTH_GOOGLE_CALLBACK_URL",
+        "nonce": true
+      }
+    }
+  },
+  "refresh-token": {
+    "entity": "refreshToken",
+    "service": "refresh-tokens",
+    "secret": "AUTHENTICATION_SECRET",
+    "jwtOptions": {
+      "header": {
+        "typ": "refresh"
+      },
+      "audience": "http://localhost:3000",
+      "issuer": "example",
+      "algorithm": "HS256",
+      "expiresIn": "360d"
+    }
+  },
+  "paginate": {
+    "default": 10,
+    "max": 25
+  },
+  "ROOT_USER_PASSWORD_SECURE": "ROOT_USER_PASSWORD_SECURE"
+}

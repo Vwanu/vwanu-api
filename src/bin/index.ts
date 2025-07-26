@@ -37,9 +37,11 @@ async function startServer() {
         await sequelizeClient.authenticate();
         logger.info('Database connection established successfully');
         
-        // Initialize database models
-        // app.get('startSequelize')();
-        logger.info('Database models initialized');
+        // Sync database models (only in development)
+        if (process.env.NODE_ENV === 'development') {
+          await sequelizeClient.sync({ alter: false });
+          logger.info('Database models synchronized');
+        }
       } catch (dbError) {
         exitProcess('Database connection failed:', dbError as Error);
       }

@@ -1,0 +1,76 @@
+{
+  "dbSettings": {
+    "username": "DB_USER",
+    "password": "DB_PASSWORD",
+    "database": "DB_DATABASE",
+    "host": "DB_HOST",
+    "seederStorage": "sequelize"
+  },
+  "EmailerConfiguration": {
+    "from": "SEND_EMAIL_FROM",
+    "api_key": "sendGridApiKey"
+  },
+  "Texterconfiguration":{
+    "authToken":"TWILLIO_AUTH_TOKEN",
+    "fromNumber":"TWILLIO_NUMBER",
+    "accountSid":"TWILLIO_ACCOUNT_SID"
+  },
+  "SMTP_CONFIGURATION": {
+    "host": "SMTP_HOST",
+    "port": "SMTP_PORT",
+    "email_from": "SEND_EMAIL_FROM",
+    "auth": {
+      "user": "SMTP_USERNAME",
+      "pass": "SMTP_PASSWORD"
+    }
+  },
+  "API_CONFIGURATION": {
+    "host": "API_HOST",
+    "port": "API_PORT"
+  },
+  "MEDIA_CONFIGURATION": {
+    "maxPostVideos": "maxPostVideos",
+    "maxPostAudios": "maxPostAudios",
+    "maxPostImages": "maxPostImages",
+    "maxMessageImages": "maxMessageImages",
+    "maxDiscussionVideos": "maxDiscussionVideos",
+    "maxDiscussionAudios": "maxDiscussionAudios",
+    "maxDiscussionImages": "maxDiscussionImages"
+  },
+  "CLOUDINARY_CONFIGURATION": {
+    "api_secret": "CLOUDINARY_API_SECRET",
+    "api_key": "CLOUDINARY_API_KEY",
+    "cloud_name": "CLOUDINARY_CLOUD_NAME"
+  },
+
+  "CLOUDINARY_API_SECRET": "CLOUDINARY_API_SECRET",
+  "CLOUDINARY_API_KEY": "CLOUDINARY_API_KEY",
+  "CLOUDINARY_CLOUD_NAME": "CLOUDINARY_CLOUD_NAME",
+  "JWT_SECRET": "JWT_SECRET",
+
+  "oauth": {
+    "redirect": "OAUTH_REDIRECT_URL",
+    "facebook": {
+      "key": "FACEBOOK_KEY",
+      "secret": "FACEBOOK_SECRET"
+    },
+    "google": {
+      "key": "GOOGLE_KEY",
+      "secret": "GOOGLE_SECRET",
+      "callback": "/oauth/google/authenticate"
+    }
+  },
+  "ROOT_USER_PASSWORD_SECURE": "ROOT_USER_PASSWORD_SECURE",
+  "ROOT_USER_EMAIL": "ROOT_USER_EMAIL",
+  "ROOT_USER_PASSWORD": "ROOT_USER_PASSWORD",
+  "ROOT_USER_LAST_NAME": "ROOT_USER_LAST_NAME",
+  "ROOT_USER_FIRST_NAME": "ROOT_USER_FIRST_NAME",
+  "HASHING_SALT_ROUNDS": "HASHING_SALT_ROUNDS",
+
+  "SMTP_PORT": "SMTP_PORT",
+  "SMTP_HOST": "SMTP_HOST",
+  "SMTP_USERNAME": "SMTP_USERNAME",
+  "SMTP_PASSWORD": "SMTP_PASSWORD",
+  "TEST_MAIL_API_KEY": "TEST_MAIL_API_KEY",
+  "TEST_MAIL_NAMESPACE": "TEST_MAIL_NAMESPACE"
+}
