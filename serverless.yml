@@ -1,5 +1,5 @@
 service: vwanu-api-backend
-frameworkVersion: '3'
+frameworkVersion: '4'
 provider:
   name: aws
   stage: ${opt:stage, 'dev'}
