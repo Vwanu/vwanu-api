@@ -43,7 +43,8 @@ async function startServer() {
           logger.info('Database models synchronized');
         }
       } catch (dbError) {
-        exitProcess('Database connection failed:', dbError as Error);
+        console.log('Database connection failed:', dbError);
+        // exitProcess('Database connection failed:', dbError as Error);
       }
     } else {
       logger.warn('No database client found, starting server without database');
@@ -55,8 +56,7 @@ async function startServer() {
     // Start HTTP server only after database is ready
     logger.info(`Starting HTTP server on ${host}:${port}...`);
     
-    // @ts-ignore
-    const server = app.listen(port, host);
+    const server = app.listen(port);
     
     server.on('error', (err) => {
       helper.onError(err, port as number, exitProcess);
@@ -67,7 +67,7 @@ async function startServer() {
       logger.info('Server startup completed successfully');
     });
 
-  } catch (error) {
+  } catch (error) { 
     logger.error('Failed to start server:', error as Error);
     process.exit(1);
   }

@@ -17,6 +17,7 @@ export default {
     const bind: string | null =
       typeof addr === 'string' ? `pipe  ${addr}` : `port ${addr?.port}`;
     let message = `Listening on ${bind}`;
+    console.log({addr});
     if (host) message += ` from host ${host}`;
     logger.info(message);
   },
