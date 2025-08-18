@@ -16,42 +16,42 @@ jobs:
   # test:
   #   uses: ./.github/workflows/test.yml
   #   secrets: inherit
-build-and-push:
-  runs-on: ubuntu-latest
-  steps:
-    - name: Set environment variable based on input
-      id: set_env
-      run: |
-        case "${{ inputs.environment }}" in
-          "Production")
-            echo "STAGE=prod" >> $GITHUB_ENV
-            ;;
-          "Staging")
-            echo "STAGE=staging" >> $GITHUB_ENV
-            ;;
-          "Development")
-            echo "STAGE=dev" >> $GITHUB_ENV
-            ;;
-        esac
-    - name: Checkout code
-      uses: actions/checkout@v4
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set environment variable based on input
+        id: set_env
+        run: |
+          case "${{ inputs.environment }}" in
+            "Production")
+              echo "STAGE=prod" >> $GITHUB_ENV
+              ;;
+            "Staging")
+              echo "STAGE=staging" >> $GITHUB_ENV
+              ;;
+            "Development")
+              echo "STAGE=dev" >> $GITHUB_ENV
+              ;;
+          esac
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ vars.AWS_REGION }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
 
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v2
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Build, Tag, and Push to ECR
-      run: |
-        IMAGE_TAG="${{ github.sha }}"
-        docker build -t ${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG .
-        docker push ${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
+      - name: Build, Tag, and Push to ECR
+        run: |
+          IMAGE_TAG="${{ github.sha }}"
+          docker build -t ${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG .
+          docker push ${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
 
   aws-deploy:
     needs: build-and-push
