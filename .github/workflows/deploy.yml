@@ -91,6 +91,63 @@ jobs:
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
+      - name: Get Database Credentials from Parameter Store
+        run: |
+          echo "Getting database credentials from SSM Parameter Store..."
+          
+          # Get individual database parameters from Parameter Store
+          DB_HOST=$(aws ssm get-parameter --name "/$STAGE/DB_HOST" --with-decryption --region ${{ vars.AWS_REGION }} --query 'Parameter.Value' --output text)
+          DB_PORT=$(aws ssm get-parameter --name "/$STAGE/DB_PORT" --with-decryption --region ${{ vars.AWS_REGION }} --query 'Parameter.Value' --output text)
+          DB_USER=$(aws ssm get-parameter --name "/$STAGE/DB_USER" --with-decryption --region ${{ vars.AWS_REGION }} --query 'Parameter.Value' --output text)
+          DB_PASSWORD=$(aws ssm get-parameter --name "/$STAGE/DB_PASSWORD" --with-decryption --region ${{ vars.AWS_REGION }} --query 'Parameter.Value' --output text)
+          # Database name is always "social_media" for all environments
+          DB_DATABASE="social_media"
+          
+          # Mask sensitive values in logs
+          echo "::add-mask::$DB_USER"
+          echo "::add-mask::$DB_PASSWORD"
+          
+          # Set environment variables for Sequelize (matching config.js expectations)
+          echo "DB_HOST=$DB_HOST" >> $GITHUB_ENV
+          echo "DB_PORT=$DB_PORT" >> $GITHUB_ENV
+          echo "DB_USER=$DB_USER" >> $GITHUB_ENV
+          echo "DB_PASSWORD=$DB_PASSWORD" >> $GITHUB_ENV
+          echo "DB_DATABASE=$DB_DATABASE" >> $GITHUB_ENV
+          
+          echo "Database configuration loaded from Parameter Store"
+
+      - name: Setup Node.js for migration
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Node.js dependencies for migration
+        run: |
+          echo "Installing dependencies for database migration..."
+          npm ci
+          
+      - name: Run Database Migration
+        env:
+          NODE_ENV: ${{ env.STAGE == 'prod' && 'production' || env.STAGE == 'staging' && 'staging' || 'development' }}
+        run: |
+          echo "Running database migrations for $STAGE environment..."
+          echo "Database: $DB_DATABASE"
+          echo "Host: $DB_HOST"
+          echo "Port: $DB_PORT"
+          echo "User: $DB_USER"
+          echo "Node Environment: $NODE_ENV"
+          
+          # Verify database connection first
+          echo "Testing database connection..."
+          npx sequelize-cli db:validate || echo "Warning: Database validation failed, proceeding with migration..."
+          
+          # Run migrations
+          echo "Executing database migrations..."
+          npm run migrate
+          
+          echo "Database migrations completed successfully!"
+
       - name: Deploy to ECS
         run: |
             # Set task definition, cluster, and service variables based on STAGE from $GITHUB_ENV
@@ -110,9 +167,12 @@ jobs:
 
             TASK_DEF=$(aws ecs describe-task-definition --task-definition "$TASK_DEF_NAME" --region ${{ vars.AWS_REGION }})
             
+            # Create short SHA for image tag
+            SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-8)
+            
             # Create new task definition with updated image
             echo "Creating new task definition with updated image..."
-            NEW_TASK_DEF=$(echo "$TASK_DEF" | jq --arg IMAGE "${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)')
+            NEW_TASK_DEF=$(echo "$TASK_DEF" | jq --arg IMAGE "${{ secrets.ECR_REPOSITORY }}:$SHORT_SHA" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)')
             
             # Register new task definition
             echo "Registering new task definition..."
@@ -130,27 +190,3 @@ jobs:
             aws ecs wait services-stable --cluster "$CLUSTER_NAME" --services "$SERVICE_NAME" --region ${{ vars.AWS_REGION }}
             
             echo "Deployment completed successfully!"
-
-      
-      # - name: Get RDS Endpoints
-      #   run: |
-      #     echo 'RDS_INSTANCE_ENDPOINTS<<EOF' >> $GITHUB_ENV
-      #     echo $(aws rds describe-db-instances --db-instance-identifier vwanu-api-backend-$STAGE --query "DBInstances[*].Endpoint.Address" --output text) >> $GITHUB_ENV
-      #     echo 'EOF' >> $GITHUB_ENV
-
-      # - name: Set RDS Vars
-      #   run: |
-      #     echo "::add-mask::${{fromJson(env.DATABASE_CREDENTIALS).username}}"
-      #     echo "::add-mask::${{fromJson(env.DATABASE_CREDENTIALS).password}}"
-      #     echo "DB_HOST=${{ env.RDS_INSTANCE_ENDPOINTS }}" >> $GITHUB_ENV
-      #     echo "DB_USERNAME=${{fromJson(env.DATABASE_CREDENTIALS).username}}" >> $GITHUB_ENV
-      #     echo "DB_PASSWORD=${{fromJson(env.DATABASE_CREDENTIALS).password}}" >> $GITHUB_ENV
-
-      # - name: Migrate DB
-      #   env:
-      #     # The following are not used but need to be provided to instantiate the callService
-      #     API_URL: 'https://localhost'
-      #     SQS_CALL_QUEUE_URL: 'https://localhost'
-      #     TWIML_APPLICATION_SID: 'DUMMY_SID'
-      #   run: |
-      #     npm run typeorm:migration:run
