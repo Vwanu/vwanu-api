@@ -33,6 +33,7 @@ jobs:
               echo "STAGE=dev" >> $GITHUB_ENV
               ;;
           esac
+      
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -50,8 +51,9 @@ jobs:
       - name: Build, Tag, and Push to ECR
         run: |
           IMAGE_TAG="${{ github.sha }}"
-          docker build -t ${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG .
-          docker push ${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
+          SHORT_SHA=$(echo $IMAGE_TAG | cut -c1-8)
+          docker build -t ${{ secrets.ECR_REPOSITORY }}:$SHORT_SHA .
+          docker push ${{ secrets.ECR_REPOSITORY }}:$SHORT_SHA
 
   aws-deploy:
     needs: build-and-push
@@ -110,9 +112,12 @@ jobs:
 
             TASK_DEF=$(aws ecs describe-task-definition --task-definition "$TASK_DEF_NAME" --region ${{ vars.AWS_REGION }})
             
+            # Create short SHA for image tag
+            SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-8)
+            
             # Create new task definition with updated image
             echo "Creating new task definition with updated image..."
-            NEW_TASK_DEF=$(echo "$TASK_DEF" | jq --arg IMAGE "${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)')
+            NEW_TASK_DEF=$(echo "$TASK_DEF" | jq --arg IMAGE "${{ secrets.ECR_REPOSITORY }}:$SHORT_SHA" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)')
             
             # Register new task definition
             echo "Registering new task definition..."
