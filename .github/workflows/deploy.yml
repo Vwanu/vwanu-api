@@ -16,22 +16,9 @@ jobs:
   # test:
   #   uses: ./.github/workflows/test.yml
   #   secrets: inherit
-
-  aws-deploy:
-    #needs: test
-    runs-on: ubuntu-22.04
-    timeout-minutes: ${{ fromJSON(vars.DEFAULT_JOB_TIMEOUT) }}
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ${{ vars.AWS_REGION }}
-      AWS_DEFAULT_REGION: ${{ vars.AWS_REGION }}
+  build-and-push:
+    runs-on: ubuntu-latest
     steps:
-
-      - name: Git Get Short SHA
-        id: git_short_sha
-        run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_OUTPUT
-
       - name: Set environment variable based on input
         id: set_env
         run: |
@@ -46,96 +33,124 @@ jobs:
               echo "STAGE=dev" >> $GITHUB_ENV
               ;;
           esac
-
-      - name: Checkout source code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set Node.js 20.12.2
-        uses: actions/setup-node@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          node-version: 20.12.2
-          registry-url: 'https://registry.npmjs.org'
-          cache: 'npm'
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Cache npm registry
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Install dependencies
-        id: install-dependencies
-        run: npm ci
-        timeout-minutes: 10
-        continue-on-error: true
-
-      - name: Fallback to npm install if npm ci fails
-        if: steps.install-dependencies.outcome == 'failure'
-        run: npm install --no-audit --no-fund
-        timeout-minutes: 10
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          driver-opts: |
-            network=host
-
-      - name: Login to ECR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ vars.ECR_REGISTRY }}
-          username: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-      - name: Build Docker image
-        uses: docker/build-push-action@v6
-        with:
-          platforms: linux/arm64
-          file: ./Dockerfile.build
-          push: true
-          tags: '${{ vars.ECR_REGISTRY }}:${{ steps.git_short_sha.outputs.SHORT_SHA }}'
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      # Deploy to ECS
-
-      - name: Deploy to ECS using Serverless Framework
-        env:
-          IMAGE_TAG: ${{ steps.git_short_sha.outputs.SHORT_SHA }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Build, Tag, and Push to ECR
         run: |
-          npx serverless deploy --stage ${{ env.STAGE }} --param="imageTag=${{ env.IMAGE_TAG }}" --force
+          IMAGE_TAG="${{ github.sha }}"
+          docker build -t ${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG .
+          docker push ${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
 
-      - uses: 'marvinpinto/action-inject-ssm-secrets@v1.2.1'
+  aws-deploy:
+    needs: build-and-push
+    runs-on: ubuntu-22.04
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_DEFAULT_REGION: ${{ vars.AWS_REGION }}
+    steps:
+      - name: Set environment variable based on input
+        id: set_env
+        run: |
+          case "${{ inputs.environment }}" in
+            "Production")
+              echo "STAGE=prod" >> $GITHUB_ENV
+              echo "Deploying to Production environment"
+              ;;
+            "Staging")
+              echo "STAGE=staging" >> $GITHUB_ENV
+              ;;
+            "Development")
+              echo "STAGE=dev" >> $GITHUB_ENV
+              ;;
+          esac
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          ssm_parameter: '/${{ env.STAGE }}/database/credentials'
-          env_variable_name: 'DATABASE_CREDENTIALS'
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Get RDS Endpoints
-        run: |
-          echo 'RDS_INSTANCE_ENDPOINTS<<EOF' >> $GITHUB_ENV
-          echo $(aws rds describe-db-instances --db-instance-identifier vwanu-api-backend-$STAGE --query "DBInstances[*].Endpoint.Address" --output text) >> $GITHUB_ENV
-          echo 'EOF' >> $GITHUB_ENV
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
 
-      - name: Set RDS Vars
+      - name: Deploy to ECS
         run: |
-          echo "::add-mask::${{fromJson(env.DATABASE_CREDENTIALS).username}}"
-          echo "::add-mask::${{fromJson(env.DATABASE_CREDENTIALS).password}}"
-          echo "DB_HOST=${{ env.RDS_INSTANCE_ENDPOINTS }}" >> $GITHUB_ENV
-          echo "DB_USERNAME=${{fromJson(env.DATABASE_CREDENTIALS).username}}" >> $GITHUB_ENV
-          echo "DB_PASSWORD=${{fromJson(env.DATABASE_CREDENTIALS).password}}" >> $GITHUB_ENV
+            # Set task definition, cluster, and service variables based on STAGE from $GITHUB_ENV
+            if [ "$STAGE" == "staging" ]; then
+              TASK_DEF_NAME="${{ vars.ECS_TASK_DEFINITION_STAGING }}"
+              CLUSTER_NAME="${{ vars.ECS_CLUSTER_STAGING }}"
+              SERVICE_NAME="${{ vars.ECS_SERVICE_STAGING }}"
+            elif [ "$STAGE" == "prod" ]; then
+              TASK_DEF_NAME="${{ vars.ECS_TASK_DEFINITION_PRODUCTION }}"
+              CLUSTER_NAME="${{ vars.ECS_CLUSTER_PRODUCTION }}"
+              SERVICE_NAME="${{ vars.ECS_SERVICE_PRODUCTION }}"
+            elif [ "$STAGE" == "dev" ]; then
+              TASK_DEF_NAME="${{ vars.ECS_TASK_DEFINITION_DEVELOPMENT }}"
+              CLUSTER_NAME="${{ vars.ECS_CLUSTER_DEVELOPMENT }}"
+              SERVICE_NAME="${{ vars.ECS_SERVICE_DEVELOPMENT }}"
+            fi
 
-      - name: Migrate DB
-        env:
-          # The following are not used but need to be provided to instantiate the callService
-          API_URL: 'https://localhost'
-          SQS_CALL_QUEUE_URL: 'https://localhost'
-          TWIML_APPLICATION_SID: 'DUMMY_SID'
-        run: |
-          npm run typeorm:migration:run
+            TASK_DEF=$(aws ecs describe-task-definition --task-definition "$TASK_DEF_NAME" --region ${{ vars.AWS_REGION }})
+            
+            # Create new task definition with updated image
+            echo "Creating new task definition with updated image..."
+            NEW_TASK_DEF=$(echo "$TASK_DEF" | jq --arg IMAGE "${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)')
+            
+            # Register new task definition
+            echo "Registering new task definition..."
+            NEW_TASK_RESP=$(aws ecs register-task-definition --region ${{ vars.AWS_REGION }} --cli-input-json "$NEW_TASK_DEF")
+            NEW_REVISION=$(echo "$NEW_TASK_RESP" | jq -r '.taskDefinition.family + ":" + (.taskDefinition.revision | tostring)')
+            
+            echo "New task definition registered: $NEW_REVISION"
+            
+            # Update service
+            echo "Updating ECS service..."
+            aws ecs update-service --cluster "$CLUSTER_NAME" --service "$SERVICE_NAME" --task-definition "$NEW_REVISION" --region ${{ vars.AWS_REGION }}
+            
+            # Wait for deployment to complete
+            echo "Waiting for service to become stable..."
+            aws ecs wait services-stable --cluster "$CLUSTER_NAME" --services "$SERVICE_NAME" --region ${{ vars.AWS_REGION }}
+            
+            echo "Deployment completed successfully!"
+
+      
+      # - name: Get RDS Endpoints
+      #   run: |
+      #     echo 'RDS_INSTANCE_ENDPOINTS<<EOF' >> $GITHUB_ENV
+      #     echo $(aws rds describe-db-instances --db-instance-identifier vwanu-api-backend-$STAGE --query "DBInstances[*].Endpoint.Address" --output text) >> $GITHUB_ENV
+      #     echo 'EOF' >> $GITHUB_ENV
+
+      # - name: Set RDS Vars
+      #   run: |
+      #     echo "::add-mask::${{fromJson(env.DATABASE_CREDENTIALS).username}}"
+      #     echo "::add-mask::${{fromJson(env.DATABASE_CREDENTIALS).password}}"
+      #     echo "DB_HOST=${{ env.RDS_INSTANCE_ENDPOINTS }}" >> $GITHUB_ENV
+      #     echo "DB_USERNAME=${{fromJson(env.DATABASE_CREDENTIALS).username}}" >> $GITHUB_ENV
+      #     echo "DB_PASSWORD=${{fromJson(env.DATABASE_CREDENTIALS).password}}" >> $GITHUB_ENV
+
+      # - name: Migrate DB
+      #   env:
+      #     # The following are not used but need to be provided to instantiate the callService
+      #     API_URL: 'https://localhost'
+      #     SQS_CALL_QUEUE_URL: 'https://localhost'
+      #     TWIML_APPLICATION_SID: 'DUMMY_SID'
+      #   run: |
+      #     npm run typeorm:migration:run
