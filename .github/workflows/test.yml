@@ -4,7 +4,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-22.04
-    timeout-minutes: ${{ fromJSON(vars.DEFAULT_JOB_TIMEOUT) }}
     services:
       postgres:
         image: postgres:13.4-alpine
@@ -19,16 +18,7 @@ jobs:
         ports:
           - 5432:5432
     env:
-      # The following are not used but need to be provided to instantiate the callService
       API_URL: 'https://localhost'
-      SQS_CALL_QUEUE_URL: 'https://localhost'
-      TWIML_APPLICATION_SID: 'DUMMY_SID'
-      TWILIO_ACCOUNT_SID: 'ACDummyAccount'
-      TWILIO_API_KEY: 'DUMMY_KEY'
-      TWILIO_API_SECRET: 'DUMMY_SECRET'
-      TWILIO_AUTH_TOKEN: 'DUMMY_TOKEN'
-      SERVICE_NAME: 'DUMMY_SERVICE'
-      REDIS_ENDPOINT: 'localhost'
 
     steps:
       - name: Enable UUID extension
