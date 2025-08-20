@@ -30,5 +30,8 @@ RUN npm run build
 # Expose the application port
 EXPOSE 3000
 
+# Entrypoint to run migrations
+ENTRYPOINT ["npm", "run", "migrate"]
+
 # Run the application
 CMD ["node", "dist/bin/index.js"]
