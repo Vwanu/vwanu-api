@@ -148,6 +148,10 @@ jobs:
           
           echo "Database migrations completed successfully!"
 
+          # Run seed
+          echo "Executing database seed..."
+          npm run seed
+
       - name: Deploy to ECS
         run: |
             # Set task definition, cluster, and service variables based on STAGE from $GITHUB_ENV
