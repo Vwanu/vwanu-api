@@ -3,6 +3,7 @@ import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import { Country } from './country.class';
 import hooks from './country.hooks';
+import { Country as CountryModel } from '../../database/country';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -14,7 +15,7 @@ declare module '../../declarations' {
 
 export default function (app: Application): void {
   const options = {
-    Model: app.get('sequelizeClient').models.Country,
+    Model: CountryModel,
     paginate: undefined,
   };
 

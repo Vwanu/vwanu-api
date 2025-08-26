@@ -1,5 +1,5 @@
 import commonHooks from 'feathers-hooks-common';
-import { HooksObject, HookContext, Service } from '@feathersjs/feathers';
+import { HooksObject } from '@feathersjs/feathers';
 import * as local from '@feathersjs/authentication-local';
 
 import isSelf from '../../Hooks/isSelf.hook';
@@ -14,7 +14,7 @@ const protectKeys = protect(...['search_vector']);
 
 const hooks = {
   before: {
-    create: commonHooks.disallow(),
+    create: [],
     update: commonHooks.disallow(),
     patch: [
       (context) => {
@@ -59,12 +59,12 @@ const hooks = {
   },
   error: {
     all: [
-      (context: HookContext<Service<any>>) => {
-        if (context.error) {
-          console.log('Error in users.hooks.ts');
-          console.log(context.error);
-        }
-      },
+      // (context: HookContext<Service<any>>) => {
+      //   if (context.error) {
+      //     console.log('Error in users.hooks.ts');
+      //     console.log(context.error);
+      //   }
+      // },
     ],
   },
 } as HooksObject<any>;

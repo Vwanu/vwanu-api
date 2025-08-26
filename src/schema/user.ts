@@ -11,6 +11,14 @@ export const createUserSchema = object({
     email: string({
       required_error: 'You must provide a valid email address',
     }).email('The email address you provided is not a valid email'),
+    password: string({
+      required_error: 'Please provide a password',
+    }).min(8, 'Password must be at least 8 characters long'),
+    birthdate: z.coerce.date({
+      required_error: 'Please provide a birthdate',
+      invalid_type_error: 'Birthdate must be a date',
+    }).min(new Date('1900-01-01'), 'Birthdate must be after 1900-01-01'),
+    gender: z.enum(['m', 'f']),
   }),
 });
 

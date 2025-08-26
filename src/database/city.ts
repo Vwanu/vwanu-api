@@ -7,8 +7,10 @@ export interface CityInterface {
   stateId: string;
 }
 
+// @ts-ignore
 @Table({
-  modelName: 'City',
+  modelName: 'city',
+  timestamps: false,
 })
 export class City extends Model<CityInterface> implements CityInterface {
   
@@ -52,3 +54,4 @@ export class City extends Model<CityInterface> implements CityInterface {
     return `${this.name}, ${this.state.name}, ${this.state.country.name}`;
   }
 }
+

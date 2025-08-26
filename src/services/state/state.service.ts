@@ -3,6 +3,7 @@ import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import { State } from './state.class';
 import hooks from './state.hooks';
+import {State as StateModel} from '../../database/state'
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -14,7 +15,7 @@ declare module '../../declarations' {
 
 export default function (app: Application): void {
   const options = {
-    Model: app.get('sequelizeClient').models.State,
+    Model:StateModel,
     paginate: undefined
   };
 

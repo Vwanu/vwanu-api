@@ -10,8 +10,11 @@ export interface StateInterface {
   countryId: string;
 }
 
+// @ts-ignore
 @Table({
-  modelName: 'State',
+  modelName: 'state',
+  timestamps: false,
+
 })
 export class State extends Model<StateInterface> implements StateInterface {
   
@@ -51,6 +54,7 @@ export class State extends Model<StateInterface> implements StateInterface {
     field: 'country_id',
   })
   countryId!: string;
+
 
   // Associations
   @BelongsTo(() => Country, 'countryId')

@@ -7,6 +7,13 @@ import { AuthManager } from '../../lib/authManagement.class';
 
 export default helper.catchAsync(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    // Allow unauthenticated account creation via POST /users
+    if (
+      req.method === 'POST' &&
+      (req.path === '/users' || req.path === '/users/' || req.originalUrl === '/users' || req.originalUrl === '/users/')
+    ) {
+      return next();
+    }
     if (!process.env.userPoolId || !process.env.clientId) {
       throw new GeneralError('Cognito configuration is not set');
     }

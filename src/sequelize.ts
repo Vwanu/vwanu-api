@@ -17,6 +17,10 @@ export default function (app: Application): void {
   const options: Options = {
     ...dbSettings,
     logging: false,
+    // @ts-ignore
+    // define: {
+    //   underscored: true,
+    // },
   };
 
   const sequelize = dbSettings.url

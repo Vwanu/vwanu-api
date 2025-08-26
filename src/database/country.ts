@@ -8,7 +8,7 @@ export interface CountryInterface {
 }
 
 @Table({
-  modelName: 'Country',
+  modelName: 'country',
 })
 export class Country extends Model<CountryInterface> implements CountryInterface {
   
