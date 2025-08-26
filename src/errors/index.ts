@@ -3,12 +3,8 @@ import {createLogger} from "../lib/utils/logger"
 const Logger = createLogger('AppError');
 
 export default class AppError extends Error {
-  status: number
-  
-  constructor(message: string, status: number) {
+  constructor(public message: string, private status: number, private file?: string) {
     super()
-    this.message = message
-    this.status = status
-    Logger.error(message, {status})
+    Logger.error(this.message, {status: this.status, file: this.file})
   }
 }

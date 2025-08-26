@@ -18,11 +18,13 @@ import healthCheck from './services/healthCheck';
 // import RequestBody from './middleware/RequestBody';
 // import morganMiddleware from './middleware/morgan.middleware';
 import requireLogin from './middleware/requireLogin';
+import authentication from './services/authentication';
 // import AppError from './errors';
 
 const app = express(feathers());
 app.configure(configuration());
 app.use(express.json());
+
 
 // app.use(cors());
 // app.use(helmet());  
@@ -45,8 +47,9 @@ app.configure(sequelize);
 // app.configure(middleware);
 // app.configure(channels);
 
-app.get('/health', healthCheck);
 
+app.get('/health', healthCheck);
+app.use('/auth', authentication(app));
 app.use(requireLogin);
 app.configure(services);
 
@@ -79,6 +82,7 @@ app.use(
     };
 
     Logger.error(`${req.method} ${req.path} - ${errorType}: ${message}`, errorDetails);
+    console.log(err)
 
     // Send JSON error response
     return res.status(status).json({ 

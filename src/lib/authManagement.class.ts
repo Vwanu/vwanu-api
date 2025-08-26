@@ -1,5 +1,6 @@
 import { Forbidden, GeneralError } from '@feathersjs/errors';
-import { CognitoService } from './cognito.service';
+import { CognitoService, SignUpParams } from './cognito.service';
+
 
 interface CognitoConfig {
   userPoolId: string;
@@ -27,6 +28,14 @@ export class AuthManager {
         config.clientId
       );
     }
+  }
+  public createCognitoUser = async (params: SignUpParams) => {
+    if (!this.cognitoService || !this.config) {
+      throw new GeneralError('AuthManager must be initialized with config before use');
+    }
+    const response = await this.cognitoService.signUp(params);
+    
+    return response;
   }
   public getUserDetails = async (authToken:string, idToken:string) => {
     if (!this.cognitoService || !this.config) {

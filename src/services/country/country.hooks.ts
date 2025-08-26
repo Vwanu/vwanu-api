@@ -16,4 +16,5 @@ export default {
     patch: notAllow,
     remove: notAllow,
   },
+
 };

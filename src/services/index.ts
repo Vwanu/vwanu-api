@@ -27,9 +27,9 @@ import korem from './korem/korem.service';
 // import conversation from './conversation/conversation.service';
 // import message from './message/message.service';
 // import convesationUsers from './convesation-users/convesation-users.service';
-// import country from './country/country.service';
-// import state from './state/state.service';
-// import city from './city/city.service';
+import country from './country/country.service';
+import state from './state/state.service';
+import city from './city/city.service';
 // import address from './address/address.service';
 // import addressTypes from './address-types/address-types.service';
 // import userAddress from './user-address/user-address.service';
@@ -72,9 +72,9 @@ const services =[
 //   conversation,
 //   message,
 //   convesationUsers,
-//   country,
-//   state,
-//   city,
+  country,
+  state,
+  city,
 //   address,
 //   addressTypes,
 //   userAddress,
