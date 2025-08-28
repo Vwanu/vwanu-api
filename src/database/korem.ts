@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, AllowNull, ForeignKey, BelongsTo , PrimaryKey} from 'sequelize-typescript';
+import { Table, Column, Model, DataType, AllowNull, ForeignKey, BelongsTo , PrimaryKey, TableOptions} from 'sequelize-typescript';
 
 import { User } from './user';
 import { EntityType } from '../types/enums';
@@ -11,7 +11,9 @@ export interface KoremInterface {
 
 @Table({
   modelName: 'Korem',
-})
+  tableName: 'korems',
+  underscored: true,
+} as TableOptions<Korem>)
 export class Korem extends Model<KoremInterface> implements KoremInterface {
   
   @PrimaryKey

@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import {Table, Column, Model, BelongsTo, ForeignKey, DataType} from 'sequelize-typescript';
+import {Table, Column, Model, BelongsTo, ForeignKey, DataType, TableOptions} from 'sequelize-typescript';
 import {User} from './user'; // Assuming User model is defined in user.ts
 import { CallStatus, CallType } from '../types/enums';
 // Customs dependencies:
@@ -7,7 +7,9 @@ import { CallInterface } from '../schema/call';
 
 @Table({
   modelName: 'Call',
-})
+  tableName: 'calls',
+  underscored: true,
+} as TableOptions<Call>)
 export class Call extends Model<CallInterface> {
   @Column({
     type: DataType.UUID,

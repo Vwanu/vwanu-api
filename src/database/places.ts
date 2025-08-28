@@ -1,4 +1,4 @@
-import { Table, Model, Column, DataType, PrimaryKey, AllowNull, Unique, BelongsToMany } from 'sequelize-typescript';
+import { Table, Model, Column, DataType, PrimaryKey, AllowNull, Unique, BelongsToMany, TableOptions } from 'sequelize-typescript';
 
 import { Media } from './media';
 
@@ -10,7 +10,9 @@ export interface PlaceInterface {
 
 @Table({
   modelName: 'Places',
-})
+  tableName: 'places',
+  underscored: true,
+} as TableOptions<Place>)
 export class Place extends Model<PlaceInterface> implements PlaceInterface {
   @PrimaryKey
   @AllowNull(false)

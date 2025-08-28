@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, AllowNull, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull, ForeignKey, BelongsTo, TableOptions } from 'sequelize-typescript';
 import { User } from './user';
 import { NotificationType, EntityType } from '../types/enums';
 
@@ -17,7 +17,9 @@ export interface NotificationInterface {
 
 @Table({
   modelName: 'Notification',
-})
+  tableName: 'notifications',
+  underscored: true,
+} as TableOptions<Notification>)
 export class Notification extends Model<NotificationInterface> implements NotificationInterface {
   
   @PrimaryKey

@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, BeforeSave, BelongsTo , ForeignKey, BelongsToMany} from 'sequelize-typescript';
+import { Table, Column, Model, DataType, BeforeSave, BelongsTo , ForeignKey, BelongsToMany, TableOptions} from 'sequelize-typescript';
 import config from 'config';
 import { User } from './user';
 import { Post } from './post';
@@ -21,7 +21,9 @@ export interface MediaInterface {
 
 @Table({
   modelName: 'Media',
-})
+  tableName: 'media',
+  underscored: true,
+} as TableOptions<Media>)
 export class Media extends Model<MediaInterface> implements MediaInterface {
   @Column({
     type: DataType.INTEGER,

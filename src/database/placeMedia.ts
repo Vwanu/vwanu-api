@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, AllowNull } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, AllowNull, TableOptions } from 'sequelize-typescript';
 
 export interface PlaceMediaInterface {
   PlaceId: string;
@@ -10,7 +10,9 @@ export interface PlaceMediaInterface {
 
 @Table({
   modelName: 'PlaceMedia',
-})
+    tableName: 'place_media',
+  underscored: true,
+} as TableOptions<PlaceMedia>)
 export class PlaceMedia extends Model<PlaceMediaInterface> implements PlaceMediaInterface {
   @AllowNull(false)
   @Column({

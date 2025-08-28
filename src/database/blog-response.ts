@@ -6,6 +6,7 @@ import {
   BelongsTo,
   ForeignKey,
   HasMany,
+  TableOptions,
 } from 'sequelize-typescript';
 import { User } from './user';
 import { Blog } from './blog';
@@ -17,7 +18,9 @@ export interface BlogResponseInterface {
 
 @Table({
   modelName: 'BlogResponse',
-})
+  tableName: 'blog_responses',
+  underscored: true,
+} as TableOptions<BlogResponse>)
 export class BlogResponse extends Model<BlogResponseInterface> implements BlogResponseInterface {
   @Column({
     type: DataType.UUID,

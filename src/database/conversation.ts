@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, AllowNull, BelongsToMany } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull, BelongsToMany, TableOptions } from 'sequelize-typescript';
 import { User } from './user';
 import { ConversationType } from '../types/enums';
 
@@ -13,7 +13,9 @@ export interface ConversationInterface {
 
 @Table({
   modelName: 'Conversation',
-})
+  tableName: 'conversations',
+  underscored: true,
+} as TableOptions<Conversation>)
 export class Conversation extends Model<ConversationInterface> implements ConversationInterface {
   
   @PrimaryKey

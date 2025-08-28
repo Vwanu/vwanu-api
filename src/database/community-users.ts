@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, ForeignKey, BelongsTo, CreatedAt } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, ForeignKey, BelongsTo, CreatedAt, TableOptions } from 'sequelize-typescript';
 import { User } from './user';
 import { Community } from './communities';
 import { CommunityRoleType } from '../types/enums';
@@ -12,7 +12,9 @@ export interface CommunityUsersInterface {
 
 @Table({
   modelName: 'CommunityUsers',
-})
+  tableName: 'community_users',
+  underscored: true,
+} as TableOptions<CommunityUser>)
 export class CommunityUser extends Model<CommunityUsersInterface> implements CommunityUsersInterface {
   
   @ForeignKey(() => Community)

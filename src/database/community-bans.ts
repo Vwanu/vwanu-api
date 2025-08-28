@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, ForeignKey, BelongsTo, AllowNull } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, ForeignKey, BelongsTo, AllowNull, TableOptions } from 'sequelize-typescript';
 import { User } from './user';
 import { Community } from './communities';
 
@@ -13,7 +13,9 @@ export interface CommunityBanInterface {
 
 @Table({
   modelName: 'CommunityBans',
-})
+   tableName: 'community_bans',
+   underscored: true,
+} as TableOptions<CommunityBan>)
 export class CommunityBan extends Model<CommunityBanInterface> implements CommunityBanInterface {
   
   @ForeignKey(() => User)

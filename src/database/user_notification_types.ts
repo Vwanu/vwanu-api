@@ -1,5 +1,5 @@
 
-import { Table, Column, Model, DataType, PrimaryKey, Default, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, PrimaryKey, Default, ForeignKey, BelongsTo, TableOptions } from 'sequelize-typescript';
 import { User } from './user';
 import { NotificationSlug } from '../types/enums';
 
@@ -14,7 +14,9 @@ export interface UserNotificationTypesInterface {
 
 @Table({
   modelName: 'UserNotificationTypes',
-})
+  tableName: 'user_notification_types',
+  underscored: true,
+} as TableOptions<UserNotificationTypes>)
 export class UserNotificationTypes extends Model<UserNotificationTypesInterface> implements UserNotificationTypesInterface {
   
   @ForeignKey(() => User)

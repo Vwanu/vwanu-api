@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, AllowNull, ForeignKey, BelongsTo, BeforeSave } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull, ForeignKey, BelongsTo, BeforeSave, TableOptions } from 'sequelize-typescript';
 import { User } from './user';
 import { Conversation } from './conversation';
 // import { Media } from './media'; // Will be uncommented when Media associations are added
@@ -18,7 +18,9 @@ export interface MessageInterface {
 
 @Table({
   modelName: 'Message',
-})
+  tableName: 'messages',
+  underscored: true,
+} as TableOptions<Message>)
 export class Message extends Model<MessageInterface> implements MessageInterface {
   
   @PrimaryKey

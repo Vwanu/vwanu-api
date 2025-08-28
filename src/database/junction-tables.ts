@@ -5,7 +5,7 @@
  * relationships that don't warrant their own separate files.
  */
 
-import { Table, Column, Model, DataType, ForeignKey } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, ForeignKey, TableOptions } from 'sequelize-typescript';
 import { Community } from './communities';
 import { Interest } from './interest';
 import { User } from './user';
@@ -13,7 +13,9 @@ import { User } from './user';
 // Example: Community-Interest junction table (if you needed more than just IDs)
 @Table({
   modelName: 'CommunityInterest',
-})
+  tableName: 'community_interests',
+  underscored: true,
+} as TableOptions<CommunityInterest>)
 export class CommunityInterest extends Model {
   @ForeignKey(() => Community)
   @Column({
@@ -48,7 +50,9 @@ export class CommunityInterest extends Model {
 // Example: User-Interest junction table (user's interests/skills)
 @Table({
   modelName: 'UserInterest',
-})
+  tableName: 'user_interests',
+  underscored: true,
+} as TableOptions<UserInterest>)
 export class UserInterest extends Model {
   @ForeignKey(() => User)
   @Column({

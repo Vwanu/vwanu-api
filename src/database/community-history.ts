@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, ForeignKey, BelongsTo, AllowNull, CreatedAt } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, ForeignKey, BelongsTo, AllowNull, CreatedAt, TableOptions } from 'sequelize-typescript';
 import { User } from './user';
 import { Community } from './communities';
 
@@ -11,7 +11,9 @@ export interface CommunityHistoryInterface {
 
 @Table({
   modelName: 'CommunityHistory',
-})
+  tableName: 'community_history',
+  underscored: true,
+} as TableOptions<CommunityHistory>)
 export class CommunityHistory extends Model<CommunityHistoryInterface> implements CommunityHistoryInterface {
   
   @ForeignKey(() => User)

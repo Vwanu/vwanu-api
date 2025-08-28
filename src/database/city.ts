@@ -10,6 +10,7 @@ export interface CityInterface {
 // @ts-ignore
 @Table({
   modelName: 'city',
+  tableName: 'cities',
   timestamps: false,
 })
 export class City extends Model<CityInterface> implements CityInterface {
