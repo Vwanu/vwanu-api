@@ -17,8 +17,7 @@ export default  (app: Application) => helper.catchAsync(
         console.log("user", req.body);
   const parsed = createUserSchema.safeParse({ body: {...req.body, birthdate: '1990-01-01'} });
   if (!parsed.success) {
-    const firstIssueMessage = parsed.error.issues?.[0]?.message;
-    throw new BadRequest(firstIssueMessage || 'Invalid request body');
+    throw new BadRequest( JSON.stringify(parsed.error.issues) || 'Invalid request body');
   }
   const user = parsed.data.body;
   console.log("user", user);
