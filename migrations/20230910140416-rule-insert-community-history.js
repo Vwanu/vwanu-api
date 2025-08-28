@@ -6,7 +6,7 @@ let query = fs.readFileSync(
   'utf-8'
 );
 
-query = 'SELECT * FROM "Communities";';
+query = 'SELECT * FROM communities;';
 module.exports = {
   async up(queryInterface) {
     await queryInterface.sequelize.query(query);

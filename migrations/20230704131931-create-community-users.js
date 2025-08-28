@@ -6,7 +6,7 @@ module.exports = {
         allowNull: false,
         primaryKey: true,
         references: {
-          model: 'CommunityRoles',
+          model: 'community_roles',
           key: 'id',
         },
       },
@@ -15,7 +15,7 @@ module.exports = {
         allowNull: false,
         primaryKey: true,
         references: {
-          model: 'Communities',
+          model: 'communities',
           key: 'id',
         },
         onDelete: 'CASCADE',
@@ -25,7 +25,7 @@ module.exports = {
         allowNull: false,
         primaryKey: true,
         references: {
-          model: 'Users',
+          model: 'users',
           key: 'id',
         },
       },

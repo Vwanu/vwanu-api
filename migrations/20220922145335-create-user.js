@@ -1,9 +1,7 @@
 /* eslint-disable no-unused-vars */
-const { nanoid } = require('nanoid');
-
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Users', {
+    await queryInterface.createTable('users', {
       id: {
         type: Sequelize.UUID,
         primaryKey: true,
@@ -15,21 +13,11 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
-      password: {
+      last_name: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      active_status: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
-        allowNull: false,
-      },
-
-      lastName: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      firstName: {
+      first_name: {
         type: Sequelize.STRING,
         allowNull: false,
       },
@@ -51,13 +39,25 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
+      },
+      amount_of_friend: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+      },
+      amount_of_follower: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+      },
+      amount_of_following: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
       },
     });
   },

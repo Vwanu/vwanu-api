@@ -1,21 +1,21 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Communities', {
+    await queryInterface.createTable('communities', {
       id: {
         type: Sequelize.UUID,
         primaryKey: true,
         defaultValue: Sequelize.UUIDV4,
         allowNull: false,
       },
-      UserId: {
+      user_id: {
         type: Sequelize.UUID,
         allowNull: false,
       }, 
-      numMembers: {
+      num_members: {
         type: Sequelize.INTEGER,
         defaultValue: 0,
       },
-      numAdmins: {
+      num_admins: {
         type: Sequelize.INTEGER,
         defaultValue: 0,
       },
@@ -27,14 +27,14 @@ module.exports = {
         level: 'A',
       },
 
-      privacyType: {
-        type: Sequelize.STRING,
+      privacy_type: {
+        type: Sequelize.ENUM('public', 'private', 'hidden'),
         defaultValue: 'public',
         allowNull: false,
         // @ts-ignore
         level: 'C',
       },
-      coverPicture: {
+      cover_picture: {
         type: Sequelize.STRING,
         allowNull: true,
       },
@@ -46,64 +46,33 @@ module.exports = {
         // @ts-ignore
         level: 'B',
       },
-      profilePicture: {
+      profile_picture: {
         type: Sequelize.STRING,
         allowNull: true,
       },
 
-      canInvite: {
+      can_invite: {
         type: Sequelize.STRING,
         defaultValue: 'E',
         allowNull: true,
       },
 
-      canInPost: {
-        type: Sequelize.STRING,
-        defaultValue: 'E',
-        allowNull: true,
-      },
-      canInUploadPhotos: {
+      can_post: {
         type: Sequelize.STRING,
         defaultValue: 'E',
         allowNull: true,
       },
 
-      canInUploadDoc: {
-        type: Sequelize.STRING,
-        defaultValue: 'E',
-        allowNull: true,
-      },
-
-      canInUploadVideo: {
-        type: Sequelize.STRING,
-        defaultValue: 'E',
-        allowNull: true,
-      },
-
-      canMessageInGroup: {
-        type: Sequelize.STRING,
-        defaultValue: 'E',
-        allowNull: true,
-      },
-      defaultInvitationEmail: {
-        type: Sequelize.TEXT,
-        allowNull: true,
-      },
-
-      haveDiscussionForum: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: true,
-      },
       search_vector: {
         type: Sequelize.TSVECTOR,
         allowNull: true,
       },
 
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },

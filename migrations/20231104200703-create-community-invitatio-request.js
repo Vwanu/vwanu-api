@@ -1,6 +1,6 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('CommunityInvitationRequests', {
+    await queryInterface.createTable('community_invitation_requests', {
       id: {
         type: Sequelize.UUID,
         primaryKey: true,
@@ -10,7 +10,7 @@ module.exports = {
       guest: {
         type: Sequelize.UUID,
         references: {
-          model: 'Users',
+          model: 'users',
           key: 'id',
         },
         allowNull: true,
@@ -19,7 +19,7 @@ module.exports = {
       host: {
         type: Sequelize.UUID,
         references: {
-          model: 'Users',
+          model: 'users',
           key: 'id',
         },
         allowNull: true,
@@ -35,14 +35,14 @@ module.exports = {
         allowNull: true,
       },
 
-      responseDate: {
+      response_date: {
         type: Sequelize.DATE,
         allowNull: true,
       },
-      CommunityRolesId: {
+      community_role_id: {
         type: Sequelize.UUID,
         references: {
-          model: 'CommunityRoles',
+          model: 'community_roles',
           key: 'id',
         },
         allowNull: false,

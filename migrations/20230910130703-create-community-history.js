@@ -5,7 +5,7 @@ module.exports = {
         type: Sequelize.UUID,
         primaryKey: false,
         references: {
-          model: 'Users',
+          model: 'users',
           key: 'id',
         },
         allowNull: false,
@@ -15,7 +15,7 @@ module.exports = {
         type: Sequelize.UUID,
         primaryKey: false,
         references: {
-          model: 'Communities',
+          model: 'communities',
           key: 'id',
         },
         allowNull: false,

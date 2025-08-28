@@ -1,6 +1,6 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('CommunityRoles', {
+    await queryInterface.createTable('community_roles', {
       id: {
         type: Sequelize.UUID,
         primaryKey: true,
@@ -18,11 +18,11 @@ module.exports = {
         allowNull: false,
         defaultValue: 0,
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
