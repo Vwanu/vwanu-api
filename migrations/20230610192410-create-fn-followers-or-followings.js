@@ -10,8 +10,9 @@ module.exports = {
     await queryInterface.sequelize.query(query);
   },
   async down(queryInterface) {
-    await queryInterface.sequelize.query(
-      'DROP FUNCTION IF EXISTS get_followers_or_following();'
-    );
+    await queryInterface.sequelize.query(`
+      DROP FUNCTION IF EXISTS get_followers_or_following(UUID, BOOLEAN) CASCADE;
+      DROP TYPE IF EXISTS user_result CASCADE;
+    `);
   },
 };

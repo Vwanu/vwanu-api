@@ -1,35 +1,35 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('User_Follower', {
-      UserId: {
+    await queryInterface.createTable('followers', {
+      user_id: {
         type: Sequelize.UUID,
         foreignKey: true,
         references: {
-          model: 'Users',
+          model: 'users',
           key: 'id',
         },
         primaryKey: true,
       },
-      FollowerId: {
+      follower_id: {
         type: Sequelize.UUID,
         foreignKey: true,
         references: {
-          model: 'Users',
+          model: 'users',
           key: 'id',
         },
         primaryKey: true,
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
     });
   },
   async down(queryInterface) {
-    await queryInterface.dropTable('User_Follower');
+    await queryInterface.dropTable('followers');
   },
 };

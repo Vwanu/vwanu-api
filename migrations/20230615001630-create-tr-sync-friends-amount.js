@@ -2,7 +2,7 @@ module.exports = {
   async up(queryInterface) {
     await queryInterface.sequelize.query(`
     CREATE TRIGGER tr_sync_friends_amount
-    AFTER INSERT OR DELETE ON "User_friends"
+    AFTER INSERT OR DELETE ON friends
     FOR EACH ROW
     EXECUTE FUNCTION fn_sync_amount_of_friends();`);
   },

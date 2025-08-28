@@ -1,23 +1,20 @@
 // // import {Call} from './call';
 import {Post} from './post';
 import {User} from './user';
-import {City} from './city';
+
 import {Blog} from './blog';
 // import {Album} from './album';
 import {Media} from './media';
-import {State} from './state';
 import {Korem} from './korem';
 // import {Friend} from './Friends';
-// import {Address} from './address';
-import {Country} from './country';
+
 // import {Message} from './message';
 // import {Visitor} from './Visitors';
 import {Interest} from './interest';
 // import {Template} from './template';
 import {Community} from './communities';
 // import {Discussion} from './discussion';
-// import {AddressType} from './addressTypes';
-// import {EntityAddress} from './userAddresses';
+
 // import {Conversation} from './conversation';
 // import {Notification} from './notification';
 // import {BlogResponse} from './blog-response';
@@ -37,24 +34,20 @@ import {Community} from './communities';
 export default [
 //   // Call,
   User,
-  City,
   Post,
   Blog,
   // Album,
   Media,
-  State,
+
   Korem,
 //   Friend,
-//   Address,
-  Country,
+
 //   Message,
 //   Visitor,
   Interest,
 //   Template,
   Community,
 //   Discussion,
-//   AddressType,
-//   EntityAddress,
 //   Conversation,
 //   Notification,
 //   BlogResponse,
@@ -64,7 +57,6 @@ export default [
 //   CommunityInvitationRequest,
 //   Forum,
 //   Place,
-//   UserWorkPlace,
 //   NotificationType,
 //   UserNotificationSettings,
 //   ErrorCode,
