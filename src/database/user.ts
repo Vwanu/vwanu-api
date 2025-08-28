@@ -97,12 +97,7 @@ export class User extends Model<UserInterface> {
     defaultValue: false
   })
   verified: boolean;
-  @Column({
-    type: DataType.BOOLEAN,
-    allowNull: false,
-    defaultValue: false
-  })
-  active: boolean;
+  
   @Column({
     type: DataType.STRING,
     allowNull: true,

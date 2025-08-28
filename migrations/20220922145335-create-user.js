@@ -59,6 +59,18 @@ module.exports = {
         type: Sequelize.INTEGER,
         defaultValue: 0,
       },
+      next_completion_step: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      profile_picture: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      search_vector: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
     });
   },
   async down(queryInterface, Sequelize) {

@@ -48,8 +48,7 @@ app.configure(sequelize);
 // app.configure(middleware);
 // app.configure(channels);
 
-
-// app.use('/location', location);
+          
 app.get('/health', healthCheck);
 app.use('/auth', authentication(app));
 app.use(requireLogin);
