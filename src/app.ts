@@ -19,6 +19,7 @@ import healthCheck from './services/healthCheck';
 // import morganMiddleware from './middleware/morgan.middleware';
 import requireLogin from './middleware/requireLogin';
 import authentication from './services/authentication';
+// import location from './services/location/location.service';
 // import AppError from './errors';
 
 const app = express(feathers());
@@ -48,6 +49,7 @@ app.configure(sequelize);
 // app.configure(channels);
 
 
+// app.use('/location', location);
 app.get('/health', healthCheck);
 app.use('/auth', authentication(app));
 app.use(requireLogin);
