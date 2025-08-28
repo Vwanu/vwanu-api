@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, AllowNull, Default } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull, Default, TableOptions } from 'sequelize-typescript';
 
 export interface FriendInterface {
   id: string;
@@ -11,7 +11,9 @@ export interface FriendInterface {
 
 @Table({
   modelName: 'Friend',
-})
+  tableName: 'user_friends',
+  underscored: true,
+} as TableOptions<Friend>)
 export class Friend extends Model<FriendInterface> implements FriendInterface {
   @Default(DataType.UUIDV4)
   @Column({

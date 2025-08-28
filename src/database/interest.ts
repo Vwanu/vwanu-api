@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, TableOptions } from 'sequelize-typescript';
 // import { Community } from './communities';
 
 export interface InterestInterface {
@@ -8,7 +8,9 @@ export interface InterestInterface {
 
 @Table({
   modelName: 'Interest',
-})
+  tableName: 'interests',
+  underscored: true,
+} as TableOptions<Interest>)
 export class Interest extends Model<InterestInterface> {
   @Column({
     type: DataType.UUID,

@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, AllowNull, Default, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull, Default, ForeignKey, BelongsTo, TableOptions } from 'sequelize-typescript';
 import { User } from './user';
 import { Community } from './communities';
 import { CommunityPrivacyType } from '../types/enums';
@@ -17,7 +17,9 @@ export interface DiscussionInterface {
 
 @Table({
   modelName: 'Discussion',
-})
+  tableName: 'discussions',
+  underscored: true,
+} as TableOptions<Discussion>)
 export class Discussion extends Model<DiscussionInterface> implements DiscussionInterface {
   
   @PrimaryKey

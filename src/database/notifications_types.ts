@@ -1,5 +1,5 @@
 
-import { Table, Column, Model, DataType, PrimaryKey, AllowNull, Unique } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull, Unique, TableOptions } from 'sequelize-typescript';
 
 export interface NotificationTypesInterface {
   notification_slug: string;
@@ -12,7 +12,9 @@ export interface NotificationTypesInterface {
  */
 @Table({
   modelName: 'NotificationTypes',
-})
+  tableName: 'notification_types',
+  underscored: true,
+} as TableOptions<NotificationType>)
 export class NotificationType extends Model<NotificationTypesInterface> implements NotificationTypesInterface {
   @PrimaryKey
   @AllowNull(false)

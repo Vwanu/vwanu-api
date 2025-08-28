@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, AllowNull, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull, ForeignKey, BelongsTo, TableOptions } from 'sequelize-typescript';
 import { City } from './city';
 import { State } from './state';
 import { Country } from './country';
@@ -12,7 +12,9 @@ export interface AddressInterface {
 
 @Table({
   modelName: 'Address',
-})
+  tableName: 'addresses',
+  underscored: true,
+} as TableOptions<Address>)
 export class Address extends Model<AddressInterface> implements AddressInterface {
   
   @PrimaryKey

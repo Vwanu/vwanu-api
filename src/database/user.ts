@@ -1,14 +1,16 @@
 
-import { Table, Column, Model, DataType } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, TableOptions } from 'sequelize-typescript';
 
 import { UpUserInterface as UserInterface } from '../schema/user';
 
 export const authorizationEnums = ['public', 'private', 'friend'];
 
-@Table
-({
+@Table({
   modelName: 'User',
-})
+  tableName: 'users',
+  underscored: true,
+} as TableOptions<User>)
+
 export class User extends Model<UserInterface> {
 
   @Column({
@@ -18,19 +20,7 @@ export class User extends Model<UserInterface> {
     allowNull: false,
   })
   id: string;
-  // @Column({
-  //   type: DataType.STRING,
-  //   allowNull: true,
-  //   defaultValue: 'user',
-  //   validate: {
-  //     customValidator(value) {
-  //       if (!['user', 'admin', 'moderator'].includes(value)) {
-  //         throw new Error(`${value} is not a valid option for user role`);
-  //       }
-  //     },
-  //   },
-  // })
-  // role: string;
+  
   @Column({
     type: DataType.STRING,
     allowNull: false,

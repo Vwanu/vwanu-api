@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, AllowNull, Default, ForeignKey, BelongsTo, HasMany, BelongsToMany, PrimaryKey } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, AllowNull, Default, ForeignKey, BelongsTo, HasMany, BelongsToMany, PrimaryKey, TableOptions } from 'sequelize-typescript';
 import { User } from './user';
 import { Media } from './media';
 import { Korem } from './korem';
@@ -16,7 +16,9 @@ export interface PostInterface {
 
 @Table({
   modelName: 'Post',
-})
+  tableName: 'posts',
+  underscored: true,
+} as TableOptions<Post>)
 export class Post extends Model<PostInterface> implements PostInterface {
 
   @PrimaryKey

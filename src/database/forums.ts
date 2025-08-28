@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, AllowNull, Unique, Default } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull, Unique, Default, TableOptions } from 'sequelize-typescript';
 
 export interface ForumInterface {
   id: string;
@@ -12,7 +12,9 @@ export interface ForumInterface {
 
 @Table({
   modelName: 'Forum',
-})
+  tableName: 'forums',
+  underscored: true,
+} as TableOptions<Forum>)
 export class Forum extends Model<ForumInterface> implements ForumInterface {
   @PrimaryKey
   @Default(DataType.UUIDV4)

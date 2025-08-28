@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, AllowNull, Unique } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull, Unique, TableOptions } from 'sequelize-typescript';
 
 export interface ErrorCodeInterface {
   error_code: string;
@@ -8,7 +8,9 @@ export interface ErrorCodeInterface {
 
 @Table({
   modelName: 'ErrorCodes',
-})
+  tableName: 'error_codes',
+  underscored: true,
+} as TableOptions<ErrorCode>)
 export class ErrorCode extends Model<ErrorCodeInterface> implements ErrorCodeInterface {
   @PrimaryKey
   @AllowNull(false)

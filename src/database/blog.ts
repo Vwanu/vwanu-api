@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import { Table, Column, Model, DataType, BeforeSave } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, BeforeSave, TableOptions } from 'sequelize-typescript';
 import slugify from '../lib/utils/slugify';
 import sanitizeHtml from '../lib/utils/sanitizeHtml';
 
@@ -17,7 +17,9 @@ export interface BlogInterface {
 
 @Table({
   modelName: 'Blog',
-})
+  tableName: 'blogs',
+  underscored: true,
+} as TableOptions<Blog>)
 export class Blog extends Model<BlogInterface> implements BlogInterface {
   @Column({
     type: DataType.UUID,

@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, AllowNull, ForeignKey, BelongsTo, UpdatedAt } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull, ForeignKey, BelongsTo, UpdatedAt, TableOptions } from 'sequelize-typescript';
 import { User } from './user';
 import { Community } from './communities';
 import { CommunityRoleType } from '../types/enums';
@@ -15,8 +15,10 @@ export interface CommunityInvitationRequestInterface {
 
 @Table({
   modelName: 'CommunityInvitationRequest',
+  tableName: 'community_invitation_requests',
   // Note: responseDate serves as the updatedAt timestamp for better semantic clarity
-})
+  underscored: true,
+} as TableOptions<CommunityInvitationRequest>)
 export class CommunityInvitationRequest extends Model<CommunityInvitationRequestInterface> implements CommunityInvitationRequestInterface {
   
   @PrimaryKey

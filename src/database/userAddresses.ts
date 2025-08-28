@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, AllowNull, Default } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull, Default, TableOptions } from 'sequelize-typescript';
 
 export interface EntityAddressInterface {
   id: string;
@@ -13,7 +13,9 @@ export interface EntityAddressInterface {
 
 @Table({
   modelName: 'EntityAddress',
-})
+  tableName: 'entity_addresses',
+  underscored: true,
+} as TableOptions<EntityAddress>)
 export class EntityAddress extends Model<EntityAddressInterface> implements EntityAddressInterface {
   @PrimaryKey
   @Default(DataType.UUIDV4)

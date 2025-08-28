@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, AllowNull } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull, TableOptions } from 'sequelize-typescript';
 
 export interface VisitorInterface {
   id: number;
@@ -10,7 +10,9 @@ export interface VisitorInterface {
 
 @Table({
   modelName: 'Visitor',
-})
+  tableName: 'visitors',
+  underscored: true,
+} as TableOptions<Visitor>)
 export class Visitor extends Model<VisitorInterface> implements VisitorInterface {
   @PrimaryKey
   @Column({

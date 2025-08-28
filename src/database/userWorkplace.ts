@@ -1,5 +1,5 @@
 
-import { Table, Column, DataType, AllowNull, Model, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import { Table, Column, DataType, AllowNull, Model, ForeignKey, BelongsTo, TableOptions } from 'sequelize-typescript';
 import { User } from './user';
 import Place from './places';
 
@@ -11,7 +11,9 @@ export interface UserWorkPlaceInterface {
 }
 @Table({
   modelName: 'UserWorkPlace',
-})
+  tableName: 'user_workplaces',
+  underscored: true,
+} as TableOptions<UserWorkPlace>)
 export class UserWorkPlace extends Model<UserWorkPlaceInterface> implements UserWorkPlaceInterface {
   @ForeignKey(() => User)
   @AllowNull(false)

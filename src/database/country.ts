@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, AllowNull, Unique, HasMany } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull, Unique, HasMany, TableOptions } from 'sequelize-typescript';
 import { State } from './state';
 
 export interface CountryInterface {
@@ -9,7 +9,9 @@ export interface CountryInterface {
 
 @Table({
   modelName: 'country',
-})
+  tableName: 'countries',
+  underscored: true,
+} as TableOptions<Country>)
 export class Country extends Model<CountryInterface> implements CountryInterface {
   
   @PrimaryKey

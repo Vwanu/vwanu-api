@@ -5,7 +5,8 @@ import {
   DataType, 
   PrimaryKey, 
   AllowNull, 
-  Unique 
+  Unique ,
+  TableOptions
 } from 'sequelize-typescript';
 
 export interface TemplateMessageInterface {
@@ -15,8 +16,10 @@ export interface TemplateMessageInterface {
 }
 
 @Table({
-  modelName: 'Template'
-})
+  modelName: 'Template',
+  tableName: 'template_messages',
+  underscored: true,
+} as TableOptions<Template>)
 export class Template extends Model<TemplateMessageInterface> implements TemplateMessageInterface {
   
   @PrimaryKey

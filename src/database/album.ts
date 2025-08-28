@@ -6,6 +6,7 @@ import {
   BelongsTo,
   ForeignKey,
   BelongsToMany,
+  TableOptions,
 } from 'sequelize-typescript';
 import { User } from './user';
 import { Media } from './media';
@@ -20,7 +21,9 @@ export interface AlbumInterface {
 
 @Table({
   modelName: 'Album',
-})
+  tableName: 'albums',
+  underscored: true,
+} as TableOptions<Album>)
 export class Album extends Model<AlbumInterface> implements AlbumInterface {
 
   @Column({

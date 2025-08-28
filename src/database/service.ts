@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, AllowNull, Unique } from 'sequelize-typescript';
+    import { Table, Column, Model, DataType, PrimaryKey, AllowNull, Unique, TableOptions } from 'sequelize-typescript';
 
 export interface ServiceInterface {
   id: string;
@@ -7,7 +7,9 @@ export interface ServiceInterface {
 
 @Table({
   modelName: 'Service',
-})
+  tableName: 'services',
+  underscored: true,
+} as TableOptions<Service>) 
 export class Service extends Model<ServiceInterface> implements ServiceInterface {
   
   @PrimaryKey

@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, AllowNull } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull, TableOptions } from 'sequelize-typescript';
 
 export interface ExpiryTimeInterface {
   request_type: string;
@@ -7,7 +7,9 @@ export interface ExpiryTimeInterface {
 
 @Table({
   modelName: 'ExpiryTimes',
-})
+  tableName: 'expiry_times',
+  underscored: true,
+} as TableOptions<ExpiryTime>)
 export class ExpiryTime extends Model<ExpiryTimeInterface> implements ExpiryTimeInterface {
   @PrimaryKey
   @AllowNull(false)

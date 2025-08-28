@@ -13,8 +13,9 @@ export interface StateInterface {
 // @ts-ignore
 @Table({
   modelName: 'state',
+  tableName: 'states',
   timestamps: false,
-
+  underscored: true,
 })
 export class State extends Model<StateInterface> implements StateInterface {
   
