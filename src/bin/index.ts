@@ -37,11 +37,12 @@ async function startServer() {
         await sequelizeClient.authenticate();
         logger.info('Database connection established successfully');
         
-        // Sync database models (only in development)
-        if (process.env.NODE_ENV === 'development') {
-          await sequelizeClient.sync({ alter: false });
-          logger.info('Database models synchronized');
-        }
+        // Note: Database tables are managed through migrations
+        // Model sync is disabled to prevent duplicate table creation
+        // if (process.env.NODE_ENV === 'development') {
+        //   await sequelizeClient.sync({ alter: false });
+        //   logger.info('Database models synchronized');
+        // }
       } catch (dbError) {
         console.log('Database connection failed:', dbError);
         // exitProcess('Database connection failed:', dbError as Error);

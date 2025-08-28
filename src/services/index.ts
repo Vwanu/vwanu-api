@@ -30,6 +30,7 @@ import korem from './korem/korem.service';
 import country from './country/country.service';
 import state from './state/state.service';
 import city from './city/city.service';
+import location from './location/location.service';
 // import address from './address/address.service';
 // import addressTypes from './address-types/address-types.service';
 // import userAddress from './user-address/user-address.service';
@@ -87,8 +88,10 @@ const services =[
 //   communityHistory,
 //   notificationTypes,
 //   userNotificationTypes,
+location,
 ]
 export default function (app: Application): void {
- services.forEach(service => app.configure(service));
-  }
+  services.forEach(service => app.configure(service));
+  app.configure(location);
+}
 
