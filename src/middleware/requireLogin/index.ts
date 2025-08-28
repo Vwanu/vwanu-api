@@ -7,6 +7,9 @@ import { AuthManager } from '../../lib/authManagement.class';
 
 export default helper.catchAsync(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    if (req.path === '/location') {
+      return next();
+    }
     if (!process.env.userPoolId || !process.env.clientId) {
       throw new GeneralError('Cognito configuration is not set');
     }
