@@ -21,7 +21,7 @@ export interface MediaInterface {
 
 @Table({
   modelName: 'Media',
-  tableName: 'media',
+  tableName: 'medias',
   underscored: true,
 } as TableOptions<Media>)
 export class Media extends Model<MediaInterface> implements MediaInterface {
@@ -66,8 +66,7 @@ export class Media extends Model<MediaInterface> implements MediaInterface {
   @Column({
     type: DataType.UUID,
     allowNull: false,
-    // field: 'user_id',
-    field: 'UserId', // Use camelCase for consistency with other models
+    field: 'user_id', // Use snake_case to match migration
   })
   UserId!: string;
 
@@ -94,18 +93,11 @@ export class Media extends Model<MediaInterface> implements MediaInterface {
   User!: User;
 
   @BelongsToMany(() => Post, {
-    through: 'Post_Media',
-    foreignKey: 'MediumId',
-    otherKey: 'PostId',
+    through: () => require('./post-media').PostMedia,
+    foreignKey: 'medium_id',
+    otherKey: 'post_id',
   })
-  posts!: Post[]
-  
-  // @BelongsToMany(() => Post, {
-  //   through: 'post_media', // String-based junction table
-  //   foreignKey: 'media_id',
-  //   otherKey: 'post_id',
-  // })
-  // posts!: Post[];
+  posts!: Post[];
 
   // @BelongsToMany(() => Album, {
   //   through: 'album_Media', // String-based junction table

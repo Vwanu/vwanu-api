@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 // import cors from 'cors';
 // import helmet from 'helmet';
-// import morgan from 'morgan';
+import morgan from 'morgan';
 import express from '@feathersjs/express';
 import socketio from '@feathersjs/socketio';
 // import methodOverride from 'method-override';
@@ -16,7 +16,7 @@ import sequelize from './sequelize';
 import Logger from './lib/utils/logger';
 import healthCheck from './services/healthCheck';
 // import RequestBody from './middleware/RequestBody';
-// import morganMiddleware from './middleware/morgan.middleware';
+import morganMiddleware from './middleware/morgan.middleware';
 import requireLogin from './middleware/requireLogin';
 import authentication from './services/authentication';
 // import location from './services/location/location.service';
@@ -31,7 +31,7 @@ app.use(express.json());
 // app.use(helmet());  
 // app.use(RequestBody);
 // app.use(methodOverride('_method'));
-// app.use(morgan(':method :url :status', { skip: morganMiddleware }));
+app.use(morgan(':method :url :status', { skip: morganMiddleware }));
 app.use(express.urlencoded({ extended: true }));
 
 // Set API configuration from environment variables

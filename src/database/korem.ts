@@ -28,7 +28,7 @@ export class Korem extends Model<KoremInterface> implements KoremInterface {
   @Column({
     type: DataType.UUID,
     allowNull: false,
-    // field: 'entity_id',
+    field: 'entity_id',
   })
   entityId!: string;
 
@@ -37,7 +37,7 @@ export class Korem extends Model<KoremInterface> implements KoremInterface {
     type: DataType.ENUM(...Object.values(EntityType)),
     defaultValue: EntityType.POST,
     allowNull: false,
-    // field: 'entity_type',
+    field: 'entity_type',
   })
   entityType!: EntityType;
 
@@ -46,8 +46,7 @@ export class Korem extends Model<KoremInterface> implements KoremInterface {
   @Column({
     type: DataType.UUID,
     allowNull: false,
-    // field: 'user_id',
-    field:'UserId', // Adjusted to match the User model's field name
+    field: 'user_id',
   })
   UserId!: string;
 

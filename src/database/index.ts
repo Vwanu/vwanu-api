@@ -5,6 +5,7 @@ import {User} from './user';
 import {Blog} from './blog';
 // import {Album} from './album';
 import {Media} from './media';
+import {PostMedia} from './post-media';
 import {Korem} from './korem';
 // import {Friend} from './Friends';
 
@@ -38,7 +39,7 @@ export default [
   Blog,
   // Album,
   Media,
-
+  PostMedia,
   Korem,
 //   Friend,
 

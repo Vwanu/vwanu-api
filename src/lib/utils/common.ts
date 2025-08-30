@@ -103,28 +103,42 @@ const Common = {
   getUploadedFiles: (mediaArray: string[], data): any => {
     const documentFiles = data.UploadedMedia;
     data.Media = [];
+    
+    // Handle media links from URLs
     if (data.mediaLinks) {
       data.mediaLinks.forEach((link: string) => {
         if (isValidUrl(link)) {
           data.Media.push({
             original: link,
-            media: link,
+            large: link,
+            medium: link,
+            small: link,
             tiny: link,
-            UserId: data.UserId,
+            UserId: data.UserId || data.userId,
           });
         }
       });
     }
 
+    // Handle uploaded files (both Cloudinary and S3)
     if (documentFiles && mediaArray.some((media) => documentFiles[media])) {
       mediaArray.forEach((mediaGroup) => {
         if (documentFiles[mediaGroup]) {
           documentFiles[mediaGroup].forEach((doc) => {
-            if (doc.path)
+            // For S3: doc.location contains the full S3 URL
+            // For Cloudinary: doc.path contains the URL
+            const fileUrl = doc.location || doc.path;
+            
+            if (fileUrl) {
               data.Media.push({
-                original: doc.path,
-                UserId: data.userId,
+                original: fileUrl,
+                large: fileUrl,
+                medium: fileUrl,
+                small: fileUrl,
+                tiny: fileUrl,
+                UserId: data.UserId || data.userId,
               });
+            }
           });
         }
       });

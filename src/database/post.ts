@@ -59,8 +59,7 @@ export class Post extends Model<PostInterface> implements PostInterface {
   @Column({
     type: DataType.UUID,
     allowNull: false,
-    // field: 'user_id',
-    field: 'UserId',
+    field: 'user_id',
   })
   userId!: string;
 
@@ -68,8 +67,7 @@ export class Post extends Model<PostInterface> implements PostInterface {
   @Column({
     type: DataType.UUID,
     allowNull: true, 
-    // field: 'community_id',
-    field: 'CommunityId',
+    field: 'community_id',
   })
   communityId?: string;
 
@@ -77,8 +75,7 @@ export class Post extends Model<PostInterface> implements PostInterface {
   @Column({
     type: DataType.UUID,
     allowNull: true,
-    // field: 'post_id',
-    field: 'PostId',
+    field: 'post_id',
   })
   PostId?: string;
 
@@ -90,9 +87,9 @@ export class Post extends Model<PostInterface> implements PostInterface {
   community?: Community; // Optional - post may not be part of a community   
   
   @BelongsToMany(() => Media, {
-    through: 'Post_Media',
-    foreignKey: 'PostId',
-    otherKey: 'MediumId',
+    through: () => require('./post-media').PostMedia,
+    foreignKey: 'post_id',
+    otherKey: 'medium_id',
   })
   media!: Media[];
   
