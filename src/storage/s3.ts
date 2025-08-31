@@ -85,12 +85,34 @@ const profileS3Storage = hasS3Credentials && s3Client ? multerS3({
   bucket: BUCKET_NAME,
   // acl: 'public-read', // Removed: ACLs disabled on bucket
   key: function (req, file, cb) {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    
     const fileExtension = path.extname(file.originalname);
     const uniqueFilename = `${uuidv4()}${fileExtension}`;
-    const key = `profiles/${uniqueFilename}`;
+    
+    // Organize by file type and date
+    let folderPath = 'profiles/';
+    if (file.fieldname === 'profilePicture') {
+      folderPath = `profiles/pictures/${year}/${month}/`;
+    } else if (file.fieldname === 'coverPicture') {
+      folderPath = `profiles/covers/${year}/${month}/`;
+    } else {
+      folderPath = `profiles/other/${year}/${month}/`;
+    }
+    
+    const key = `${folderPath}${uniqueFilename}`;
     cb(null, key);
   },
   contentType: multerS3.AUTO_CONTENT_TYPE,
+  metadata: function (req, file, cb) {
+    cb(null, {
+      fieldname: file.fieldname,
+      originalname: file.originalname,
+      uploadDate: new Date().toISOString(),
+    });
+  },
 }) : null;
 
 const messageS3Storage = hasS3Credentials && s3Client ? multerS3({

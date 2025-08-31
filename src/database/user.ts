@@ -113,6 +113,13 @@ export class User extends Model<UserInterface> {
   profilePicture: string;
 
   @Column({
+    type: DataType.STRING,
+    allowNull: true,
+    defaultValue: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
+  })
+  coverPicture: string;
+
+  @Column({
    type: DataType.STRING,
   allowNull: true,
   defaultValue: 'Not specified'

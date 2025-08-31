@@ -9,7 +9,7 @@ import hooks from './message.hooks';
 
 /** Local dependencies */
 
-import { messageStorage } from '../../cloudinary';
+import { messageStorage } from '../../storage/s3';
 import transferUploadedFilesToFeathers from '../../middleware/PassFilesToFeathers/file-to-feathers.middleware';
 
 // Add this service to the service type index
