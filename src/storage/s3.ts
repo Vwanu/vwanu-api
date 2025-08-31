@@ -1,5 +1,4 @@
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { S3Client } from '@aws-sdk/client-s3';
 import multer from 'multer';
 import multerS3 from 'multer-s3';
 import path from 'path';
@@ -144,17 +143,6 @@ export const messageStorage = multer({
   limits: { fileSize: 25 * 1024 * 1024 }, // 25MB for messages
 });
 
-// Helper function to get S3 URL
-export const getS3Url = (key: string): string => {
-  // Use CloudFront URL if configured, otherwise use direct S3 URL
-  const cloudFrontDomain = process.env.CLOUDFRONT_DOMAIN;
-  
-  if (cloudFrontDomain) {
-    return `https://${cloudFrontDomain}/${key}`;
-  }
-  
-  return `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com/${key}`;
-};
 
 // Helper function to extract S3 key from URL
 export const getS3KeyFromUrl = (url: string): string => {
@@ -162,16 +150,4 @@ export const getS3KeyFromUrl = (url: string): string => {
   return urlParts.length > 1 ? urlParts[1] : '';
 };
 
-// Generate pre-signed URL for private access (alternative to public bucket)
-export const generatePresignedUrl = async (key: string, expiresIn: number = 3600): Promise<string> => {
-  if (!s3Client) {
-    throw new Error('S3 client not configured');
-  }
-  
-  const command = new GetObjectCommand({
-    Bucket: BUCKET_NAME,
-    Key: key,
-  });
-  
-  return await getSignedUrl(s3Client, command, { expiresIn });
-};
+
