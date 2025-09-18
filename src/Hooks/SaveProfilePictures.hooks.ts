@@ -10,18 +10,29 @@ export default (mediaArray: string[]) =>
     console.log('=== SAVE PROFILE PICTURES HOOK ===');
     console.log('UploadedMedia:', documentFiles);
 
+    const { generateS3Url, uploadToS3Async } = require('../storage/s3');
+
     mediaArray.forEach((mediaGroup) => {
       if (documentFiles[mediaGroup]) {
-        // For S3: doc.location contains the full S3 URL
-        // For Cloudinary: doc.path contains the URL
         const file = documentFiles[mediaGroup][0];
-        const fileUrl = file.location || file.path;
+        
+        // Generate S3 URL immediately
+        const { url, key } = generateS3Url(mediaGroup, file.originalname, 'profile');
         
         console.log(`Processing ${mediaGroup}:`);
         console.log('- File object:', file);
-        console.log('- Extracted URL:', fileUrl);
+        console.log('- Generated S3 URL:', url);
+        console.log('- S3 Key:', key);
         
-        context.data[mediaGroup] = fileUrl;
+        // Set the generated URL immediately
+        context.data[mediaGroup] = url;
+        
+        // Upload to S3 asynchronously (don't wait)
+        setImmediate(() => {
+          uploadToS3Async(file, key).catch((error) => {
+            console.error(`Background upload failed for ${mediaGroup}:`, error);
+          });
+        });
       }
     });
 
