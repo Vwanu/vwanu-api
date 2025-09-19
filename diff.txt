@@ -1,0 +1,144 @@
+diff --git a/src/Hooks/SaveProfilePictures.hooks.ts b/src/Hooks/SaveProfilePictures.hooks.ts
+index 721a602f..462994b3 100644
+--- a/src/Hooks/SaveProfilePictures.hooks.ts
++++ b/src/Hooks/SaveProfilePictures.hooks.ts
+@@ -7,11 +7,26 @@ export default (mediaArray: string[]) =>
+     const documentFiles = context.data.UploadedMedia;
+     if (!documentFiles) return context;
+ 
++    console.log('=== SAVE PROFILE PICTURES HOOK ===');
++    console.log('UploadedMedia:', documentFiles);
++
+     mediaArray.forEach((mediaGroup) => {
+       if (documentFiles[mediaGroup]) {
+-        context.data[mediaGroup] = documentFiles[mediaGroup][0].path;
++        // For S3: doc.location contains the full S3 URL
++        // For Cloudinary: doc.path contains the URL
++        const file = documentFiles[mediaGroup][0];
++        const fileUrl = file.location || file.path;
++        
++        console.log(`Processing ${mediaGroup}:`);
++        console.log('- File object:', file);
++        console.log('- Extracted URL:', fileUrl);
++        
++        context.data[mediaGroup] = fileUrl;
+       }
+     });
+ 
++    console.log('Final context.data:', context.data);
++    console.log('=== END SAVE PROFILE PICTURES HOOK ===');
++
+     return context;
+   };
+diff --git a/src/database/user.ts b/src/database/user.ts
+index 27375ee6..c45d4baf 100644
+--- a/src/database/user.ts
++++ b/src/database/user.ts
+@@ -112,6 +112,13 @@ export class User extends Model<UserInterface> {
+   })
+   profilePicture: string;
+ 
++  @Column({
++    type: DataType.STRING,
++    allowNull: true,
++    defaultValue: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
++  })
++  coverPicture: string;
++
+   @Column({
+    type: DataType.STRING,
+   allowNull: true,
+diff --git a/src/services/message/message.service.ts b/src/services/message/message.service.ts
+index 8b526d42..3eb7ed29 100644
+--- a/src/services/message/message.service.ts
++++ b/src/services/message/message.service.ts
+@@ -9,7 +9,7 @@ import hooks from './message.hooks';
+ 
+ /** Local dependencies */
+ 
+-import { messageStorage } from '../../cloudinary';
++import { messageStorage } from '../../storage/s3';
+ import transferUploadedFilesToFeathers from '../../middleware/PassFilesToFeathers/file-to-feathers.middleware';
+ 
+ // Add this service to the service type index
+diff --git a/src/services/users/users.service.ts b/src/services/users/users.service.ts
+index 9d127539..521f35e8 100644
+--- a/src/services/users/users.service.ts
++++ b/src/services/users/users.service.ts
+@@ -1,9 +1,10 @@
+ import { ServiceAddons } from '@feathersjs/feathers';
++import { Request, Response, NextFunction } from 'express';
+ /** Local dependencies */
+ import { Users } from './users.class';
+ import hooks from './users.hooks';
+ import { Application } from '../../declarations';
+-import { profilesStorage } from '../../cloudinary';
++import { profileStorage } from '../../storage/s3';
+ import fileToFeathers from '../../middleware/PassFilesToFeathers/file-to-feathers.middleware';
+ import { User } from '../../database/user';
+ 
+@@ -23,10 +24,23 @@ export default function (app: Application): void {
+     },
+   };
+ 
++  // Debug middleware for profile picture uploads
++  const debugMiddleware = (req: Request, res: Response, next: NextFunction) => {
++    console.log('=== USERS SERVICE DEBUG START ===');
++    console.log('Method:', req.method);
++    console.log('URL:', req.url);
++    console.log('Content-Type:', req.headers['content-type']);
++    console.log('Files:', req.files);
++    console.log('Body:', req.body);
++    console.log('=========================');
++    next();
++  };
++
+   // Initialize our service with any options it requires
+   app.use(
+     '/users',
+-    profilesStorage.fields([
++    debugMiddleware, // Add debug middleware
++    profileStorage.fields([
+       { name: 'profilePicture', maxCount: 1 },
+       { name: 'coverPicture', maxCount: 1 },
+     ]),
+diff --git a/src/storage/s3.ts b/src/storage/s3.ts
+index ec732ba6..dfeb74fb 100644
+--- a/src/storage/s3.ts
++++ b/src/storage/s3.ts
+@@ -85,12 +85,34 @@ const profileS3Storage = hasS3Credentials && s3Client ? multerS3({
+   bucket: BUCKET_NAME,
+   // acl: 'public-read', // Removed: ACLs disabled on bucket
+   key: function (req, file, cb) {
++    const date = new Date();
++    const year = date.getFullYear();
++    const month = String(date.getMonth() + 1).padStart(2, '0');
++    
+     const fileExtension = path.extname(file.originalname);
+     const uniqueFilename = `${uuidv4()}${fileExtension}`;
+-    const key = `profiles/${uniqueFilename}`;
++    
++    // Organize by file type and date
++    let folderPath = 'profiles/';
++    if (file.fieldname === 'profilePicture') {
++      folderPath = `profiles/pictures/${year}/${month}/`;
++    } else if (file.fieldname === 'coverPicture') {
++      folderPath = `profiles/covers/${year}/${month}/`;
++    } else {
++      folderPath = `profiles/other/${year}/${month}/`;
++    }
++    
++    const key = `${folderPath}${uniqueFilename}`;
+     cb(null, key);
+   },
+   contentType: multerS3.AUTO_CONTENT_TYPE,
++  metadata: function (req, file, cb) {
++    cb(null, {
++      fieldname: file.fieldname,
++      originalname: file.originalname,
++      uploadDate: new Date().toISOString(),
++    });
++  },
+ }) : null;
+ 
+ const messageS3Storage = hasS3Credentials && s3Client ? multerS3({

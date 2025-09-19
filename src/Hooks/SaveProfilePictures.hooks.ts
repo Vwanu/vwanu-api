@@ -7,11 +7,37 @@ export default (mediaArray: string[]) =>
     const documentFiles = context.data.UploadedMedia;
     if (!documentFiles) return context;
 
+    console.log('=== SAVE PROFILE PICTURES HOOK ===');
+    console.log('UploadedMedia:', documentFiles);
+
+    const { generateS3Url, uploadToS3Async } = require('../storage/s3');
+
     mediaArray.forEach((mediaGroup) => {
       if (documentFiles[mediaGroup]) {
-        context.data[mediaGroup] = documentFiles[mediaGroup][0].path;
+        const file = documentFiles[mediaGroup][0];
+        
+        // Generate S3 URL immediately
+        const { url, key } = generateS3Url(mediaGroup, file.originalname, 'profile');
+        
+        console.log(`Processing ${mediaGroup}:`);
+        console.log('- File object:', file);
+        console.log('- Generated S3 URL:', url);
+        console.log('- S3 Key:', key);
+        
+        // Set the generated URL immediately
+        context.data[mediaGroup] = url;
+        
+        // Upload to S3 asynchronously (don't wait)
+        setImmediate(() => {
+          uploadToS3Async(file, key).catch((error) => {
+            console.error(`Background upload failed for ${mediaGroup}:`, error);
+          });
+        });
       }
     });
+
+    console.log('Final context.data:', context.data);
+    console.log('=== END SAVE PROFILE PICTURES HOOK ===');
 
     return context;
   };

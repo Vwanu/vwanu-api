@@ -1,6 +1,6 @@
 import config from 'config';
 import { Response, Request, NextFunction } from 'express';
-import isValidUrl from './validUrl';
+import { getUploadedFiles } from './uploadedFiles';
 
 const Common = {
   getTokenFromRequest: async (request: Request) => {
@@ -28,9 +28,9 @@ const Common = {
       message,
     });
   },
-  _formatError: (errors: Function | any) => {
+  _formatError: (errors: Error | any) => {
     if (!Array.isArray(errors))
-      throw new Error('Errors must be an array or a function');
+      throw new Error('Errors must be an array ');
     return errors.map((error) => ({
       // eslint-disable-next-line no-prototype-builtins
       msg: error.hasOwnProperty('message')
@@ -77,7 +77,7 @@ const Common = {
     request: Request,
   ): {
     offsetAndLimit: { limit?: number; offset: number };
-    getTotalPages: Function;
+    getTotalPages: (count: number) => number;
   } => {
     const { page, size } = request.query;
 
@@ -100,38 +100,7 @@ const Common = {
     return { offsetAndLimit, getTotalPages };
   },
 
-  getUploadedFiles: (mediaArray: string[], data): any => {
-    const documentFiles = data.UploadedMedia;
-    data.Media = [];
-    if (data.mediaLinks) {
-      data.mediaLinks.forEach((link: string) => {
-        if (isValidUrl(link)) {
-          data.Media.push({
-            original: link,
-            media: link,
-            tiny: link,
-            UserId: data.UserId,
-          });
-        }
-      });
-    }
-
-    if (documentFiles && mediaArray.some((media) => documentFiles[media])) {
-      mediaArray.forEach((mediaGroup) => {
-        if (documentFiles[mediaGroup]) {
-          documentFiles[mediaGroup].forEach((doc) => {
-            if (doc.path)
-              data.Media.push({
-                original: doc.path,
-                UserId: data.userId,
-              });
-          });
-        }
-      });
-    }
-    delete data.UploadedMedia;
-    return data;
-  },
+  getUploadedFiles,
 };
 
 export default Common;

@@ -4,7 +4,7 @@ import { ServiceAddons } from '@feathersjs/feathers';
 import hooks from './posts.hook';
 import { Posts } from './posts.class';
 import { PostKore } from '../post-kore/post-kore.class';
-import { postStorage } from '../../cloudinary';
+import { postStorage } from '../../storage/s3';
 import { Application } from '../../declarations';
 import transferUploadedFilesToFeathers from '../../middleware/PassFilesToFeathers/file-to-feathers.middleware';
 import requireLogin from '../../middleware/requireLogin';
@@ -28,10 +28,27 @@ export default function (app: Application): void {
   };
 
   const configuration: MEDIA_CONFIG_TYPE = app.get('MEDIA_CONFIGURATION');
+  
+  // Debug middleware to log incoming data
+  const debugMiddleware = (req: any, res: any, next: any) => {
+    console.log('=== POSTS SERVICE DEBUG START ===');
+    console.log('Timestamp:', new Date().toISOString());
+    console.log('Method:', req.method);
+    console.log('URL:', req.url);
+    console.log('Content-Type:', req.headers['content-type']);
+    console.log('Body:', req.body);
+    console.log('Files:', req.files);
+    console.log('Query:', req.query);
+    console.log('Params:', req.params);
+    console.log('========================');
+    next();
+  };
+  
   if (MEDIA_CONFIG_SCHEMA.parse(configuration)) {
     // Initialize our service with any options it requires
     app.use(
       '/posts',
+      debugMiddleware, // Add debug middleware first
       postStorage.fields([
         { name: 'postImage', maxCount: configuration.maxPostImages },
         { name: 'postVideo', maxCount: configuration.maxPostVideos },

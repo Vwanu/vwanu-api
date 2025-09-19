@@ -86,18 +86,18 @@ export class Community extends Model<CommunityInterface> {
   })
   privacyType!: CommunityPrivacyType;
 
-  @Column({
-    type: DataType.STRING,
-    allowNull: true,
-    // field: 'cover_picture',
-    field: 'coverPicture', // Use camelCase for consistency with other models
-    validate: {
-      isUrl: {
-        msg: 'Cover picture must be a valid URL'
-      }
-    },
-  })
-  coverPicture!: string;
+  // @Column({
+  //   type: DataType.STRING,
+  //   allowNull: true,
+  //   // field: 'cover_picture',
+  //   field: 'coverPicture', // Use camelCase for consistency with other models
+  //   validate: {
+  //     isUrl: {
+  //       msg: 'Cover picture must be a valid URL'
+  //     }
+  //   },
+  // })
+  // coverPicture!: string;
 
   @Column({
     type: DataType.TEXT,
