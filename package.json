@@ -13,10 +13,10 @@
     "seed": "sequelize db:seed:all",
     "test:local": "jest --watch --no-cache --detectOpenHandles",
     "test": "jest --coverage --passWithNoTests --detectOpenHandles --verbose",
-    "build": "npm run clean && tsc",
+    "build": "npm run clean && npm run generate-types && tsc",
     "clean": "rm -rf dist/",
     "start": "node -r tsconfig-paths/register dist/bin/index.js",
-    "dev": "npm run clean && tsc && concurrently --kill-others-on-fail --prefix-colors \"blue,green\" --prefix \"[{name}]\" --names \"tsc,nodemon\" \"tsc --watch\" \"nodemon\"",
+    "dev": "npm run clean && npm run generate-types && tsc && concurrently --kill-others-on-fail --prefix-colors \"blue,green\" --prefix \"[{name}]\" --names \"tsc,nodemon\" \"tsc --watch\" \"nodemon\"",
     "dev:watch": "npm run clean && concurrently \"tsc --watch\" \"nodemon\"",
     "dev:env": "node -r dotenv/config -r ts-node/register -r tsconfig-paths/register src/bin/index.ts",
     "start:staging": "NODE_ENV=staging ts-node -r tsconfig-paths/register src/bin/index.ts",
@@ -25,7 +25,9 @@
     "lint:prettier": "prettier  --fix src/**/*.js*",
     "serverless": "serverless",
     "test:watch": "jest --watch --detectOpenHandles",
-    "devops": "ts-node-dev --respawn --transpile-only --files --exit-child --watch src src/bin/index.ts"
+    "devops": "ts-node-dev --respawn --transpile-only --files --exit-child --watch src src/bin/index.ts",
+    "generate-types": "ts-node -r tsconfig-paths/register scripts/generate-types.ts",
+    "generate-types:watch": "nodemon --exec \"npm run generate-types\" --watch \"src/schema/**/*\" --ext ts,js"
   },
   "keywords": [
     "vwanu",

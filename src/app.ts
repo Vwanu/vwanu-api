@@ -8,6 +8,8 @@ import socketio from '@feathersjs/socketio';
 import feathers from '@feathersjs/feathers';
 import configuration from '@feathersjs/configuration';
 import { Request, Response, NextFunction } from 'express';
+import * as path from 'path';
+import * as fs from 'fs';
 
 // import channels from './channels';
 import services from './services';
@@ -50,6 +52,42 @@ app.configure(sequelize);
 
           
 app.get('/health', healthCheck);
+
+// API Types endpoint - serves generated TypeScript types for frontend consumption
+app.get('/api/types', (_req: Request, res: Response) => {
+  try {
+    const typesPath = path.join(process.cwd(), 'types', 'generated.ts');
+
+    // Check if types file exists
+    if (!fs.existsSync(typesPath)) {
+      return res.status(404).json({
+        error: 'Types file not found',
+        message: 'Please run "npm run generate-types" to generate the types file',
+        statusCode: 404
+      });
+    }
+
+    // Read the generated types file
+    const typesContent = fs.readFileSync(typesPath, 'utf-8');
+
+    // Set appropriate headers for TypeScript content
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
+    res.setHeader('X-Generated-At', fs.statSync(typesPath).mtime.toISOString());
+
+    // Send the types content
+    res.send(typesContent);
+
+  } catch (error: any) {
+    Logger.error('Error serving types:', error);
+    res.status(500).json({
+      error: 'Failed to serve types',
+      message: error?.message || 'Internal server error',
+      statusCode: 500
+    });
+  }
+});
+
 app.use('/auth', authentication(app));
 app.use(requireLogin);
 app.configure(services);
