@@ -1,6 +1,6 @@
 Resources:
   # VPC
-  VwanuVPC:
+  VPC:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: 10.0.0.0/16
@@ -9,168 +9,256 @@ Resources:
       Tags:
         - Key: Name
           Value: ${self:service}-${self:provider.stage}-vpc
+        - Key: Environment
+          Value: ${self:provider.stage}
 
   # Internet Gateway
-  VwanuInternetGateway:
+  InternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
       Tags:
         - Key: Name
           Value: ${self:service}-${self:provider.stage}-igw
+        - Key: Environment
+          Value: ${self:provider.stage}
 
-  AttachGateway:
+  # Attach Internet Gateway to VPC
+  InternetGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
-      VpcId:
-        Ref: VwanuVPC
-      InternetGatewayId:
-        Ref: VwanuInternetGateway
-
-  # Public Route Table
-  PublicRouteTable:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId:
-        Ref: VwanuVPC
-      Tags:
-        - Key: Name
-          Value: ${self:service}-${self:provider.stage}-public-rt
-
-  PublicRoute:
-    Type: AWS::EC2::Route
-    Properties:
-      RouteTableId:
-        Ref: PublicRouteTable
-      DestinationCidrBlock: 0.0.0.0/0
-      GatewayId:
-        Ref: VwanuInternetGateway
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC
 
   # Public Subnets
   PublicSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId:
-        Ref: VwanuVPC
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [0, !GetAZs '']
       CidrBlock: 10.0.1.0/24
-      AvailabilityZone:
-        Fn::Select:
-          - 0
-          - Fn::GetAZs: ''
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
           Value: ${self:service}-${self:provider.stage}-public-subnet-1
+        - Key: Environment
+          Value: ${self:provider.stage}
 
   PublicSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId:
-        Ref: VwanuVPC
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [1, !GetAZs '']
       CidrBlock: 10.0.2.0/24
-      AvailabilityZone:
-        Fn::Select:
-          - 1
-          - Fn::GetAZs: ''
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
           Value: ${self:service}-${self:provider.stage}-public-subnet-2
-
-  PublicSubnet1RouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      SubnetId:
-        Ref: PublicSubnet1
-      RouteTableId:
-        Ref: PublicRouteTable
-
-  PublicSubnet2RouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      SubnetId:
-        Ref: PublicSubnet2
-      RouteTableId:
-        Ref: PublicRouteTable
-
-  # NAT Gateway
-  VwanuNatEIP:
-    Type: AWS::EC2::EIP
-    Properties:
-      Domain: vpc
-      Tags:
-        - Key: Name
-          Value: ${self:service}-${self:provider.stage}-nat-eip
-
-  VwanuNatGateway:
-    Type: AWS::EC2::NatGateway
-    Properties:
-      AllocationId: !GetAtt VwanuNatEIP.AllocationId
-      SubnetId:
-        Ref: PublicSubnet1
-      Tags:
-        - Key: Name
-          Value: ${self:service}-${self:provider.stage}-nat-gw
-
-  # Private Route Table
-  PrivateRouteTable:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId:
-        Ref: VwanuVPC
-      Tags:
-        - Key: Name
-          Value: ${self:service}-${self:provider.stage}-private-rt
-
-  PrivateRoute:
-    Type: AWS::EC2::Route
-    Properties:
-      RouteTableId:
-        Ref: PrivateRouteTable
-      DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId:
-        Ref: VwanuNatGateway
+        - Key: Environment
+          Value: ${self:provider.stage}
 
   # Private Subnets
   PrivateSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId:
-        Ref: VwanuVPC
-      CidrBlock: 10.0.11.0/24
-      AvailabilityZone:
-        Fn::Select:
-          - 0
-          - Fn::GetAZs: ''
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [0, !GetAZs '']
+      CidrBlock: 10.0.3.0/24
       Tags:
         - Key: Name
           Value: ${self:service}-${self:provider.stage}-private-subnet-1
+        - Key: Environment
+          Value: ${self:provider.stage}
 
   PrivateSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId:
-        Ref: VwanuVPC
-      CidrBlock: 10.0.12.0/24
-      AvailabilityZone:
-        Fn::Select:
-          - 1
-          - Fn::GetAZs: ''
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [1, !GetAZs '']
+      CidrBlock: 10.0.4.0/24
       Tags:
         - Key: Name
           Value: ${self:service}-${self:provider.stage}-private-subnet-2
+        - Key: Environment
+          Value: ${self:provider.stage}
+
+  # NAT Gateways (for private subnet internet access)
+  NatGateway1EIP:
+    Type: AWS::EC2::EIP
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: ${self:service}-${self:provider.stage}-nat-eip-1
+
+  NatGateway2EIP:
+    Type: AWS::EC2::EIP
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: ${self:service}-${self:provider.stage}-nat-eip-2
+
+  NatGateway1:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NatGateway1EIP.AllocationId
+      SubnetId: !Ref PublicSubnet1
+      Tags:
+        - Key: Name
+          Value: ${self:service}-${self:provider.stage}-nat-1
+
+  NatGateway2:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NatGateway2EIP.AllocationId
+      SubnetId: !Ref PublicSubnet2
+      Tags:
+        - Key: Name
+          Value: ${self:service}-${self:provider.stage}-nat-2
+
+  # Route Tables
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: ${self:service}-${self:provider.stage}-public-rt
+        - Key: Environment
+          Value: ${self:provider.stage}
+
+  DefaultPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet1
+
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet2
+
+  PrivateRouteTable1:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: ${self:service}-${self:provider.stage}-private-rt-1
+        - Key: Environment
+          Value: ${self:provider.stage}
+
+  DefaultPrivateRoute1:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable1
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway1
 
   PrivateSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId:
-        Ref: PrivateSubnet1
-      RouteTableId:
-        Ref: PrivateRouteTable
+      RouteTableId: !Ref PrivateRouteTable1
+      SubnetId: !Ref PrivateSubnet1
+
+  PrivateRouteTable2:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: ${self:service}-${self:provider.stage}-private-rt-2
+        - Key: Environment
+          Value: ${self:provider.stage}
+
+  DefaultPrivateRoute2:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable2
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway2
 
   PrivateSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId:
-        Ref: PrivateSubnet2
-      RouteTableId:
-        Ref: PrivateRouteTable
+      RouteTableId: !Ref PrivateRouteTable2
+      SubnetId: !Ref PrivateSubnet2
+
+  # Security Groups
+  ALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: ${self:service}-${self:provider.stage}-alb-sg
+      GroupDescription: Security group for Application Load Balancer
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+          Description: HTTP access from internet
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+          Description: HTTPS access from internet
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+          Description: All outbound traffic
+      Tags:
+        - Key: Name
+          Value: ${self:service}-${self:provider.stage}-alb-sg
+        - Key: Environment
+          Value: ${self:provider.stage}
+
+  ECSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: ${self:service}-${self:provider.stage}-ecs-sg
+      GroupDescription: Security group for ECS Fargate tasks
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          SourceSecurityGroupId: !Ref ALBSecurityGroup
+          Description: Access from ALB
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+          Description: All outbound traffic
+      Tags:
+        - Key: Name
+          Value: ${self:service}-${self:provider.stage}-ecs-sg
+        - Key: Environment
+          Value: ${self:provider.stage}
+
+  DatabaseSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: ${self:service}-${self:provider.stage}-db-sg
+      GroupDescription: Security group for RDS Database
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: !Ref ECSSecurityGroup
+          Description: PostgreSQL access from ECS
+      Tags:
+        - Key: Name
+          Value: ${self:service}-${self:provider.stage}-db-sg
+        - Key: Environment
+          Value: ${self:provider.stage}

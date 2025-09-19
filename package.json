@@ -135,7 +135,7 @@
     "prettier": "^3.1.0",
     "sequelize-cli": "^6.6.0",
     "serverless": "^3.38.0",
-    "serverless-lift": "^1.31.0",
+    "serverless-lift": "^1.32.0",
     "serverless-prune-plugin": "^2.1.0",
     "sinon": "^13.0.1",
     "socket.io-client": "^4.4.1",

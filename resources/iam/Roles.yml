@@ -1,0 +1,261 @@
+Resources:
+  # ECS Task Execution Role
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ${self:service}-${self:provider.stage}-ecs-execution-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      Policies:
+        - PolicyName: ParameterStoreAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameters
+                  - ssm:GetParameter
+                  - ssm:GetParametersByPath
+                Resource:
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/vwanu/${self:provider.stage}/*"
+              - Effect: Allow
+                Action:
+                  - kms:Decrypt
+                Resource:
+                  - !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/*"
+                Condition:
+                  StringEquals:
+                    'kms:ViaService': !Sub "ssm.${AWS::Region}.amazonaws.com"
+        - PolicyName: CloudWatchLogsAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogStreams
+                Resource:
+                  - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/ecs/*"
+        - PolicyName: ECRAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:BatchGetImage
+                  - ecr:GetAuthorizationToken
+                Resource: "*"
+      Tags:
+        - Key: Name
+          Value: ${self:service}-${self:provider.stage}-ecs-execution-role
+        - Key: Environment
+          Value: ${self:provider.stage}
+
+  # ECS Task Role
+  ECSTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ${self:service}-${self:provider.stage}-ecs-task-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: S3AccessPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                  - s3:PutObjectAcl
+                  - s3:GetObjectAcl
+                Resource:
+                  - !Sub "${UserUploadsBucket}/*"
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                  - s3:GetBucketLocation
+                Resource:
+                  - !GetAtt UserUploadsBucket.Arn
+        - PolicyName: CognitoAccessPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cognito-idp:AdminInitiateAuth
+                  - cognito-idp:AdminCreateUser
+                  - cognito-idp:AdminSetUserPassword
+                  - cognito-idp:AdminUpdateUserAttributes
+                  - cognito-idp:AdminGetUser
+                  - cognito-idp:AdminListGroupsForUser
+                  - cognito-idp:ListUsers
+                  - cognito-idp:AdminDeleteUser
+                  - cognito-idp:AdminConfirmSignUp
+                  - cognito-idp:AdminDisableUser
+                  - cognito-idp:AdminEnableUser
+                Resource:
+                  - !GetAtt CognitoUserPool.Arn
+        - PolicyName: LocationServiceAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - geo:SearchPlaceIndexForText
+                  - geo:SearchPlaceIndexForPosition
+                  - geo:GetPlace
+                  - geo:CalculateRoute
+                  - geo:GetMapTile
+                  - geo:GetMapStyleDescriptor
+                  - geo:GetMapSprites
+                  - geo:GetMapGlyphs
+                Resource: "*"
+        - PolicyName: CloudWatchMetricsAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cloudwatch:PutMetricData
+                  - cloudwatch:GetMetricStatistics
+                  - cloudwatch:ListMetrics
+                Resource: "*"
+        - PolicyName: ParameterStoreReadAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                  - ssm:GetParameters
+                  - ssm:GetParametersByPath
+                Resource:
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/vwanu/${self:provider.stage}/*"
+              - Effect: Allow
+                Action:
+                  - kms:Decrypt
+                Resource:
+                  - !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/*"
+                Condition:
+                  StringEquals:
+                    'kms:ViaService': !Sub "ssm.${AWS::Region}.amazonaws.com"
+      Tags:
+        - Key: Name
+          Value: ${self:service}-${self:provider.stage}-ecs-task-role
+        - Key: Environment
+          Value: ${self:provider.stage}
+
+  # Application Auto Scaling Service Role
+  ApplicationAutoScalingServiceRole:
+    Type: AWS::IAM::ServiceLinkedRole
+    Properties:
+      AWSServiceName: ecs.application-autoscaling.amazonaws.com
+      Description: Application Auto Scaling service-linked role for ECS
+
+  # CloudWatch Events Role for ECS
+  ECSEventsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ${self:service}-${self:provider.stage}-ecs-events-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: ECSTasksAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecs:RunTask
+                  - ecs:StopTask
+                  - ecs:DescribeTasks
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - iam:PassRole
+                Resource:
+                  - !GetAtt ECSTaskExecutionRole.Arn
+                  - !GetAtt ECSTaskRole.Arn
+      Tags:
+        - Key: Name
+          Value: ${self:service}-${self:provider.stage}-ecs-events-role
+        - Key: Environment
+          Value: ${self:provider.stage}
+
+  # Lambda Execution Role (for potential Lambda functions)
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ${self:service}-${self:provider.stage}-lambda-execution-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+      Policies:
+        - PolicyName: S3AccessPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource:
+                  - !Sub "${UserUploadsBucket}/*"
+        - PolicyName: CognitoAccessPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cognito-idp:AdminGetUser
+                  - cognito-idp:AdminUpdateUserAttributes
+                Resource:
+                  - !GetAtt CognitoUserPool.Arn
+        - PolicyName: ParameterStoreAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                  - ssm:GetParameters
+                  - ssm:GetParametersByPath
+                Resource:
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/vwanu/${self:provider.stage}/*"
+      Tags:
+        - Key: Name
+          Value: ${self:service}-${self:provider.stage}-lambda-execution-role
+        - Key: Environment
+          Value: ${self:provider.stage}
+

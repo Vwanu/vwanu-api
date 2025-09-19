@@ -1,20 +1,68 @@
 Resources:
-  VwanuDb:
-    Type: AWS::RDS::DBInstance
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
+  # DB Parameter Group
+  DatabaseParameterGroup:
+    Type: AWS::RDS::DBParameterGroup
     Properties:
-      DBInstanceIdentifier: vwanu-api-backend-${sls:stage}-new-23
-      DBInstanceClass: db.t4g.small
-      Engine: postgres
-      EngineVersion: 13
-      AllocatedStorage: 20
-      MaxAllocatedStorage: 100
+      Family: postgres15
+      Description: Parameter group for PostgreSQL 15
+      Parameters:
+        shared_preload_libraries: pg_stat_statements
+        log_statement: all
+        log_min_duration_statement: 1000
+      Tags:
+        - Key: Name
+          Value: ${self:service}-${self:provider.stage}-db-params
+        - Key: Environment
+          Value: ${self:provider.stage}
+
+  # Database Security Group (for public access)
+  DatabaseSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: ${self:service}-${self:provider.stage}-db-sg
+      GroupDescription: Security group for RDS Database (public access)
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          CidrIp: 0.0.0.0/0
+          Description: PostgreSQL access from anywhere
+      Tags:
+        - Key: Name
+          Value: ${self:service}-${self:provider.stage}-db-sg
+        - Key: Environment
+          Value: ${self:provider.stage}
+
+  # RDS Instance (Public Access)
+  Database:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Delete
+    Properties:
+      DBInstanceIdentifier: ${self:service}-${self:provider.stage}-db
+      DBName: ${self:custom.config.database.name}
+      DBInstanceClass: ${self:custom.config.database.instanceClass}
+      AllocatedStorage: ${self:custom.config.database.allocatedStorage}
       StorageType: gp3
-      BackupRetentionPeriod: 30
-      MultiAZ: ${self:custom.databaseMultiAz.${sls:stage}}
-      EnablePerformanceInsights: true
+      StorageEncrypted: true
+      Engine: postgres
+      EngineVersion: '15.4'
+      MasterUsername: ${self:custom.config.database.username}
+      MasterUserPassword: ${env:DB_PASSWORD, 'changeme123!'}
+      VPCSecurityGroups:
+        - !Ref DatabaseSecurityGroup
+      DBParameterGroupName: !Ref DatabaseParameterGroup
+      BackupRetentionPeriod: ${self:custom.config.database.backupRetentionPeriod}
+      PreferredBackupWindow: "03:00-04:00"
+      PreferredMaintenanceWindow: "sun:04:00-sun:05:00"
+      MultiAZ: false
       PubliclyAccessible: true
       DeletionProtection: false
-      MasterUsername: ${self:provider.environment.DB_USERNAME}
-      MasterUserPassword: ${self:provider.environment.DB_PASSWORD}
+      CopyTagsToSnapshot: true
+      Tags:
+        - Key: Name
+          Value: ${self:service}-${self:provider.stage}-database
+        - Key: Environment
+          Value: ${self:provider.stage}
+        - Key: Service
+          Value: ${self:service}

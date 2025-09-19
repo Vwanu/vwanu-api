@@ -1,0 +1,110 @@
+Resources:
+  # S3 Bucket for User Uploads
+  UserUploadsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: ${self:service}-${self:provider.stage}-user-uploads-${self:provider.region}
+      VersioningConfiguration:
+        Status: ${self:custom.config.s3.versioning}
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+            BucketKeyEnabled: true
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - GET
+              - PUT
+              - POST
+              - DELETE
+              - HEAD
+            AllowedOrigins:
+              - "*"
+            ExposedHeaders:
+              - ETag
+            MaxAge: 3000
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteIncompleteMultipartUploads
+            Status: Enabled
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 7
+          - Id: TransitionToIA
+            Status: Disabled
+            Transitions:
+              - TransitionInDays: 30
+                StorageClass: STANDARD_IA
+          - Id: TransitionToGlacier
+            Status: Disabled
+            Transitions:
+              - TransitionInDays: 90
+                StorageClass: GLACIER
+      NotificationConfiguration:
+        CloudWatchConfigurations:
+          - Event: s3:ObjectCreated:*
+            CloudWatchConfiguration:
+              LogGroupName: !Ref S3LogGroup
+      Tags:
+        - Key: Name
+          Value: ${self:service}-${self:provider.stage}-user-uploads
+        - Key: Environment
+          Value: ${self:provider.stage}
+        - Key: Purpose
+          Value: UserUploads
+
+  # S3 Bucket Policy
+  UserUploadsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref UserUploadsBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: DenyInsecureConnections
+            Effect: Deny
+            Principal: "*"
+            Action: "s3:*"
+            Resource:
+              - !GetAtt UserUploadsBucket.Arn
+              - !Sub "${UserUploadsBucket}/*"
+            Condition:
+              Bool:
+                "aws:SecureTransport": "false"
+          - Sid: AllowECSTaskAccess
+            Effect: Allow
+            Principal:
+              AWS: !GetAtt ECSTaskRole.Arn
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+              - s3:DeleteObject
+              - s3:PutObjectAcl
+            Resource: !Sub "${UserUploadsBucket}/*"
+          - Sid: AllowECSTaskListAccess
+            Effect: Allow
+            Principal:
+              AWS: !GetAtt ECSTaskRole.Arn
+            Action:
+              - s3:ListBucket
+            Resource: !GetAtt UserUploadsBucket.Arn
+
+  # CloudWatch Log Group for S3 events
+  S3LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /aws/s3/${self:service}-${self:provider.stage}-user-uploads
+      RetentionInDays: 7
+      Tags:
+        - Key: Name
+          Value: ${self:service}-${self:provider.stage}-s3-logs
+        - Key: Environment
+          Value: ${self:provider.stage}
+

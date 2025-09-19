@@ -1,75 +1,255 @@
 Resources:
+  # Cognito User Pool
   CognitoUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
-      AdminCreateUserConfig:
-        AllowAdminCreateUserOnly: false
-        InviteMessageTemplate:
-          EmailSubject: '${self:custom.subjectPrefix.${sls:stage}}You have been invited to join as and admin staff member'
-          EmailMessage:
-            Fn::Join:
-              - ''
-              - - 'Your username is {username} and temporary password is {####}'
-                - '<br><br>'
-                - "Click <a href='https://${self:custom.adminDomains.${sls:stage}}/login'>here</a> to login and complete account creation."
-      EmailConfiguration:
-        EmailSendingAccount: COGNITO_DEFAULT
-      UserPoolAddOns:
-        AdvancedSecurityMode: ENFORCED
+      UserPoolName: ${self:service}-${self:provider.stage}-user-pool
+      AliasAttributes:
+        - email
+        - preferred_username
+      AutoVerifiedAttributes:
+        - email
+      EmailVerificationMessage: "Your verification code is {####}"
+      EmailVerificationSubject: "Verify your account for ${self:service}"
+      UsernameAttributes:
+        - email
+      UsernameConfiguration:
+        CaseSensitive: false
+      Policies:
+        PasswordPolicy:
+          MinimumLength: ${self:custom.config.cognito.passwordPolicy.minimumLength}
+          RequireLowercase: ${self:custom.config.cognito.passwordPolicy.requireLowercase}
+          RequireNumbers: ${self:custom.config.cognito.passwordPolicy.requireNumbers}
+          RequireSymbols: ${self:custom.config.cognito.passwordPolicy.requireSymbols}
+          RequireUppercase: ${self:custom.config.cognito.passwordPolicy.requireUppercase}
+          TemporaryPasswordValidityDays: 7
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Required: true
+          Mutable: true
+        - Name: name
+          AttributeDataType: String
+          Required: true
+          Mutable: true
+        - Name: family_name
+          AttributeDataType: String
+          Required: false
+          Mutable: true
+        - Name: given_name
+          AttributeDataType: String
+          Required: false
+          Mutable: true
+        - Name: picture
+          AttributeDataType: String
+          Required: false
+          Mutable: true
+        - Name: profile
+          AttributeDataType: String
+          Required: false
+          Mutable: true
       AccountRecoverySetting:
         RecoveryMechanisms:
           - Name: verified_email
             Priority: 1
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+        InviteMessageAction: EMAIL
+        TemporaryPasswordValidityDays: 7
       DeviceConfiguration:
-        DeviceOnlyRememberedOnUserPrompt: false
-      UserPoolName: vwanu-api-backend-user-pool-${sls:stage}
-      AliasAttributes:
-        - email
-      AutoVerifiedAttributes:
-        - email
-      Policies:
-        PasswordPolicy:
-          RequireUppercase: true
-          RequireLowercase: true
-          RequireSymbols: true
-          RequireNumbers: true
-          MinimumLength: 12
-      Schema:
-        - Name: role
-          AttributeDataType: String
-          Mutable: true
-        - Name: assuming_username
-          AttributeDataType: String
-          Mutable: true
+        DeviceOnlyRememberedOnUserPrompt: true
+      EmailConfiguration:
+        EmailSendingAccount: COGNITO_DEFAULT
+      MfaConfiguration: OPTIONAL
+      EnabledMfas:
+        - SOFTWARE_TOKEN_MFA
+      UserPoolTags:
+        Name: ${self:service}-${self:provider.stage}-user-pool
+        Environment: ${self:provider.stage}
+        Service: ${self:service}
+
+  # Cognito User Pool Client
   CognitoUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
-      ClientName: vwanu-api-backend-user-pool-client-${sls:stage}
-      UserPoolId:
-        Ref: CognitoUserPool
+      UserPoolId: !Ref CognitoUserPool
+      ClientName: ${self:service}-${self:provider.stage}-client
+      GenerateSecret: false
       ExplicitAuthFlows:
         - ALLOW_ADMIN_USER_PASSWORD_AUTH
         - ALLOW_USER_PASSWORD_AUTH
-        - ALLOW_REFRESH_TOKEN_AUTH
         - ALLOW_USER_SRP_AUTH
-        - ALLOW_CUSTOM_AUTH
-      EnableTokenRevocation: true
+        - ALLOW_REFRESH_TOKEN_AUTH
+      SupportedIdentityProviders:
+        - COGNITO
+        - Facebook
+        - Google
+      CallbackURLs:
+        - http://localhost:3000/auth/callback
+        - https://${self:service}-${self:provider.stage}.yourdomain.com/auth/callback
+      LogoutURLs:
+        - http://localhost:3000/auth/logout
+        - https://${self:service}-${self:provider.stage}.yourdomain.com/auth/logout
+      AllowedOAuthFlows:
+        - code
+        - implicit
+      AllowedOAuthScopes:
+        - email
+        - openid
+        - profile
+        - aws.cognito.signin.user.admin
+      AllowedOAuthFlowsUserPoolClient: true
+      RefreshTokenValidity: 30
+      AccessTokenValidity: 60
+      IdTokenValidity: 60
+      TokenValidityUnits:
+        AccessToken: minutes
+        IdToken: minutes
+        RefreshToken: days
+      ReadAttributes:
+        - email
+        - email_verified
+        - name
+        - family_name
+        - given_name
+        - picture
+        - profile
+      WriteAttributes:
+        - email
+        - name
+        - family_name
+        - given_name
+        - picture
+        - profile
       PreventUserExistenceErrors: ENABLED
-  CognitoUserPoolGroupAdmin:
-    Type: AWS::Cognito::UserPoolGroup
+
+  # Cognito User Pool Domain
+  CognitoUserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
     Properties:
-      GroupName: 'ADMIN'
-      UserPoolId:
-        Ref: CognitoUserPool
-  CognitoUserPoolGroupModerator:
-    Type: AWS::Cognito::UserPoolGroup
+      UserPoolId: !Ref CognitoUserPool
+      Domain: ${self:service}-${self:provider.stage}-auth
+
+  # Facebook Identity Provider
+  FacebookIdentityProvider:
+    Type: AWS::Cognito::UserPoolIdentityProvider
+    Condition: HasFacebookAuth
     Properties:
-      GroupName: 'MODERATOR'
-      UserPoolId:
-        Ref: CognitoUserPool
-  CognitoUserPoolGroupUsers:
-    Type: AWS::Cognito::UserPoolGroup
+      UserPoolId: !Ref CognitoUserPool
+      ProviderName: Facebook
+      ProviderType: Facebook
+      ProviderDetails:
+        client_id: ${env:FACEBOOK_CLIENT_ID, ''}
+        client_secret: ${env:FACEBOOK_CLIENT_SECRET, ''}
+        authorize_scopes: email,public_profile
+      AttributeMapping:
+        email: email
+        name: name
+        family_name: last_name
+        given_name: first_name
+        picture: picture
+
+  # Google Identity Provider
+  GoogleIdentityProvider:
+    Type: AWS::Cognito::UserPoolIdentityProvider
+    Condition: HasGoogleAuth
     Properties:
-      GroupName: 'USERS'
-      UserPoolId:
-        Ref: CognitoUserPool
+      UserPoolId: !Ref CognitoUserPool
+      ProviderName: Google
+      ProviderType: Google
+      ProviderDetails:
+        client_id: ${env:GOOGLE_CLIENT_ID, ''}
+        client_secret: ${env:GOOGLE_CLIENT_SECRET, ''}
+        authorize_scopes: email openid profile
+      AttributeMapping:
+        email: email
+        name: name
+        family_name: family_name
+        given_name: given_name
+        picture: picture
+
+  # Cognito Identity Pool
+  CognitoIdentityPool:
+    Type: AWS::Cognito::IdentityPool
+    Properties:
+      IdentityPoolName: ${self:service}-${self:provider.stage}-identity-pool
+      AllowUnauthenticatedIdentities: false
+      CognitoIdentityProviders:
+        - ClientId: !Ref CognitoUserPoolClient
+          ProviderName: !GetAtt CognitoUserPool.ProviderName
+          ServerSideTokenCheck: true
+
+  # IAM Role for authenticated users
+  CognitoAuthenticatedRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ${self:service}-${self:provider.stage}-cognito-authenticated-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: cognito-identity.amazonaws.com
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                "cognito-identity.amazonaws.com:aud": !Ref CognitoIdentityPool
+              "ForAnyValue:StringLike":
+                "cognito-identity.amazonaws.com:amr": authenticated
+      Policies:
+        - PolicyName: CognitoAuthenticatedUserPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource: !Sub
+                  - "${BucketName}/private/$${cognito-identity.amazonaws.com:sub}/*"
+                  - BucketName: !Ref UserUploadsBucket
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource: !Sub "${UserUploadsBucket}/public/*"
+
+  # IAM Role for unauthenticated users
+  CognitoUnauthenticatedRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ${self:service}-${self:provider.stage}-cognito-unauthenticated-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: cognito-identity.amazonaws.com
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                "cognito-identity.amazonaws.com:aud": !Ref CognitoIdentityPool
+              "ForAnyValue:StringLike":
+                "cognito-identity.amazonaws.com:amr": unauthenticated
+      Policies:
+        - PolicyName: CognitoUnauthenticatedUserPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource: !Sub "${UserUploadsBucket}/public/*"
+
+  # Identity Pool Role Attachment
+  CognitoIdentityPoolRoleAttachment:
+    Type: AWS::Cognito::IdentityPoolRoleAttachment
+    Properties:
+      IdentityPoolId: !Ref CognitoIdentityPool
+      Roles:
+        authenticated: !GetAtt CognitoAuthenticatedRole.Arn
+        unauthenticated: !GetAtt CognitoUnauthenticatedRole.Arn
+
+Conditions:
+  HasFacebookAuth: !Not [!Equals ['${env:FACEBOOK_CLIENT_ID, ""}', '']]
+  HasGoogleAuth: !Not [!Equals ['${env:GOOGLE_CLIENT_ID, ""}', '']]

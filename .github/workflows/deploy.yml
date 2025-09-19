@@ -18,6 +18,9 @@ jobs:
   #   secrets: inherit
   build-and-push:
     runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.build.outputs.image_tag }}
+      full_image_uri: ${{ steps.build.outputs.full_image_uri }}
     steps:
       - name: Set environment variable based on input
         id: set_env
@@ -49,11 +52,19 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build, Tag, and Push to ECR
+        id: build
         run: |
-          IMAGE_TAG="${{ github.sha }}"
-          SHORT_SHA=$(echo $IMAGE_TAG | cut -c1-8)
-          docker build -t ${{ secrets.ECR_REPOSITORY }}:$SHORT_SHA .
-          docker push ${{ secrets.ECR_REPOSITORY }}:$SHORT_SHA
+          # Use our dynamic tagging script
+          bash docker-build-and-push.sh ${{ github.sha }}
+
+          # Export image info for next steps
+          source .image-tag
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          echo "FULL_IMAGE_URI=$FULL_IMAGE_URI" >> $GITHUB_ENV
+
+          # Set outputs for other jobs
+          echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "full_image_uri=$FULL_IMAGE_URI" >> $GITHUB_OUTPUT
 
   aws-deploy:
     needs: build-and-push
@@ -169,12 +180,17 @@ jobs:
 
             TASK_DEF=$(aws ecs describe-task-definition --task-definition "$TASK_DEF_NAME" --region ${{ vars.AWS_REGION }})
             
-            # Create short SHA for image tag
-            SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-8)
-            
+            # Get image URI from build step
+            IMAGE_URI="${{ needs.build-and-push.outputs.FULL_IMAGE_URI }}"
+            if [ -z "$IMAGE_URI" ]; then
+              # Fallback to constructing from SHA
+              SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-8)
+              IMAGE_URI="${{ secrets.ECR_REPOSITORY }}:$SHORT_SHA"
+            fi
+
             # Create new task definition with updated image
-            echo "Creating new task definition with updated image..."
-            NEW_TASK_DEF=$(echo "$TASK_DEF" | jq --arg IMAGE "${{ secrets.ECR_REPOSITORY }}:$SHORT_SHA" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)')
+            echo "Creating new task definition with updated image: $IMAGE_URI"
+            NEW_TASK_DEF=$(echo "$TASK_DEF" | jq --arg IMAGE "$IMAGE_URI" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)')
             
             # Register new task definition
             echo "Registering new task definition..."

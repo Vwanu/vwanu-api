@@ -1,0 +1,270 @@
+Resources:
+  # Database Parameters
+  DatabaseUsernameParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /vwanu/${self:provider.stage}/database/username
+      Type: String
+      Value: ${self:custom.config.database.username}
+      Description: Database username for ${self:service} ${self:provider.stage}
+      Tags:
+        Environment: ${self:provider.stage}
+        Service: ${self:service}
+        Component: database
+
+  DatabasePasswordParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /vwanu/${self:provider.stage}/database/password
+      Type: SecureString
+      Value: ${env:DB_PASSWORD, 'changeme123!'}
+      Description: Database password for ${self:service} ${self:provider.stage}
+      Tags:
+        Environment: ${self:provider.stage}
+        Service: ${self:service}
+        Component: database
+
+  DatabaseHostParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /vwanu/${self:provider.stage}/database/host
+      Type: String
+      Value: !GetAtt Database.Endpoint.Address
+      Description: Database host for ${self:service} ${self:provider.stage}
+      Tags:
+        Environment: ${self:provider.stage}
+        Service: ${self:service}
+        Component: database
+
+  DatabasePortParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /vwanu/${self:provider.stage}/database/port
+      Type: String
+      Value: !GetAtt Database.Endpoint.Port
+      Description: Database port for ${self:service} ${self:provider.stage}
+      Tags:
+        Environment: ${self:provider.stage}
+        Service: ${self:service}
+        Component: database
+
+  DatabaseNameParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /vwanu/${self:provider.stage}/database/name
+      Type: String
+      Value: ${self:custom.config.database.name}
+      Description: Database name for ${self:service} ${self:provider.stage}
+      Tags:
+        Environment: ${self:provider.stage}
+        Service: ${self:service}
+        Component: database
+
+  # JWT Secret
+  JWTSecretParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /vwanu/${self:provider.stage}/jwt/secret
+      Type: SecureString
+      Value: ${env:JWT_SECRET, 'default-jwt-secret-change-this-in-production-minimum-32-chars'}
+      Description: JWT secret for ${self:service} ${self:provider.stage}
+      Tags:
+        Environment: ${self:provider.stage}
+        Service: ${self:service}
+        Component: authentication
+
+  # OAuth Facebook Parameters
+  FacebookClientIdParameter:
+    Type: AWS::SSM::Parameter
+    Condition: HasFacebookConfig
+    Properties:
+      Name: /vwanu/${self:provider.stage}/oauth/facebook/client_id
+      Type: SecureString
+      Value: ${env:FACEBOOK_CLIENT_ID, ''}
+      Description: Facebook OAuth client ID for ${self:service} ${self:provider.stage}
+      Tags:
+        Environment: ${self:provider.stage}
+        Service: ${self:service}
+        Component: oauth
+
+  FacebookClientSecretParameter:
+    Type: AWS::SSM::Parameter
+    Condition: HasFacebookConfig
+    Properties:
+      Name: /vwanu/${self:provider.stage}/oauth/facebook/client_secret
+      Type: SecureString
+      Value: ${env:FACEBOOK_CLIENT_SECRET, ''}
+      Description: Facebook OAuth client secret for ${self:service} ${self:provider.stage}
+      Tags:
+        Environment: ${self:provider.stage}
+        Service: ${self:service}
+        Component: oauth
+
+  # OAuth Google Parameters
+  GoogleClientIdParameter:
+    Type: AWS::SSM::Parameter
+    Condition: HasGoogleConfig
+    Properties:
+      Name: /vwanu/${self:provider.stage}/oauth/google/client_id
+      Type: SecureString
+      Value: ${env:GOOGLE_CLIENT_ID, ''}
+      Description: Google OAuth client ID for ${self:service} ${self:provider.stage}
+      Tags:
+        Environment: ${self:provider.stage}
+        Service: ${self:service}
+        Component: oauth
+
+  GoogleClientSecretParameter:
+    Type: AWS::SSM::Parameter
+    Condition: HasGoogleConfig
+    Properties:
+      Name: /vwanu/${self:provider.stage}/oauth/google/client_secret
+      Type: SecureString
+      Value: ${env:GOOGLE_CLIENT_SECRET, ''}
+      Description: Google OAuth client secret for ${self:service} ${self:provider.stage}
+      Tags:
+        Environment: ${self:provider.stage}
+        Service: ${self:service}
+        Component: oauth
+
+  # Cloudinary Parameters
+  CloudinaryCloudNameParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /vwanu/${self:provider.stage}/cloudinary/cloud_name
+      Type: String
+      Value: ${env:CLOUDINARY_CLOUD_NAME, 'your-cloudinary-name'}
+      Description: Cloudinary cloud name for ${self:service} ${self:provider.stage}
+      Tags:
+        Environment: ${self:provider.stage}
+        Service: ${self:service}
+        Component: media
+
+  CloudinaryApiKeyParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /vwanu/${self:provider.stage}/cloudinary/api_key
+      Type: SecureString
+      Value: ${env:CLOUDINARY_API_KEY, 'your-cloudinary-api-key'}
+      Description: Cloudinary API key for ${self:service} ${self:provider.stage}
+      Tags:
+        Environment: ${self:provider.stage}
+        Service: ${self:service}
+        Component: media
+
+  CloudinaryApiSecretParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /vwanu/${self:provider.stage}/cloudinary/api_secret
+      Type: SecureString
+      Value: ${env:CLOUDINARY_API_SECRET, 'your-cloudinary-api-secret'}
+      Description: Cloudinary API secret for ${self:service} ${self:provider.stage}
+      Tags:
+        Environment: ${self:provider.stage}
+        Service: ${self:service}
+        Component: media
+
+  # S3 Bucket Parameter
+  S3BucketParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /vwanu/${self:provider.stage}/s3/user_uploads_bucket
+      Type: String
+      Value: !Ref UserUploadsBucket
+      Description: S3 bucket for user uploads for ${self:service} ${self:provider.stage}
+      Tags:
+        Environment: ${self:provider.stage}
+        Service: ${self:service}
+        Component: storage
+
+  # Cognito Parameters
+  CognitoUserPoolIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /vwanu/${self:provider.stage}/cognito/user_pool_id
+      Type: String
+      Value: !Ref CognitoUserPool
+      Description: Cognito User Pool ID for ${self:service} ${self:provider.stage}
+      Tags:
+        Environment: ${self:provider.stage}
+        Service: ${self:service}
+        Component: authentication
+
+  CognitoClientIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /vwanu/${self:provider.stage}/cognito/client_id
+      Type: String
+      Value: !Ref CognitoUserPoolClient
+      Description: Cognito User Pool Client ID for ${self:service} ${self:provider.stage}
+      Tags:
+        Environment: ${self:provider.stage}
+        Service: ${self:service}
+        Component: authentication
+
+  # Application Configuration
+  ApplicationUrlParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /vwanu/${self:provider.stage}/application/url
+      Type: String
+      Value: ${env:APPLICATION_URL, 'http://localhost:3000'}
+      Description: Application URL for ${self:service} ${self:provider.stage}
+      Tags:
+        Environment: ${self:provider.stage}
+        Service: ${self:service}
+        Component: application
+
+  ApplicationNameParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /vwanu/${self:provider.stage}/application/name
+      Type: String
+      Value: ${self:service}
+      Description: Application name for ${self:service} ${self:provider.stage}
+      Tags:
+        Environment: ${self:provider.stage}
+        Service: ${self:service}
+        Component: application
+
+  # Load Balancer DNS
+  LoadBalancerDNSParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /vwanu/${self:provider.stage}/alb/dns_name
+      Type: String
+      Value: !GetAtt ApplicationLoadBalancer.DNSName
+      Description: Application Load Balancer DNS name for ${self:service} ${self:provider.stage}
+      Tags:
+        Environment: ${self:provider.stage}
+        Service: ${self:service}
+        Component: infrastructure
+
+  # Email Configuration (for potential email service)
+  EmailFromAddressParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /vwanu/${self:provider.stage}/email/from_address
+      Type: String
+      Value: ${env:EMAIL_FROM_ADDRESS, 'noreply@yourdomain.com'}
+      Description: Email from address for ${self:service} ${self:provider.stage}
+      Tags:
+        Environment: ${self:provider.stage}
+        Service: ${self:service}
+        Component: email
+
+  EmailFromNameParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /vwanu/${self:provider.stage}/email/from_name
+      Type: String
+      Value: ${env:EMAIL_FROM_NAME, 'Vwanu Team'}
+      Description: Email from name for ${self:service} ${self:provider.stage}
+      Tags:
+        Environment: ${self:provider.stage}
+        Service: ${self:service}
+        Component: email
+
+Conditions:
+  HasFacebookConfig: !Not [!Equals ['${env:FACEBOOK_CLIENT_ID, ""}', '']]
+  HasGoogleConfig: !Not [!Equals ['${env:GOOGLE_CLIENT_ID, ""}', '']]

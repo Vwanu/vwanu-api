@@ -1,128 +1,100 @@
-service: vwanu-api-backend
+service: vwanu-server
 frameworkVersion: '3'
+
 provider:
   name: aws
-  stage: ${opt:stage, 'dev'}
+  runtime: nodejs18.x
   region: ${opt:region, 'us-east-1'}
-  iam:
-    role:
-      statements:
-        - Effect: 'Allow'
-          Action:
-            - 'tag:*'
-          Resource: '*'
-        - Effect: 'Allow'
-          Action:
-            - 's3:*'
-          Resource: '*'
-        - Effect: 'Allow'
-          Action:
-            - 'logs:*'
-          Resource: '*'
-        - Effect: 'Allow'
-          Action:
-            - 'cognito-idp:*'
-          Resource: '*'
-        - Effect: 'Allow'
-          Action:
-            - 'ses:SendTemplatedEmail'
-          Resource: '*'
-        - Effect: Allow
-          Action:
-            - ec2:CreateNetworkInterface
-            - ec2:DescribeNetworkInterfaces
-            - ec2:DeleteNetworkInterface
-            - ec2:AssignPrivateIpAddresses
-            - ec2:UnassignPrivateIpAddresses
-          Resource: '*'
-        - Effect: Allow
-          Action:
-            - 'ssm:GetParameter'
-            - 'ssm:GetParameters'
-          Resource: 
-            - 'arn:aws:ssm:${self:provider.region}:*:parameter/${sls:stage}/*'
+  stage: ${opt:stage, 'dev'}
+  memorySize: 512
+  timeout: 30
   environment:
-    STAGE: ${sls:stage}
+    NODE_ENV: ${self:provider.stage}
+    STAGE: ${self:provider.stage}
     REGION: ${self:provider.region}
-    SERVICE_NAME: vwanu-api-backend
-    GITHUB_USERNAME: ${env:GITHUB_USERNAME, 'system'}
-    DB_HOST: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseHost}
-    DB_USERNAME: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseCredentials.username}
-    DB_PASSWORD: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseCredentials.password}
-    COGNITO_USER_POOL: ${self:custom.offlineConfig.${self:custom.isOffline}.cognitoUserPool}
-    API_URL: ${self:custom.offlineConfig.${self:custom.isOffline}.apiUrl}
-    AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE: true
-    CLIENT_ID: ${ssm:/${sls:stage}/clientId}
-    USER_POOL_ID: ${ssm:/${sls:stage}/userPoolId}
-    CLOUDINARY_API_SECRET: ${ssm:/${sls:stage}/CLOUDINARY_API_SECRET}
-    CLOUDINARY_API_KEY: ${ssm:/${sls:stage}/CLOUDINARY_API_KEY}
-    CLOUDINARY_CLOUD_NAME: ${ssm:/${sls:stage}/CLOUDINARY_CLOUD_NAME}
-    MAX_POST_VIDEOS: ${ssm:/${sls:stage}/maxPostVideos}
-    MAX_POST_AUDIOS: ${ssm:/${sls:stage}/maxPostAudios}
-    MAX_POST_IMAGES: ${ssm:/${sls:stage}/maxPostImages}
-    MAX_MESSAGE_IMAGES: ${ssm:/${sls:stage}/maxMessageImages}
-    MAX_DISCUSSION_VIDEOS: ${ssm:/${sls:stage}/maxDiscussionVideos}
-    MAX_DISCUSSION_AUDIOS: ${ssm:/${sls:stage}/maxDiscussionAudios}
-    MAX_DISCUSSION_IMAGES: ${ssm:/${sls:stage}/maxDiscussionImages}
-   # REDIS_ENDPOINT: ${ssm:/${sls:stage}/redisEndpoint}
-
-plugins:
-  - serverless-prune-plugin
-  - serverless-lift
+    # Database
+    DB_HOST: !GetAtt Database.Endpoint.Address
+    DB_PORT: !GetAtt Database.Endpoint.Port
+    DB_NAME: ${self:custom.config.database.name}
+    DB_USERNAME: ${self:custom.config.database.username}
+    DB_PASSWORD: ${env:DB_PASSWORD, 'changeme123!'}
+    # S3
+    S3_BUCKET: !Ref UserUploadsBucket
+    # Cognito
+    COGNITO_USER_POOL_ID: !Ref CognitoUserPool
+    COGNITO_CLIENT_ID: !Ref CognitoUserPoolClient
+    # Application
+    JWT_SECRET: ${env:JWT_SECRET, 'default-jwt-secret-change-this-in-production-minimum-32-chars'}
+    API_PORT: 3000
+    HOST: 0.0.0.0
 
 custom:
-  shortServiceName: vwanu
-  ecr:
-    repositoryUri: '058264272613.dkr.ecr.us-east-1.amazonaws.com/webvital/vwanu'
-    imageTag: ${param:imageTag}
-  isOffline: ${env:IS_OFFLINE, "false"}
-  offlineConfig:
-    true:
-      databaseHost: ${env:DB_HOST, 'localhost'}
-      databaseCredentials:
-        username: ${env:DB_USERNAME, 'postgres'}
-        password: ${env:DB_PASSWORD, 'postgres'}
-      cognitoUserPool: ${env:COGNITO_USER_POOL, ''}
-      apiUrl: ${env:API_URL, 'http://localhost:3000'}
-    false:
-      databaseHost:
-        Fn::GetAtt:
-          - VwanuDb
-          - Endpoint.Address
-      databaseCredentials:
-        username: ${env:DB_USERNAME, 'postgres'}
-        password: ${env:DB_PASSWORD, 'postgres'}
-      cognitoUserPool:
-        Ref: CognitoUserPool
-      apiUrl: https://api.wadsonvaval.click
-  databaseMultiAz:
-    prod: true
-    staging: true
-    dev: false
-  adminDomains:
-    prod: admin.wadsonvaval.click
-    staging: admin-staging.wadsonvaval.click
-    dev: admin-dev.wadsonvaval.click
-  subjectPrefix:
-    prod: ''
-    staging: '[STAGING] '
-    dev: '[DEV] '
-  prune:
-    automatic: true
-    number: 3
+  config:
+    database:
+      name: vwanu_${self:provider.stage}
+      username: vwanu_user
+      instanceClass: db.t3.micro
+      allocatedStorage: 20
+      backupRetentionPeriod: 7
+    ecs:
+      cpu: 256
+      memory: 512
+      desiredCount: 1
+    s3:
+      versioning: Suspended
+    cognito:
+      passwordPolicy:
+        minimumLength: 8
+        requireLowercase: true
+        requireNumbers: true
+        requireSymbols: false
+        requireUppercase: true
+
+# Using pure CloudFormation instead of serverless-lift
 
 resources:
-  # Network
-  - ${file(resources/network/Network.yml)}
+  # Import all resource files
+  - ${file(./resources/network/Network.yml)}
+  - ${file(./resources/database/Database.yml)}
+  - ${file(./resources/ecs/ecs.yml)}
+  - ${file(./resources/cognito/UserPool.yml)}
+  - ${file(./resources/s3/Storage.yml)}
+  - ${file(./resources/iam/Roles.yml)}
+  - ${file(./resources/parameters/ParameterStore.yml)}
 
-  # Database
-  - ${file(resources/database/Database.yml)}
+outputs:
+  VPCId:
+    Description: VPC ID
+    Value: !Ref VPC
+    Export:
+      Name: ${self:service}-${self:provider.stage}-vpc-id
 
-  # Cognito
-  - ${file(resources/cognito/UserPool.yml)}
+  DatabaseEndpoint:
+    Description: RDS Database Endpoint
+    Value: !GetAtt Database.Endpoint.Address
+    Export:
+      Name: ${self:service}-${self:provider.stage}-db-endpoint
 
-  # ECS
-  - ${file(resources/ecs/ecs.yml)}
+  LoadBalancerDNS:
+    Description: Load Balancer DNS Name
+    Value: !GetAtt ApplicationLoadBalancer.DNSName
+    Export:
+      Name: ${self:service}-${self:provider.stage}-alb-dns
 
-  # SES
-  # - ${file(resources/ses/email.yml)}
+  S3BucketName:
+    Description: S3 Bucket for User Uploads
+    Value: !Ref UserUploadsBucket
+    Export:
+      Name: ${self:service}-${self:provider.stage}-s3-bucket
+
+  CognitoUserPoolId:
+    Description: Cognito User Pool ID
+    Value: !Ref CognitoUserPool
+    Export:
+      Name: ${self:service}-${self:provider.stage}-cognito-pool-id
+
+  CognitoUserPoolClientId:
+    Description: Cognito User Pool Client ID
+    Value: !Ref CognitoUserPoolClient
+    Export:
+      Name: ${self:service}-${self:provider.stage}-cognito-client-id
