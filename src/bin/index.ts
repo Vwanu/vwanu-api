@@ -35,6 +35,7 @@ async function startServer() {
     if (sequelizeClient) {
       try {
         await sequelizeClient.authenticate();
+       
         logger.info('Database connection established successfully');
         
         // Note: Database tables are managed through migrations
