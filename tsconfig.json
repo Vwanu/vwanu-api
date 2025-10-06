@@ -37,5 +37,5 @@
     "require": ["tsconfig-paths/register"]
   },
   "include": ["src/**/*"],
-  "exclude": ["src/cloudinary/index.ts", "src/services", "src/channels.ts", "src/lib/utils/UsersCommon.ts", "src/lib/utils/userQuery.ts","src/middleware/HandleRequestErrors/", "src/lib",]
+  "exclude": ["src/cloudinary/index.ts", "src/services", "src/channels.ts", "src/lib/utils/UsersCommon.ts", "src/lib/utils/userQuery.ts","src/middleware/HandleRequestErrors/", "src/lib"]
 }
