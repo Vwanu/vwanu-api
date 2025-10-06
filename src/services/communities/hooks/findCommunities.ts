@@ -30,10 +30,10 @@ export default async (context: HookContext) => {
   const OnlyInterests = (interest) =>
     `(
   EXISTS(
-    SELECT 1 FROM "Interests" AS "I" 
-    INNER JOIN "Community_Interest" AS "CI" ON "CI"."InterestId"="I"."id" AND "CI"."CommunityId"="Community"."id"
+    SELECT 1 FROM interests AS "I"
+    INNER JOIN community_interests AS "CI" ON "CI".interest_id="I"."id" AND "CI".community_id="Community"."id"
     WHERE "I"."name"= '${interest}' )
-  
+
   )`;
 
   let interests;
@@ -46,6 +46,14 @@ export default async (context: HookContext) => {
     participate = where.participate;
     delete where.participate;
   }
+  if (where.userId) {
+    where.user_id = where.userId;
+    delete where.userId;
+  }
+
+  if(where.name) {
+    where.name = { [Op.iLike]: `%${where.name}%` };
+  }
   const isMember = `(
   SELECT 
     json_build_object(
@@ -53,8 +61,8 @@ export default async (context: HookContext) => {
      'role',"CR"."name",
      'roleId',"CR"."id"
     ) 
-    FROM "community_users" AS "CU"
-    INNER JOIN "CommunityRoles" AS "CR" ON "CR"."id" = "CU".community_role_id
+    FROM community_users AS "CU"
+    INNER JOIN community_roles AS "CR" ON "CR"."id" = "CU".community_role_id
     WHERE "CU".community_id="Community"."id" and "CU".user_id='${context.params.User.id}'
     LIMIT 1
   )`;
@@ -65,42 +73,42 @@ SELECT
     json_build_object(
       'name',"I"."name",
       'id',"I"."id"
-  )) FROM "Interests" AS "I" 
-  INNER JOIN "Community_Interest" AS "CI" ON "CI"."InterestId" = "I"."id"
-  WHERE "CI"."CommunityId"="Community"."id"
+  )) FROM interests AS "I" 
+  INNER JOIN community_interests AS "CI" ON "CI".interest_id = "I"."id"
+  WHERE "CI".community_id="Community"."id"
 )`;
 
   const members = `(SELECT 
   json_agg(
     json_build_object('id', "U"."id",
-      'firstName',"U"."firstName",
-      'lastName',"U"."lastName",
-      'profilePicture',"U"."profilePicture",
-      'createdAt',"U"."createdAt",
-      'updatedAt',"U"."updatedAt",
+      'firstName',"U"."first_name",
+      'lastName',"U"."last_name",
+      'profilePicture',"U"."profile_picture",
+      'createdAt',"U"."created_at",
+      'updatedAt',"U"."updated_at",
       'role',"CR"."name",
       'roleId',"CR"."id"
     )
   ) 
-  FROM "community_users" AS "CU" 
-  INNER JOIN "CommunityRoles" AS "CR" ON "CR"."id" = "CU".community_role_id
-  INNER JOIN "Users" AS "U" ON "CU".user_id="U"."id"
+  FROM community_users AS "CU" 
+  INNER JOIN community_roles AS "CR" ON "CR"."id" = "CU".community_role_id
+  INNER JOIN users AS "U" ON "CU".user_id="U"."id"
   WHERE "CU".user_id="U"."id" AND "CU".community_id="Community"."id"
   LIMIT 10
   )`;
 
   const isBanned = `(
      EXISTS (
-      SELECT 1 FROM "community_bans" AS "cb"
-      WHERE "cb"."community_id"="Community"."id"  AND 
-      "cb"."user_id"='${context.params.User.id}' AND
+      SELECT 1 FROM community_bans AS "cb"
+      WHERE "cb".community_id="Community"."id"  AND 
+      "cb".user_id='${context.params.User.id}' AND
       "cb"."until" > NOW() 
       )
   )`;
 
   const isParticipant = `(
     EXISTS (
-      SELECT 1 FROM "community_users" AS "cu" 
+      SELECT 1 FROM community_users AS "cu" 
       WHERE "cu"."community_id"="Community"."id"  AND 
       "cu"."user_id"='${context.params.User.id}'
       )
@@ -113,15 +121,14 @@ SELECT
       'id', "INV"."id",
       'role',"R"."name",
       'roleId',"R"."id",
-      'createdAt',"INV"."createdAt",
-      'updatedAt',"INV"."updatedAt",
-      'hostId',"INV"."hostId",
-      'guestId',"INV"."guestId"
+      'createdAt',"INV"."created_at",
+      'hostId',"INV"."host",
+      'guestId',"INV"."guest"
       )
       )
-     FROM "CommunityInvitationRequests" AS "INV" 
-     INNER JOIN "CommunityRoles" AS "R" ON "R"."id" = "INV"."CommunityRoleId"
-     WHERE "INV"."CommunityId"="Community"."id" AND "INV"."guestId"='${context.params.User.id}' AND "INV"."response" IS NULL
+     FROM community_invitation_requests AS "INV" 
+     INNER JOIN community_roles AS "R" ON "R"."id" = "INV".community_role_id
+     WHERE "INV".community_id="Community"."id" AND "INV".guest='${context.params.User.id}' AND "INV"."response" IS NULL
   )`;
   const clause = {
     // loging: console.log,
@@ -166,7 +173,7 @@ SELECT
         [Sequelize.literal(pendingInvitation), 'pendingInvitation'],
       ],
     },
-    include: { model: Sequelize.models.CommunityUsers, required: true },
+    // include: { model: Sequelize.models.CommunityUser, required: false },
     order,
     raw: false,
   };

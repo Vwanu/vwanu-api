@@ -17,12 +17,14 @@ export class Posts extends Service {
   async create(data, params) {
     const postData = getUploadedFiles(['postImage', 'postVideo'], data);
     
-    const { Media: mediaData, ...postFields } = postData;
+    console.log('data', data);
+    console.log('postData', postData);
+    const { Media: mediaData } = postData;
     
     // Create the post first
     const post = await this.app
       .service('posts')
-      .Model.create(postFields);
+      .Model.create(data);
 
     if (mediaData && mediaData.length > 0) {
       const mediaRecords = await this.app

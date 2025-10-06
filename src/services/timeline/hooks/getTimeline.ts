@@ -138,6 +138,11 @@ SELECT
     .service(context.path)
     .filterQuery(context.params);
 
+    // if communityId is not provided, set it to null
+    if(!where.communityId) {
+      where.communityId = null;
+    }
+
   const single = context.method === 'get';
   const queryString = /* isEmpty(where)
     ? */ {

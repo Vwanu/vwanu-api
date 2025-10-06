@@ -41,7 +41,7 @@ export class CommunityInvitationRequest extends Model<CommunityInvitationRequest
   @Column({
     type: DataType.UUID,
     allowNull: false,
-    field: 'guest_id',
+    field: 'guest',
   })
   guestId!: string;
 
@@ -50,7 +50,7 @@ export class CommunityInvitationRequest extends Model<CommunityInvitationRequest
   @Column({
     type: DataType.UUID,
     allowNull: false,
-    field: 'host_id',
+    field: 'host',
   })
   hostId!: string;
 

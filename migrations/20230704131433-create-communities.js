@@ -79,6 +79,6 @@ module.exports = {
     });
   },
   async down(queryInterface) {
-    await queryInterface.dropTable('Communities');
+    await queryInterface.dropTable('communities');
   },
 };

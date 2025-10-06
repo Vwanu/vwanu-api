@@ -1,12 +1,12 @@
 export default `(
-    SELECT 
+    SELECT
         json_agg(
             json_build_object(
                 'id', "I"."id",
                 'name', "I"."name"
             )
-        ) FROM "Interests" AS "I"
-        INNER JOIN "Community_Interest" AS "CI" ON "CI"."InterestId" = "I"."id"
-        WHERE "CI"."CommunityId"="Community"."id"
+        ) FROM interests AS "I"
+        INNER JOIN community_interests AS "CI" ON "CI".interest_id = "I"."id"
+        WHERE "CI".community_id="Community"."id"
 )
 `;
