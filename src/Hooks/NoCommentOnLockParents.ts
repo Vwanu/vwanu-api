@@ -5,7 +5,7 @@ import { BadRequest } from '@feathersjs/errors';
 export default async (context: HookContext) => {
   const { data } = context;
   const entityName = context.service.options.Model.name;
-  const parentColumn = `${entityName}Id`;
+  const parentColumn = `${entityName}_id`;
   if (!hasProperty(data, parentColumn)) return context;
   // eslint-disable-next-line no-underscore-dangle
   const parent = await context.app
