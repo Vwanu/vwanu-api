@@ -20,7 +20,9 @@ RUN npm install -g typescript
 
 # Copy source code and config explicitly
 COPY src ./src
+COPY scripts ./scripts
 COPY config ./config
+COPY migrations ./migrations
 COPY tsconfig.json ./
 COPY nodemon.json ./
 

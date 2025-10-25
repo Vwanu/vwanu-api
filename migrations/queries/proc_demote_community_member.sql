@@ -26,9 +26,9 @@ IF requester_role != 'admin' AND requester_role != 'moderator' THEN
 END IF;
 
 -- Get the community creator. 
-  SELECT "UserId"
+  SELECT user_id
     INTO v_community_creator_id
-    FROM "Communities"
+    FROM communities
     WHERE id = p_community_id;
 
 -- if the user is the community creator, than the requester can demote him 

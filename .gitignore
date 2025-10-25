@@ -7,6 +7,7 @@ dist/
 coverage/
 .aws/config
 .aws/credentials
+.claude/
 
 .env
 .env.json
@@ -33,3 +34,7 @@ log/
 *.tfplan.*
 .terraformrc
 terraform.rc
+
+# Debug/utility files
+disable-triggers.sql
+fix-db-function.js

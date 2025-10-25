@@ -3,6 +3,8 @@ import { HookContext } from '@feathersjs/feathers';
 
 export default (mediaArray: string[]) =>
   async (context: HookContext): Promise<HookContext> => {
+    console.log('=== SAVE PROFILE PICTURES HOOK TRIGGERED ===');
+    console.log('Initial context.data:', context.data);
     if (!mediaArray) throw new Error('Please specify mediaArrays');
     const documentFiles = context.data.UploadedMedia;
     if (!documentFiles) return context;
@@ -14,7 +16,10 @@ export default (mediaArray: string[]) =>
 
     mediaArray.forEach((mediaGroup) => {
       if (documentFiles[mediaGroup]) {
+        console.log(`Processing media group: ${mediaGroup}`);
+        console.log('Document files for this group:', documentFiles[mediaGroup]);
         const file = documentFiles[mediaGroup][0];
+        console.log(`Found file for ${mediaGroup}:`, file);
         
         // Generate S3 URL immediately
         const { url, key } = generateS3Url(mediaGroup, file.originalname, 'profile');

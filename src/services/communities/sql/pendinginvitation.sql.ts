@@ -5,12 +5,12 @@ export default `(
             'id', "INV"."id",
             'role',"R"."name",
             'roleId',"R"."id",
-            'createdAt',"INV"."createdAt",
-            'updatedAt',"INV"."updatedAt",
-            'hostId',"INV"."hostId",
-            'guestId',"INV"."guestId"
+            'createdAt',"INV"."created_at",
+            'updatedAt',"INV"."updated_at",
+            'hostId',"INV"."host",
+            'guestId',"INV"."guest"
         )
-    ) FROM "CommunityInvitationRequests" AS "INV" 
-    INNER JOIN "CommunityRoles" AS "R" ON "R"."id" = "INV"."CommunityRoleId"
-    WHERE "INV"."CommunityId"="Community"."id" AND "INV"."guestId"=':userId' AND "INV"."response" IS NULL
+    ) FROM community_invitation_requests AS "INV" 
+    INNER JOIN  community_roles AS "R" ON "R"."id" = "INV"."community_role_id"
+    WHERE "INV".community_id="Community"."id" AND "INV"."guest"=':userId' AND "INV"."response" IS NULL
 )`

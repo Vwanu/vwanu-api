@@ -1,6 +1,6 @@
 --DROP FUNCTION fn_get_community_by_id(uuid,uuid) 
 CREATE OR REPLACE FUNCTION public.fn_get_community_by_id(p_user_id uuid, p_community_id uuid)
- RETURNS TABLE(comm_id uuid, community_name text, description text,  "profilePicture" text, "coverPicture" text, "numMembers" integer, "numAdmins" integer,  "Interests" JSONB[], "canUserPost" boolean, "canUserInvite" boolean, "canUserUploadDoc" boolean, "canUserUploadPhotos" boolean,"canUserUploadVideo" boolean, "canMessageUserInGroup" boolean, "isMember" jsonb, "pendingInvitation" jsonb[], "haveDiscussionForum" boolean, creator jsonb, "commPrivacyType" text, "commUserId" uuid)
+ RETURNS TABLE(comm_id uuid, community_name text, description text,  "profilePicture" text, "coverPicture" text, "numMembers" integer, "numAdmins" integer,  "Interests" JSONB[], members JSONB[], "canUserInvite" boolean, "canUserUploadDoc" boolean, "canUserUploadPhotos" boolean, "isMember" jsonb, "pendingInvitation" jsonb[], creator jsonb, "commPrivacyType" text, "commUserId" uuid)
  LANGUAGE plpgsql
 AS $function$
 DECLARE
@@ -27,23 +27,23 @@ BEGIN
 
     -- Check if user is the creator
     SELECT EXISTS(
-        SELECT 1 FROM "Communities"
+        SELECT 1 FROM communities
         WHERE id = p_community_id 
-        AND "UserId" = p_user_id
+        AND user_id = p_user_id
     ) INTO v_is_creator;
 
     -- Check if the community is public
     SELECT EXISTS(
-        SELECT 1 FROM "Communities"
+        SELECT 1 FROM communities
         WHERE id = p_community_id 
-        AND "privacyType" = 'public'
+        AND privacy_type = 'public'
     ) INTO v_is_public;
 
     -- Fetch the user's role if they are a member of the community
     SELECT community_role_id, name 
     INTO v_role_id, v_role_name
     FROM community_users 
-    JOIN "CommunityRoles"  ON "CommunityRoles"."id" = community_users.community_role_id
+    JOIN community_roles  ON community_roles.id = community_users.community_role_id
     WHERE user_id = p_user_id AND community_id = p_community_id;
 
 
@@ -57,40 +57,28 @@ BEGIN
     -- Fetch community if any of the conditions is met
     IF v_is_creator OR v_is_public OR v_is_member THEN
         SELECT * INTO v_community_record
-        FROM "Communities"
+        FROM communities
         WHERE id = p_community_id;
 
         comm_id:= v_community_record.id;
         community_name := v_community_record.name;
 		description:= v_community_record.description;
-		"commUserId":=v_community_record."UserId";
-        "profilePicture" := v_community_record."profilePicture";
-        "coverPicture" := v_community_record."coverPicture";
-        "numMembers" := v_community_record."numMembers";
-        "numAdmins" := v_community_record."numAdmins";
-		"commPrivacyType":=v_community_record."privacyType";
-        "haveDiscussionForum":= v_community_record."haveDiscussionForum";
+		"commUserId":=v_community_record.user_id;
+        "profilePicture" := v_community_record.profile_picture;
+        "coverPicture" := v_community_record.cover_picture;
+        "numMembers" := v_community_record.num_members;
+        "numAdmins" := v_community_record.num_admins;
+		"commPrivacyType":=v_community_record.privacy_type;
 
         -- Assuming you have the interests in a table, fetch them as an array
  
 
         SELECT array_agg(jsonb_build_object('id', i.id, 'name', i."name" )) INTO "Interests"
-        FROM "Community_Interest" AS ci
-        INNER JOIN "Interests" AS i ON i.id = ci."InterestId"
-        WHERE "CommunityId" = p_community_id;
+        FROM community_interests AS ci
+        INNER JOIN interests AS i ON i.id = ci.interest_id
+        WHERE ci.community_id = p_community_id;
 
-
-        "canUserPost" := v_is_member AND (v_community_record."canInPost" = 'E' OR (v_community_record."canInPost" = 'M' AND (v_role_name = 'moderator' OR v_role_name = 'admin')) OR (v_community_record."canInPost" = 'A' AND v_role_name = 'admin')) OR v_is_creator;
-
-        "canUserInvite" := v_is_member AND (v_community_record."canInvite" = 'E' OR (v_community_record."canInvite" = 'M' AND (v_role_name = 'moderator' OR v_role_name = 'admin')) OR (v_community_record."canInvite" = 'A' AND v_role_name = 'admin')) OR v_is_creator;
-
-        "canUserUploadDoc" := v_is_member AND (v_community_record."canInUploadDoc" = 'E' OR (v_community_record."canInUploadDoc" = 'M' AND (v_role_name = 'moderator' OR v_role_name = 'admin')) OR (v_community_record."canInUploadDoc" = 'A' AND v_role_name = 'admin')) OR v_is_creator;
-
-        "canUserUploadPhotos" := v_is_member AND (v_community_record."canInUploadPhotos" = 'E' OR (v_community_record."canInUploadPhotos" = 'M' AND (v_role_name = 'moderator' OR v_role_name = 'admin')) OR (v_community_record."canInUploadPhotos" = 'A' AND v_role_name = 'admin')) OR v_is_creator;
-
-"canUserUploadVideo" := v_is_member AND (v_community_record."canInUploadVideo" = 'E' OR (v_community_record."canInUploadVideo" = 'M' AND (v_role_name = 'moderator' OR v_role_name = 'admin')) OR (v_community_record."canInUploadVideo" = 'A' AND v_role_name = 'admin')) OR v_is_creator;
-
-"canMessageUserInGroup" := v_is_member AND (v_community_record."canMessageInGroup" = 'E' OR (v_community_record."canMessageInGroup" = 'M' AND (v_role_name = 'moderator' OR v_role_name = 'admin')) OR (v_community_record."canMessageInGroup" = 'A' AND v_role_name = 'admin')) OR v_is_creator;
+         "canUserInvite" := v_is_member AND (v_community_record.can_invite = 'E' OR (v_community_record.can_invite = 'M' AND (v_role_name = 'moderator' OR v_role_name = 'admin')) OR (v_community_record.can_invite = 'A' AND v_role_name = 'admin')) OR v_is_creator;
 
         IF v_role_id IS NOT NULL THEN
             "isMember" := jsonb_build_object('roleId', v_role_id, 'role', v_role_name,'id', p_user_id);
@@ -100,18 +88,36 @@ BEGIN
             'id', "INV"."id",
             'role',"R"."name",
             'roleId',"R"."id",
-            'createdAt',"INV"."createdAt",
-            'updatedAt',"INV"."updatedAt",
-            'hostId',"INV"."hostId",
-            'guestId',"INV"."guestId"
+            'createdAt',"INV"."created_at",
+            'updatedAt',"INV"."updated_at",
+            'hostId',"INV"."host",
+            'guestId',"INV"."guest"
         )) INTO "pendingInvitation"
-       FROM "CommunityInvitationRequests" AS "INV" 
-       INNER JOIN "CommunityRoles" AS "R" ON "R"."id" = "INV"."CommunityRoleId"
-       WHERE "INV"."CommunityId"=p_community_id AND "INV"."guestId"=p_user_id AND "INV"."response" IS NULL;
+       FROM community_invitation_requests AS "INV" 
+       INNER JOIN community_roles AS "R" ON "R"."id" = "INV"."community_role_id"
+       WHERE "INV".community_id=p_community_id 
+       AND "INV".guest=p_user_id AND "INV"."response" IS NULL;
 
-       SELECT jsonb_build_object('id', u."id", 'firstName', u."firstName", 'lastName', u."lastName", 'profilePicture', u."profilePicture" ) INTO creator
-       FROM "Users" AS u
-       WHERE id = v_community_record."UserId";
+       SELECT array_agg(
+        jsonb_build_object(
+        'id', u."id",
+        'firstName', u."first_name",
+        'lastName', u."last_name",
+        'profilePicture', u."profile_picture"
+              )) 
+       INTO "members"
+       FROM community_users AS cu
+       INNER JOIN users AS u ON u.id = cu.user_id
+       WHERE cu.community_id = p_community_id;
+
+       SELECT jsonb_build_object(
+        'id', u."id", 
+        'firstName', u."first_name", 
+        'lastName', u."last_name", 
+        'profilePicture', u."profile_picture" ) 
+        INTO creator
+       FROM users AS u
+       WHERE id = v_community_record.user_id;
 
         RETURN NEXT;
     ELSE

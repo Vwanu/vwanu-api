@@ -18,6 +18,8 @@ export const createPostSchema = object({
     mediaType: string().optional(),
     hashTag: string().optional(),
     private: z.boolean().optional(),
+    communityId: string().uuid().optional(),
+    privacyType: string().optional(),
     postText: string({
       invalid_type_error: "You' have not provided a recognizable text",
     })

@@ -48,13 +48,25 @@ module.exports = {
         allowNull: false,
       },
 
+      community_id:{
+        type: Sequelize.UUID,
+        references: {
+          model: 'communities',
+          key: 'id',
+        },
+      },
+
       created_at: {
+        allowNull: false,
+        type: Sequelize.DATE,
+      },
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
     });
   },
   async down(queryInterface) {
-    await queryInterface.dropTable('CommunityInvitationRequests');
+    await queryInterface.dropTable('community_invitation_requests');
   },
 };

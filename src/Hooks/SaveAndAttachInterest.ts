@@ -9,6 +9,7 @@ export type AttachInterest = {
 
 export default (attachments: AttachInterest) => async (context: HookContext) => {
   const { data, result, app, params } = context;
+  console.log('data', data);
   if (!data.interests || !result) return context;
 
   try {

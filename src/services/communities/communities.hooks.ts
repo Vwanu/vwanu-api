@@ -8,20 +8,11 @@ import { AutoOwn } from '../../Hooks';
 
 import saveProfilePicture from '../../Hooks/SaveProfilePictures.hooks';
 
-import filesToBody from '../../middleware/PassFilesToFeathers/feathers-to-data.middleware';
+// import filesToBody from '../../middleware/PassFilesToFeathers/feathers-to-data.middleware';
 
-import SaveAndAttachInterests from '../../Hooks/SaveAndAttachInterest';
+// import SaveAndAttachInterests from '../../Hooks/SaveAndAttachInterest';
 
 import { FindCommunities } from './hooks';
-
-const refetch = async (context) => {
-  const { app, result } = context;
-  const { id } = result;
-  const community = await app.service('communities')._get(id);
-  context.result = community;
-  return context;
-};
-
 
 
 export default {
@@ -30,7 +21,7 @@ export default {
     create: [
       AutoOwn,
       saveProfilePicture(['profilePicture', 'coverPicture']),
-      filesToBody,
+      // filesToBody,
     ],
     update: disallow(),
     patch: [
@@ -43,12 +34,12 @@ export default {
   after: {
     create: [
       // AutoJoin,
-      SaveAndAttachInterests({
-        entityName: 'Community',
-        relationTableName: 'Community_Interest',
-        foreignKey: 'CommunityId',
-      }),
-      refetch,
+      // SaveAndAttachInterests({
+      //   entityName: 'Community',
+      //   relationTableName: 'Community_Interest',
+      //   foreignKey: 'CommunityId',
+      // }),
+      // refetch,
     ],
   },
 };

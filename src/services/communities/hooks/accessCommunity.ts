@@ -61,13 +61,13 @@ export default async (context: HookContext) => {
                     'id', "INV"."id",
                     'role',"R"."name",
                     'roleId',"R"."id",
-                    'createdAt',"INV"."createdAt",
-                    'updatedAt',"INV"."updatedAt",
-                    'hostId',"INV"."hostId",
-                    'guestId',"INV"."guestId")
-                    ) FROM "CommunityInvitationRequests" AS "INV" 
-                    INNER JOIN "CommunityRoles" AS "R" ON "R"."id" = "INV"."CommunityRoleId"
-                    WHERE "INV"."CommunityId"="C"."id" AND "INV"."guestId"='${
+                    'createdAt',"INV"."created_at",
+                    'updatedAt',"INV"."updated_at",
+                    'hostId',"INV"."host",
+                    'guestId',"INV"."guest")
+                    ) FROM community_invitation_requests AS "INV" 
+                    INNER JOIN community_roles AS "R" ON "R"."id" = "INV".community_role_id
+                    WHERE "INV".community_id="C"."id" AND "INV"."guest"='${
                       context.params.User.id
                     }' AND "INV"."response" IS NULL
                     )AS "pendingInvitation",
@@ -98,15 +98,15 @@ ${hasAccess(
               'id', "I"."id",
               'name',"I"."name"
           )) as "Interests"
-          FROM "Communities" AS "C" 
+          FROM communities AS "C" 
           INNER JOIN community_users AS "CU" ON "CU"."CommunityId" = '${
             context.id
           }'
           INNER JOIN "CommunityRoles" AS "CR" ON "CR"."id" = "CU"."CommunityRoleId"
-          INNER JOIN "Community_Interest" AS "CI" ON "CI"."CommunityId" = '${
+          INNER JOIN community_interests AS "CI" ON "CI".community_id = '${
             context.id
           }'
-          INNER JOIN "Interests" AS "I" ON "I"."id" = "CI"."InterestId"
+          INNER JOIN interests AS "I" ON "I"."id" = "CI".interest_id
           WHERE "C"."id" = '${
             context.id
           }' AND ("C"."privacyType" = 'public' OR ("CU"."UserId" = '${

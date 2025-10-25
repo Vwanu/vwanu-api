@@ -10,7 +10,8 @@ import hooks from './communities.hooks';
 import registrationHooks from '../communityRegistration/registration.hooks';
 import adminHooks from './community-admin.hooks';
 
-import { profilesStorage } from '../../cloudinary';
+// import { profilesStorage } from '../../cloudinary';
+import { postStorage as profilesStorage } from '../../storage/s3';
 import fileToFeathers from '../../middleware/PassFilesToFeathers/file-to-feathers.middleware';
 
 import updateTheTSVector from '../search/tsquery-and-search.hook';
@@ -50,6 +51,8 @@ export default function (app: Application): void {
 
   // Get our initialized service so that we can register hooks
   const service = app.service('communities');
+  console.log('Registering Communities service hooks');
+  console.log('Registering Communities-Registrations service hooks', hooks.before);
   service.hooks({
     before: { ...hooks.before },
     after: {

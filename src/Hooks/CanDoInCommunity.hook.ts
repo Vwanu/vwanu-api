@@ -4,16 +4,17 @@ import { HookContext } from '@feathersjs/feathers';
 
 export default async (context: HookContext) => {
   const { data, path, app } = context;
-  if (isNill(data.CommunityId)) return context;
+  console.log('data', data);
+  if (isNill(data.communityId)) return context;
 
   const modelName = app.services[path].Model.name;
   const community = await app
     .service('communities')
-    .get(data.CommunityId, { User: context.params.User });
+    .get(data.communityId, { User: context.params.User });
 
   switch (modelName) {
     case 'Post':
-      if (!community.canUserPost)
+      if (!community.isMember)
         throw new BadRequest('You can not post in this community');
       break;
 

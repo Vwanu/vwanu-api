@@ -1,6 +1,6 @@
 /**
  * Auto-generated TypeScript types from Zod schemas
- * Generated on: 2025-09-19T20:25:44.537Z
+ * Generated on: 2025-10-06T02:39:04.596Z
  *
  * DO NOT EDIT MANUALLY - This file is generated automatically
  * Run 'npm run generate-types' to regenerate
@@ -277,6 +277,76 @@ export interface SendEmailTemplateType {
   templateId: string;
   personalizations: any[];
   dynamic_template_data: any;
+}
+
+// ============================================================================
+// Types from community.schema.ts
+// ============================================================================
+
+export interface CommunityInterface {
+  id: string;
+  name: string;
+  description: string;
+  profilePicture?: string;
+  coverPicture?: string;
+  privacyType: any;
+  canInvite: any;
+  canPost: any;
+  canMessageInGroup: any;
+  haveDiscussionForum: boolean;
+  creatorId: string;
+  numMembers: number;
+  numAdmins: number;
+}
+
+export interface CreateCommunityInput {
+  id: number;
+  name: string;
+}
+
+export interface UpdateCommunityInput {
+  id: number;
+  name: string;
+}
+
+export interface GetCommunityInput {
+  id: number;
+  name: string;
+}
+
+export interface ListCommunitiesInput {
+  id: number;
+  name: string;
+}
+
+export interface DeleteCommunityInput {
+  id: number;
+  name: string;
+}
+
+export interface JoinCommunityInput {
+  id: number;
+  name: string;
+}
+
+export interface LeaveCommunityInput {
+  id: number;
+  name: string;
+}
+
+export interface CreateCommunityData {
+  id: number;
+  name: string;
+}
+
+export interface UpdateCommunityData {
+  id: number;
+  name: string;
+}
+
+export interface ListCommunitiesQuery {
+  id: number;
+  name: string;
 }
 
 // ============================================================================
