@@ -11,7 +11,8 @@ export default function (options: any = {}) {
       options.models.map((model) => {
         const newModel = { ...model };
 
-        newModel.model = context.app.services[model.model].Model;
+        newModel.model = context.app.service(model.model).Model;
+        console.log( "[addAssociation] >>>", newModel)
        
         return newModel;
       })

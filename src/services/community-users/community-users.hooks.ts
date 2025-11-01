@@ -1,6 +1,8 @@
+import { HookContext } from '@feathersjs/feathers';
 import addAssociation from '../../Hooks/AddAssociations';
-
 import OwnerOrAuthorized from './hooks/OwnerOrAuthorized';
+import NestedPath from '../../Hooks/NestedPath';
+
 
 
 
@@ -8,11 +10,7 @@ export default {
   before: {
  
     find: [
-      (context) => {
-        context.params.query = {
-          ...context.params.query,
-        };
-      },
+      NestedPath,
       addAssociation({
         models: [
           {

@@ -19,7 +19,7 @@ import {Community} from './communities';
 // import {Conversation} from './conversation';
 // import {Notification} from './notification';
 // import {BlogResponse} from './blog-response';
-// import {CommunityUser} from './community-users';
+import {CommunityUser} from './community-users';
 import {CommunityInvitationRequest} from './communityInvitationRequest';
 // import {Forum} from './forums';
 // import {Place} from './places';
@@ -31,6 +31,7 @@ import {CommunityInvitationRequest} from './communityInvitationRequest';
 // import {ErrorCode} from './errorCodes.db'; 
 // import {ExpiryTime} from './expiryTime';
 // import {UserNotificationTypes} from './user_notification_types';
+import { CommunityRole } from './communityRole.model';
 
 export default [
 //   // Call,
@@ -52,10 +53,11 @@ export default [
 //   Conversation,
 //   Notification,
 //   BlogResponse,
-//   CommunityUser,
+  CommunityUser,
 //   CommunityBan,
 //   CommunityHistory,
   CommunityInvitationRequest,
+  CommunityRole,
 //   Forum,
 //   Place,
 //   NotificationType,

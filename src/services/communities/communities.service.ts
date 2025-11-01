@@ -1,37 +1,46 @@
 /* eslint-disable no-unused-vars */
 // Initializes the `communities ` service on path `/communities`
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
-import { Communities } from './communities.class';
-import { CommunitiesRegistration } from '../communityRegistration/comunity-registration.class';
-import { CommunityAdmin } from './community-admin.class';
 
 import hooks from './communities.hooks';
-import registrationHooks from '../communityRegistration/registration.hooks';
-import adminHooks from './community-admin.hooks';
-
-// import { profilesStorage } from '../../cloudinary';
+import { Application } from '../../declarations';
+import { Communities } from './communities.class';
+import { Community } from '../../database/communities';
+import { CommunityUser } from '../../database/community-users';
+import {CommunityInvitationRequest as InvitationModel} from '../../database/communityInvitationRequest';
 import { postStorage as profilesStorage } from '../../storage/s3';
+import updateTheTSVector from '../search/tsquery-and-search.hook';
+import {CommunityUsers} from '../community-users/community-users.class'
+import communityUsersHooks from '../community-users/community-users.hooks'
+import {CommunityInvitationRequest  } from '../community-invitation-request/community-invitation-request.class'
+import communityInvitationRequestHooks from '../community-invitation-request/community-invitation-request.hooks'
 import fileToFeathers from '../../middleware/PassFilesToFeathers/file-to-feathers.middleware';
 
-import updateTheTSVector from '../search/tsquery-and-search.hook';
-import { Community } from '../../database/communities';
 
-// Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
-    communities: Communities & ServiceAddons<any>;
-    ['communities-registrations']: CommunitiesRegistration & ServiceAddons<any>;
-    ['community-admin']: CommunityAdmin & ServiceAddons<any>;
+    communities: Communities & ServiceAddons<Communities>;
+    ['communities/:communityId/members']:CommunityUsers & ServiceAddons<CommunityUsers>;
+    ['communities/:communityId/invitations']:CommunityInvitationRequest & ServiceAddons<CommunityInvitationRequest>;
   }
 }
 
 export default function (app: Application): void {
 
-  const options = {
+  const communityOptions = {
     Model: Community,
     paginate: app.get('paginate'),
   };
+
+  const communityUsersOptions ={
+    Model:CommunityUser, 
+    paginate:app.get('paginate')
+  }
+
+  const communityInvitationRequestOptions ={
+    Model:InvitationModel, 
+    paginate:app.get('paginate')
+  }
 
   // Initialize our service with any options it requires
   app.use(
@@ -41,18 +50,17 @@ export default function (app: Application): void {
       { name: 'coverPicture', maxCount: 1 },
     ]),
     fileToFeathers,
-    new Communities(options, app)
+    new Communities(communityOptions, app)
   );
-  app.use(
-    '/communities-registrations',
-    new CommunitiesRegistration(options, app)
-  );
-  app.use('/community-admin', new CommunityAdmin(options, app));
 
-  // Get our initialized service so that we can register hooks
+  app.use('/communities/:communityId/members', new CommunityUsers(communityUsersOptions, app))
+  app.use('/communities/:communityId/invitations', new CommunityInvitationRequest(communityInvitationRequestOptions, app))
+  
+  app.service('communities/:communityId/members').hooks(communityUsersHooks)
+  app.service('communities/:communityId/invitations').hooks(communityInvitationRequestHooks)
+  
   const service = app.service('communities');
-  console.log('Registering Communities service hooks');
-  console.log('Registering Communities-Registrations service hooks', hooks.before);
+
   service.hooks({
     before: { ...hooks.before },
     after: {
@@ -78,9 +86,6 @@ export default function (app: Application): void {
       ],
     },
   });
- app
-    .service('communities-registrations')
-    .hooks(registrationHooks);
 
-  app.service('community-admin').hooks(adminHooks);
+
 }

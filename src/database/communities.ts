@@ -136,7 +136,6 @@ export class Community extends Model<CommunityInterface> {
   })
   search_vector!: string;
 
-
   // Instance methods for better encapsulation
   public canUserInvite(userRole: CommunityPermissionLevel): boolean {
     const permissionHierarchy = {
@@ -180,7 +179,6 @@ export class Community extends Model<CommunityInterface> {
     otherKey: 'interest_id',        // FK pointing to Interest
   })
   interests!: Interest[];
-
   
   // Note: For User-Community relationship, we use the explicit CommunityUsers model
   // because it has additional fields like role, joinedAt, etc.

@@ -3,6 +3,7 @@ import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import { CommunityRole } from './community-role.class';
 import hooks from './community-role.hooks';
+import {CommunityRole as CommunityRoleModel} from '../../database/communityRole.model'
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -14,7 +15,7 @@ declare module '../../declarations' {
 
 export default function (app: Application): void {
   const options = {
-    Model: app.get('sequelizeClient').models.CommunityRoles,
+    Model: CommunityRoleModel,
     paginate: app.get('paginate'),
   };
 
