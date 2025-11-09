@@ -1,24 +1,28 @@
-import { Table, Column, Model, DataType, PrimaryKey, AllowNull, ForeignKey, BelongsTo, TableOptions } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull, ForeignKey, BelongsTo, UpdatedAt, TableOptions, BeforeCreate, BeforeUpdate } from 'sequelize-typescript';
 import { User } from './user';
 import { Community } from './communities';
 import {CommunityRole} from './communityRole.model'
 
-export interface CommunityInvitationRequestInterface {
+
+export interface CommunityJoinRequestInterface {
   id: string;
   response?: boolean;
+  responseDate?: Date; // Optional in interface, but will always be set by Sequelize
   guestId: string; // User being invited (required - no email storage for privacy)
-  hostId: string; // User sending the invitation
+  isAutoApproved: boolean;
+  approverId?: string | null; // Required when isAutoApproved is false, null when isAutoApproved is true
   communityId: string;
   communityRoleId: string;
 }
 
 @Table({
-  modelName: 'CommunityInvitationRequest',
-  tableName: 'community_invitation_requests',
+  modelName: 'CommunityJoinRequest',
+  tableName: 'community_join_requests',
+  // Note: responseDate serves as the updatedAt timestamp for better semantic clarity
   underscored: true,
-} as TableOptions<CommunityInvitationRequest>)
-export class CommunityInvitationRequest extends Model<CommunityInvitationRequestInterface>   {
-  
+} as TableOptions<CommunityJoinRequest>)
+export class CommunityJoinRequest extends Model<CommunityJoinRequestInterface>   {
+
   @PrimaryKey
   @Column({
     type: DataType.UUID,
@@ -43,14 +47,21 @@ export class CommunityInvitationRequest extends Model<CommunityInvitationRequest
   })
   guestId!: string;
 
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+    field: 'is_auto_approved',
+  })
+  isAutoApproved!: boolean;
+
   @ForeignKey(() => User)
-  @AllowNull(false)
   @Column({
     type: DataType.UUID,
-    allowNull: false,
-    field: 'host_id',
+    allowNull: true,
+    field: 'approver_id',
   })
-  hostId!: string;
+  approverId?: string | null;
 
   @ForeignKey(() => Community)
   @AllowNull(false)
@@ -69,18 +80,48 @@ export class CommunityInvitationRequest extends Model<CommunityInvitationRequest
   })
   communityRoleId!: string
 
+  @UpdatedAt
+  @Column({
+    type: DataType.DATE,
+    allowNull: false,
+    field: 'response_date',
+  })
+  responseDate!: Date;
+
+  // Validation hooks to enforce mutual exclusivity between isAutoApproved and approverId
+  @BeforeCreate
+  @BeforeUpdate
+  static validateApproverConstraint(instance: CommunityJoinRequest) {
+    // If auto-approved, approverId must be null
+    if (instance.isAutoApproved && instance.approverId !== null && instance.approverId !== undefined) {
+      throw new Error('approverId must be null when isAutoApproved is true');
+    }
+
+    // If there's an approver, isAutoApproved must be false
+    if (instance.approverId && instance.isAutoApproved) {
+      throw new Error('isAutoApproved must be false when approverId is provided');
+    }
+
+    // If not auto-approved and no approver, require an approver
+    if (!instance.isAutoApproved && !instance.approverId) {
+      throw new Error('approverId is required when isAutoApproved is false');
+    }
+  }
+
   // Associations
   @BelongsTo(() => User, 'guestId')
   guest!: User;
 
-  @BelongsTo(() => User, 'hostId')
-  host!: User;
+  @BelongsTo(() => User, 'approverId')
+  approver?: User;
 
   @BelongsTo(() => Community, 'communityId')
   community!: Community;
 
   @BelongsTo(()=> CommunityRole, 'communityRoleId')
   communityRole!: CommunityRole
+
+  
 
   // Instance methods for better encapsulation
   public isPending(): boolean {
@@ -112,7 +153,8 @@ export class CommunityInvitationRequest extends Model<CommunityInvitationRequest
   }
 
   public getResponseDate(): Date | null {
-    return this.response !== null && this.response !== undefined ? this.updatedAt : null;
+    // If there's a response, return the responseDate timestamp
+    return this.response !== null && this.response !== undefined ? this.responseDate : null;
   }
 
   public getTimeSinceResponse(): number | null {
@@ -142,8 +184,8 @@ export class CommunityInvitationRequest extends Model<CommunityInvitationRequest
     return this.isPending() && !this.isExpired();
   }
 
-  public getHostName(): string {
-    return this.host ? `${this.host.firstName} ${this.host.lastName}` : 'Unknown User';
+  public getApproverName(): string {
+    return this.approver ? `${this.approver.firstName} ${this.approver.lastName}` : 'Unknown User';
   }
 
   public getCommunityName(): string {
@@ -151,8 +193,8 @@ export class CommunityInvitationRequest extends Model<CommunityInvitationRequest
   }
 
 
-  public isFromSameHost(hostId: string): boolean {
-    return this.hostId === hostId;
+  public isFromSameApprover(approverId: string): boolean {
+    return this.approverId === approverId;
   }
 
   public isForSameCommunity(communityId: string): boolean {

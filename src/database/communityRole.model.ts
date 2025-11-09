@@ -1,9 +1,8 @@
 import { Table, Column, Model, DataType, TableOptions, PrimaryKey } from 'sequelize-typescript';
-import { CommunityRoleType } from '../types/enums';
 
 export interface CommunityRoleInterface {
   name: string;
-  roleAccessLever: CommunityRoleType;
+  roleAccessLevel: number;
 }
 
 @Table({
@@ -29,11 +28,11 @@ export class CommunityRole extends Model<CommunityRoleInterface>  {
   })
   name!: string;
   @Column({
-    type: DataType.ENUM(...Object.values(CommunityRoleType)),
+    type: DataType.INTEGER,
     allowNull: false,
-    defaultValue: CommunityRoleType.MEMBER,
-    field: 'roleAccessLever',
+    defaultValue: 2, // 0=admin, 1=moderator, 2=member
+    field: 'role_access_level',
   })
-  roleAccessLever!: string
+  roleAccessLevel!: number
   
 }

@@ -1,4 +1,3 @@
-import { HookContext } from '@feathersjs/feathers';
 import addAssociation from '../../Hooks/AddAssociations';
 import OwnerOrAuthorized from './hooks/OwnerOrAuthorized';
 import NestedPath from '../../Hooks/NestedPath';

@@ -1,12 +1,11 @@
-export default (context) => {
+import { HookContext } from '@feathersjs/feathers';
+
+export default (context: HookContext): HookContext => {
   const { query = {} } = context.params;
 
-  if (!query.response) {
+  if (!query.response) 
     query.response = null;
-  }
-  //   if (!query.UserId) {
-  //     query.UserId = User.id;
-  //   }
+  
   context.params.query = query;
 
   return context;

@@ -7,36 +7,26 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4,
         allowNull: false,
       },
-      guest: {
+      guest_id: {
         type: Sequelize.UUID,
         references: {
           model: 'users',
           key: 'id',
         },
-        allowNull: true,
+        allowNull: false,
       },
 
-      host: {
+      host_id: {
         type: Sequelize.UUID,
         references: {
           model: 'users',
           key: 'id',
         },
-        allowNull: true,
-      },
-
-      email: {
-        type: Sequelize.STRING,
-        allowNull: true,
+        allowNull: false,
       },
 
       response: {
         type: Sequelize.BOOLEAN,
-        allowNull: true,
-      },
-
-      response_date: {
-        type: Sequelize.DATE,
         allowNull: true,
       },
       community_role_id: {
@@ -54,15 +44,18 @@ module.exports = {
           model: 'communities',
           key: 'id',
         },
+        allowNull: false,
       },
 
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
       },
       updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
       },
     });
   },

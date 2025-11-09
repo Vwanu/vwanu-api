@@ -9,7 +9,7 @@ import {CommunityRole as CommunityRoleModel} from '../../database/communityRole.
 declare module '../../declarations' {
   // eslint-disable-next-line no-unused-vars
   interface ServiceTypes {
-    'community-role': CommunityRole & ServiceAddons<any>;
+    'community-roles': CommunityRole & ServiceAddons<CommunityRole>;
   }
 }
 
@@ -20,10 +20,10 @@ export default function (app: Application): void {
   };
 
   // Initialize our service with any options it requires
-  app.use('/community-role', new CommunityRole(options, app));
+  app.use('/community-roles', new CommunityRole(options, app));
 
   // Get our initialized service so that we can register hooks
-  const service = app.service('community-role');
+  const service = app.service('community-roles');
 
   service.hooks(hooks);
 }

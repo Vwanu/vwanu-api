@@ -90,13 +90,13 @@ BEGIN
             'roleId',"R"."id",
             'createdAt',"INV"."created_at",
             'updatedAt',"INV"."updated_at",
-            'hostId',"INV"."host",
-            'guestId',"INV"."guest"
+            'hostId',"INV"."host_id",
+            'guestId',"INV"."guest_id"
         )) INTO "pendingInvitation"
        FROM community_invitation_requests AS "INV" 
        INNER JOIN community_roles AS "R" ON "R"."id" = "INV"."community_role_id"
        WHERE "INV".community_id=p_community_id 
-       AND "INV".guest=p_user_id AND "INV"."response" IS NULL;
+       AND "INV".guest_id=p_user_id AND "INV"."response" IS NULL;
 
        SELECT array_agg(
         jsonb_build_object(

@@ -21,6 +21,7 @@ import {Community} from './communities';
 // import {BlogResponse} from './blog-response';
 import {CommunityUser} from './community-users';
 import {CommunityInvitationRequest} from './communityInvitationRequest';
+import {CommunityJoinRequest} from './communityJoinRequest';
 // import {Forum} from './forums';
 // import {Place} from './places';
 // import {UserWorkPlace} from './userWorkplace';
@@ -57,6 +58,7 @@ export default [
 //   CommunityBan,
 //   CommunityHistory,
   CommunityInvitationRequest,
+  CommunityJoinRequest,
   CommunityRole,
 //   Forum,
 //   Place,

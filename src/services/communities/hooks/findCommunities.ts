@@ -122,13 +122,13 @@ SELECT
       'role',"R"."name",
       'roleId',"R"."id",
       'createdAt',"INV"."created_at",
-      'hostId',"INV"."host",
-      'guestId',"INV"."guest"
+      'hostId',"INV"."host_id",
+      'guestId',"INV"."guest_id"
       )
       )
      FROM community_invitation_requests AS "INV" 
      INNER JOIN community_roles AS "R" ON "R"."id" = "INV".community_role_id
-     WHERE "INV".community_id="Community"."id" AND "INV".guest='${context.params.User.id}' AND "INV"."response" IS NULL
+     WHERE "INV".community_id="Community"."id" AND "INV".guest_id='${context.params.User.id}' AND "INV"."response" IS NULL
   )`;
   const clause = {
     // loging: console.log,
