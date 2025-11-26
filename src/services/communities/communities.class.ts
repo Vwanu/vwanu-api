@@ -78,8 +78,6 @@ export class Communities extends Service {
       }
     );
 
-    console.log('community', community);
-
     community = {
       ...community,
       name: community?.community_name,

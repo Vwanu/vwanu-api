@@ -5,6 +5,7 @@ export default {
   before: {
     find: [ NestedPath, OnlyNotResponded,IncludeGuests],
     create: AssignHost,
+    remove: NestedPath,
   },
 
   after: {

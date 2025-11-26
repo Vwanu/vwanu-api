@@ -1,5 +1,6 @@
 
 import { HookContext } from '@feathersjs/feathers';
+import { User } from '../../database/user';
 // Don't remove this comment. It's needed to format import lines nicely.
 import addAssociation from '../../Hooks/AddAssociations';
 
@@ -14,7 +15,7 @@ export default {
       addAssociation({
         models: [
           {
-            model: 'users',
+            model: User,
             attributes: [
               'firstName',
               'lastName',

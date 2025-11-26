@@ -18,30 +18,6 @@ export interface CommunityInterface {
   privacyType: CommunityPrivacyType;
   canInvite: CommunityPermissionLevel;
   canPost: CommunityPermissionLevel; // Renamed from canInPost for clarity
-
-  // Optional associations (loaded with include)
-  members?: CommunityUser[];
-}
-
-export interface CommunityCreationAttributes {
-  // Required fields (no defaults in database)
-  name: string;
-  description: string;
-  creatorId: string;
-
-  // Optional fields (have defaults or are nullable)
-  privacyType?: CommunityPrivacyType;
-  canInvite?: CommunityPermissionLevel;
-  canPost?: CommunityPermissionLevel;
-  profilePicture?: string;
-  coverPicture?: string;
-
-  // Note: These are auto-generated, so not included:
-  // - id (UUID auto-generated)
-  // - numMembers (defaults to 0)
-  // - numAdmins (defaults to 0)
-  // - search_vector (nullable, auto-populated)
-  // - createdAt, updatedAt (Sequelize timestamps)
 }
 
 @Table({
@@ -50,7 +26,7 @@ export interface CommunityCreationAttributes {
   underscored: true,
 } as TableOptions<Community>)
 
-export class Community extends Model<CommunityInterface, CommunityCreationAttributes> {
+export class Community extends Model<CommunityInterface> {
   @Column({
     type: DataType.UUID,
     primaryKey: true,
@@ -196,19 +172,22 @@ export class Community extends Model<CommunityInterface, CommunityCreationAttrib
   // Associations
   @BelongsTo(() => User, 'creatorId')
   creator!: User;
-
+  
   @BelongsToMany(() => Interest, {
     through: 'community_interests',
     foreignKey: 'community_id',     // FK pointing to Community
     otherKey: 'interest_id',        // FK pointing to Interest
   })
   interests!: Interest[];
-
+  
   // Note: For User-Community relationship, we use the explicit CommunityUsers model
   // because it has additional fields like role, joinedAt, etc.
-  @HasMany(() => CommunityUser, { foreignKey: 'communityId' })
-  members!: CommunityUser[];
-
+  // @BelongsToMany(() => User, () => CommunityUsers)
+  // members!: User[];
+  
   // @HasMany(() => CommunityInvitationRequest, { foreignKey: 'communityId' })
   // invitationRequests!: CommunityInvitationRequest[];
+  
+  @HasMany(() => CommunityUser, { foreignKey: 'communityId' })
+  members!: CommunityUser[];
 }

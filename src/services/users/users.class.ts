@@ -21,7 +21,7 @@ export class Users extends Service {
       console.log('Users service find method received search query:', query.search);
       const searchTerm = query.search.trim();
       delete query.search;
-      
+
       const tsqueryTerm = searchTerm.split(/\s+/).join(' & ');
 
       // Use PostgreSQL full-text search with @@ operator

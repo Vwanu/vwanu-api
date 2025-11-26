@@ -1,5 +1,6 @@
-
 import { AddAssociations } from '../../../Hooks';
+import { User } from '../../../database/user';
+import { CommunityRole } from '../../../database/communityRole.model';
 
 const attributes = [
   'firstName',
@@ -11,18 +12,19 @@ const attributes = [
 const IncludeGuests = AddAssociations({
   models: [
     {
-      model: 'users',
+      model: User,
       as: 'guest',
       attributes,
     },
 
     {
-      model: 'users',
+      model: User,
       as: 'host',
       attributes,
     },
     {
-      model: 'community-role',
+      model: CommunityRole,
+      as: 'communityRole',
     },
   ],
 });
