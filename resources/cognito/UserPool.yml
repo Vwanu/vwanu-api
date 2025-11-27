@@ -5,17 +5,13 @@ Resources:
       AdminCreateUserConfig:
         AllowAdminCreateUserOnly: false
         InviteMessageTemplate:
-          EmailSubject: '${self:custom.subjectPrefix.${sls:stage}}You have been invited to join as and admin staff member'
+          EmailSubject: '${self:custom.subjectPrefix.${sls:stage}}You have been invited to join vwanu'
           EmailMessage:
             Fn::Join:
               - ''
               - - 'Your username is {username} and temporary password is {####}'
                 - '<br><br>'
                 - "Click <a href='https://${self:custom.adminDomains.${sls:stage}}/login'>here</a> to login and complete account creation."
-      EmailConfiguration:
-        EmailSendingAccount: COGNITO_DEFAULT
-      UserPoolAddOns:
-        AdvancedSecurityMode: ENFORCED
       AccountRecoverySetting:
         RecoveryMechanisms:
           - Name: verified_email
@@ -23,6 +19,9 @@ Resources:
       DeviceConfiguration:
         DeviceOnlyRememberedOnUserPrompt: false
       UserPoolName: vwanu-api-backend-user-pool-${sls:stage}
+      UserPoolTags:
+        Stage: ${sls:stage}
+        Service: vwanu-api-backend
       AliasAttributes:
         - email
       AutoVerifiedAttributes:
@@ -31,14 +30,12 @@ Resources:
         PasswordPolicy:
           RequireUppercase: true
           RequireLowercase: true
-          RequireSymbols: true
-          RequireNumbers: true
-          MinimumLength: 12
+          RequireSymbols: false
+          RequireNumbers: false
+          PasswordHistorySize: 2
+          MinimumLength: 6
       Schema:
         - Name: role
-          AttributeDataType: String
-          Mutable: true
-        - Name: assuming_username
           AttributeDataType: String
           Mutable: true
   CognitoUserPoolClient:
@@ -51,8 +48,6 @@ Resources:
         - ALLOW_ADMIN_USER_PASSWORD_AUTH
         - ALLOW_USER_PASSWORD_AUTH
         - ALLOW_REFRESH_TOKEN_AUTH
-        - ALLOW_USER_SRP_AUTH
-        - ALLOW_CUSTOM_AUTH
       EnableTokenRevocation: true
       PreventUserExistenceErrors: ENABLED
   CognitoUserPoolGroupAdmin:
