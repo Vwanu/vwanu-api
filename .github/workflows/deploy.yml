@@ -168,7 +168,9 @@ jobs:
 # Deploy with Serverless Framework
       - name: Deploy with Serverless Framework
         run : |
-            npx serverless deploy  --stage $STAGE --region ${{ vars.AWS_REGION }} --param="imageTag=${{ github.sha }}" --force
+            IMAGE_TAG="${{ github.sha }}"
+            SHORT_SHA=$(echo $IMAGE_TAG | cut -c1-8)
+            npx serverless deploy  --stage $STAGE --region ${{ vars.AWS_REGION }} --param="imageTag=$SHORT_SHA" --force
       - uses: 'marvinpinto/action-inject-ssm-secrets@v1.2.1'
         with:
           ssm_parameter: '/${{ env.STAGE }}/DB_HOST'
