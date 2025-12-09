@@ -149,6 +149,21 @@ jobs:
       #     npm run migrate
 
       #     echo "Database migrations completed successfully!"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        id: install-dependencies
+        run: npm ci
+        timeout-minutes: 10
+        continue-on-error: true
+
+      - name: Fallback to npm install if npm ci fails
+        if: steps.install-dependencies.outcome == 'failure'
+        run: npm install --no-audit --no-fund
+        timeout-minutes: 10
 
 # Deploy with Serverless Framework
       - name: Deploy with Serverless Framework
