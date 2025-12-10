@@ -1,5 +1,6 @@
 # Stage 1: Dependencies
-FROM node:20-alpine AS deps
+# Build for ARM64 to match ECS Fargate task definition
+FROM --platform=linux/arm64 node:20-alpine AS deps
 
 # Set the working directory
 WORKDIR /app
@@ -14,7 +15,7 @@ RUN cp -R node_modules dev_node_modules
 RUN npm ci --omit=dev || npm install --omit=dev
 
 # Stage 2: Build the application
-FROM node:20-alpine AS builder
+FROM --platform=linux/arm64 node:20-alpine AS builder
 
 # Set the working directory
 WORKDIR /app
@@ -33,7 +34,7 @@ ENV NODE_ENV=production
 RUN npm run build
 
 # Final stage: Create the production image
-FROM node:20-alpine
+FROM --platform=linux/arm64 node:20-alpine
 
 WORKDIR /app
 
@@ -45,6 +46,7 @@ COPY --from=builder /app/config ./config
 
 # Set environment variables
 ENV NODE_ENV=production
+
 ENV NODE_CONFIG_DIR=/app/config
 ENV HOST=0.0.0.0
 

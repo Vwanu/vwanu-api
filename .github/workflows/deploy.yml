@@ -48,12 +48,14 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build, Tag, and Push to ECR
         run: |
           IMAGE_TAG="${{ github.sha }}"
           SHORT_SHA=$(echo $IMAGE_TAG | cut -c1-8)
-          docker build -t ${{ secrets.ECR_REPOSITORY }}:$SHORT_SHA .
-          docker push ${{ secrets.ECR_REPOSITORY }}:$SHORT_SHA
+          docker buildx build --platform linux/arm64 -t ${{ secrets.ECR_REPOSITORY }}:$SHORT_SHA --push .
 
   aws-deploy:
     needs: build-and-push
@@ -171,19 +173,4 @@ jobs:
             IMAGE_TAG="${{ github.sha }}"
             SHORT_SHA=$(echo $IMAGE_TAG | cut -c1-8)
             npx serverless deploy  --stage $STAGE --region ${{ vars.AWS_REGION }} --param="imageTag=$SHORT_SHA" --force
-      - uses: 'marvinpinto/action-inject-ssm-secrets@v1.2.1'
-        with:
-          ssm_parameter: '/${{ env.STAGE }}/DB_HOST'
-          env_variable_name: 'DB_HOST'
-      - uses: 'marvinpinto/action-inject-ssm-secrets@v1.2.1'
-        with:
-          ssm_parameter: '/${{ env.STAGE }}/$DB_PORT'
-          env_variable_name: '$DB_PORT'
-      - uses: 'marvinpinto/action-inject-ssm-secrets@v1.2.1'
-        with:
-          ssm_parameter: '/${{ env.STAGE }}/$DB_USER'
-          env_variable_name: '$DB_USER'
-      - uses: 'marvinpinto/action-inject-ssm-secrets@v1.2.1'
-        with:
-          ssm_parameter: '/${{ env.STAGE }}/$DB_PASSWORD'
-          env_variable_name: '$DB_PASSWORD'
+      # SSM parameter injection removed - now handled via serverless.yml SSM references

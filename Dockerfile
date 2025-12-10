@@ -1,5 +1,6 @@
 # Simple single-stage Dockerfile for debugging
-FROM node:20-alpine
+# Build for ARM64 to match ECS Fargate task definition
+FROM --platform=linux/arm64 node:20-alpine
 
 # Set the working directory
 WORKDIR /app
