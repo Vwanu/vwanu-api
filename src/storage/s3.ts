@@ -71,11 +71,12 @@ const UPLOAD_CONFIGS: Record<UploadType, UploadConfiguration> = {
 
 /**
  * Validates that all required S3 environment variables are present
+ * For ECS deployments with IAM roles, AWS credentials are optional as they're auto-discovered
  */
 const validateS3Environment = (): void => {
-  const requiredEnvVars = ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'S3_BUCKET_NAME'];
+  const requiredEnvVars = ['S3_BUCKET_NAME'];
   const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
-  
+
   if (missingVars.length > 0) {
     throw new Error(`Missing required S3 environment variables: ${missingVars.join(', ')}`);
   }
@@ -88,13 +89,19 @@ validateS3Environment();
 
 /**
  * S3 Client instance configured with environment variables
+ * In ECS, the SDK automatically uses the task IAM role for credentials
+ * Explicit credentials are only used when running locally
  */
 export const s3Client = new S3Client({
   region: AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
-  },
+  // Only provide explicit credentials if they exist (local development)
+  // In ECS, this will be undefined and SDK will use the task role
+  ...(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY && {
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    },
+  }),
 });
 
 // ===== UTILITY FUNCTIONS =====

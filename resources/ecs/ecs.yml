@@ -261,6 +261,15 @@ Resources:
                 Resource:
                   - Fn::Sub: arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*
                   - Fn::Sub: arn:aws:ses:${AWS::Region}:${AWS::AccountId}:template/*
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:DeleteObject
+                  - s3:ListBucket
+                Resource:
+                  - Fn::Sub: arn:aws:s3:::${self:provider.stage}-vwanu-uploads/*
+                  - Fn::Sub: arn:aws:s3:::${self:provider.stage}-vwanu-uploads
 
   # CloudWatch Logs Log Group
   ECSLogGroup:
