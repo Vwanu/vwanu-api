@@ -270,6 +270,12 @@ Resources:
                 Resource:
                   - Fn::Sub: arn:aws:s3:::${self:provider.stage}-vwanu-uploads/*
                   - Fn::Sub: arn:aws:s3:::${self:provider.stage}-vwanu-uploads
+              - Effect: Allow
+                Action:
+                  - geo:SearchPlaceIndexForSuggestions
+                  - geo:GetPlace
+                Resource:
+                  - Fn::GetAtt: [VwanuPlaceIndex, Arn]
 
   # CloudWatch Logs Log Group
   ECSLogGroup:

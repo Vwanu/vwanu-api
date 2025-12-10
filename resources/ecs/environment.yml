@@ -36,6 +36,9 @@
   Value: ${self:provider.region}
 - Name: S3_BUCKET_NAME
   Value: ${self:provider.stage}-vwanu-uploads
+- Name: AWS_PLACE_INDEX_NAME
+  Value:
+    Ref: VwanuPlaceIndex
 # API Configuration
 - Name: API_HOST
   Value: 0.0.0.0

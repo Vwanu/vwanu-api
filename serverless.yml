@@ -27,8 +27,8 @@ provider:
     SERVICE_NAME: vwanu-api-backend
     GITHUB_USERNAME: ${env:GITHUB_USERNAME, 'system'}
     DB_HOST: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseHost}
-    DB_USERNAME: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseCredentials.username}
-    DB_PASSWORD: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseCredentials.password}
+    DB_USERNAME: ${ssm:/${sls:stage}/DB_USER}
+    DB_PASSWORD: ${ssm:/${sls:stage}/DB_PASSWORD}
     # COGNITO_USER_POOL: ${self:custom.offlineConfig.${self:custom.isOffline}.cognitoUserPool}
     AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE: true
     MAX_DISCUSSION_AUDIOS: 5
@@ -38,12 +38,13 @@ provider:
     MAX_POST_AUDIOS: 5
     MAX_POST_IMAGES: 5
     MAX_POST_VIDEOS: 2
-    COGNITO_USER_POOL:
-      Ref: CognitoUserPool
-    CLIENT_ID:
-      Ref: CognitoUserPoolClient
-    USER_POOL_ID:
-      Ref: CognitoUserPool
+    # Cognito refs moved to ECS environment.yml to resolve properly via CloudFormation
+    # COGNITO_USER_POOL:
+    #   Ref: CognitoUserPool
+    # CLIENT_ID:
+    #   Ref: CognitoUserPoolClient
+    # USER_POOL_ID:
+    #   Ref: CognitoUserPool
     # API_URL: ${self:custom.offlineConfig.${self:custom.isOffline}.
     # CLIENT_ID: ${ssm:/${sls:stage}/clientId}
     # USER_POOL_ID: ${ssm:/${sls:stage}/userPoolId}
@@ -109,6 +110,9 @@ resources:
 
   # Cognito
   - ${file(resources/cognito/UserPool.yml)}
+
+  # Location Service
+  - ${file(resources/location/LocationService.yml)}
 
   # ECS
   - ${file(resources/ecs/ecs.yml)}
