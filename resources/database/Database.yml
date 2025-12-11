@@ -1,13 +1,13 @@
 Resources:
-  # RDS Database Instance (Publicly accessible, outside VPC)
-  # Security is managed via RDS default security group allowing 0.0.0.0/0
-  # Database already exists in a different VPC, so we cannot attach VPC security groups
+  # RDS Database Instance (Publicly accessible)
+  # Using hardcoded credentials: postgres/postgres (dev environment)
   VwanuDb:
     Type: AWS::RDS::DBInstance
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
     Properties:
       DBInstanceIdentifier: vwanu-api-backend-${sls:stage}
+      DBName: vwanu
       DBInstanceClass: db.t4g.small
       Engine: postgres
       EngineVersion: 13
@@ -19,5 +19,5 @@ Resources:
       EnablePerformanceInsights: true
       PubliclyAccessible: true
       DeletionProtection: false
-      MasterUsername: ${self:provider.environment.DB_USERNAME}
-      MasterUserPassword: ${self:provider.environment.DB_PASSWORD}
+      MasterUsername: postgres
+      MasterUserPassword: postgres

@@ -12,11 +12,11 @@
 - Name: DB_HOST
   Value: ${self:provider.environment.DB_HOST}
 - Name: DB_USER
-  Value: ${self:provider.environment.DB_USERNAME}
+  Value: postgres
 - Name: DB_PASSWORD
-  Value: ${self:provider.environment.DB_PASSWORD}
+  Value: postgres
 - Name: DB_DATABASE
-  Value: vwanu
+  Value: postgres
 - Name: DB_PORT
   Value: '5432'
 # Cognito Configuration (CloudFormation Refs resolve at stack creation)
