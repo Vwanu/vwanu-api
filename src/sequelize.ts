@@ -41,12 +41,13 @@ export default function (app: Application): void {
   sequelize.addModels(Models);
 
   // Test database connection and log result
+  // @ts-ignore - authenticate exists on Sequelize instance but not in sequelize-typescript types
   sequelize.authenticate()
     .then(() => {
       console.log('✅ Database connection verified successfully');
       console.log(`   Connected to: ${dbSettings.host}:${dbSettings.port}/${dbSettings.database}`);
     })
-    .catch((error) => {
+    .catch((error: any) => {
       console.error('❌ Database connection verification failed:');
       console.error('   Error:', error.message);
       console.error('   Code:', error.code || 'N/A');
