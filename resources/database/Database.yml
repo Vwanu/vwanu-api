@@ -1,4 +1,34 @@
 Resources:
+  # Database Security Group (for publicly accessible RDS)
+  DatabaseSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for publicly accessible RDS PostgreSQL database
+      VpcId:
+        Ref: VwanuVPC
+      SecurityGroupIngress:
+        # Allow PostgreSQL access from NAT Gateway (for ECS tasks in private subnets)
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          CidrIp:
+            Fn::Sub: ${VwanuNatEIP}/32
+          Description: Allow PostgreSQL from NAT Gateway (ECS tasks)
+        # Allow PostgreSQL from anywhere (since database is publicly accessible)
+        # You may want to restrict this to specific IPs for security
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          CidrIp: 0.0.0.0/0
+          Description: Allow PostgreSQL from anywhere
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: ${self:service}-${self:provider.stage}-db-sg
+
+  # RDS Database Instance
   VwanuDb:
     Type: AWS::RDS::DBInstance
     DeletionPolicy: Retain
@@ -18,3 +48,5 @@ Resources:
       DeletionProtection: false
       MasterUsername: ${self:provider.environment.DB_USERNAME}
       MasterUserPassword: ${self:provider.environment.DB_PASSWORD}
+      VPCSecurityGroups:
+        - Ref: DatabaseSecurityGroup
