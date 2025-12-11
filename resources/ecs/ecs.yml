@@ -478,7 +478,7 @@ Resources:
       ResourceId:
         Fn::Sub:
           - 'service/${ClusterName}/${ServiceName}'
-          - ClusterName: !Ref ECSCluster
+          - ClusterName: !Ref 
             ServiceName: !GetAtt HttpServerECSService.Name
       ScalableDimension: ecs:service:DesiredCount
       ServiceNamespace: ecs

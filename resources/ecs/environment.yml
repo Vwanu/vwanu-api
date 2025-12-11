@@ -12,9 +12,9 @@
 - Name: DB_HOST
   Value: ${self:provider.environment.DB_HOST}
 - Name: DB_USER
-  Value: postgres
+  Value: ${self:provider.environment.DB_USERNAME}
 - Name: DB_PASSWORD
-  Value: postgres
+  Value: ${self:provider.environment.DB_PASSWORD}
 - Name: DB_DATABASE
   Value: postgres
 - Name: DB_PORT

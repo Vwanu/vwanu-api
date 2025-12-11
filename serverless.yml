@@ -27,12 +27,8 @@ provider:
     SERVICE_NAME: vwanu-api-backend
     GITHUB_USERNAME: ${env:GITHUB_USERNAME, 'system'}
     DB_HOST: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseHost}
-    # DB_USERNAME: ${ssm:/${sls:stage}/DB_USER}
-    # DB_PASSWORD: ${ssm:/${sls:stage}/DB_PASSWORD}
-    # Hardcoded credentials for database (dev environment)
-    DB_USERNAME: postgres
-    DB_PASSWORD: postgres
-    # COGNITO_USER_POOL: ${self:custom.offlineConfig.${self:custom.isOffline}.cognitoUserPool}
+    DB_USERNAME: ${ssm:/${sls:stage}/DB_USER}
+    DB_PASSWORD: ${ssm:/${sls:stage}/DB_PASSWORD}
     AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE: true
     MAX_DISCUSSION_AUDIOS: 5
     MAX_DISCUSSION_IMAGES: 5
@@ -113,9 +109,6 @@ resources:
 
   # Cognito
   - ${file(resources/cognito/UserPool.yml)}
-
-  # Location Service
-  - ${file(resources/location/LocationService.yml)}
 
   # ECS
   - ${file(resources/ecs/ecs.yml)}

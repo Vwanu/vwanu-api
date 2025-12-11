@@ -19,5 +19,5 @@ Resources:
       EnablePerformanceInsights: true
       PubliclyAccessible: true
       DeletionProtection: false
-      MasterUsername: postgres
-      MasterUserPassword: postgres
+      MasterUsername: ${self:provider.environment.DB_USERNAME}
+      MasterUserPassword: ${self:provider.environment.DB_PASSWORD}
