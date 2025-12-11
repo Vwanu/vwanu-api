@@ -475,7 +475,11 @@ Resources:
     Properties:
       MaxCapacity: 4
       MinCapacity: 2
-      ResourceId: !Sub 'service/${ECSCluster.Name}/${HttpServerECSService.Name}'
+      ResourceId:
+        Fn::Sub:
+          - 'service/${ClusterName}/${ServiceName}'
+          - ClusterName: !Ref ECSCluster
+            ServiceName: !GetAtt HttpServerECSService.Name
       ScalableDimension: ecs:service:DesiredCount
       ServiceNamespace: ecs
       RoleARN: !GetAtt ECSAutoScalingRole.Arn
