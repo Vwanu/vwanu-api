@@ -112,6 +112,9 @@ resources:
   # Cognito
   - ${file(resources/cognito/UserPool.yml)}
 
+  # Location Service
+  - ${file(resources/location/LocationService.yml)}
+
   # ECS
   - ${file(resources/ecs/ecs.yml)}
 
