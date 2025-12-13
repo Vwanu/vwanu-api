@@ -29,6 +29,8 @@ provider:
     DB_HOST: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseHost}
     DB_USERNAME: ${ssm:/${sls:stage}/DB_USER}
     DB_PASSWORD: ${ssm:/${sls:stage}/DB_PASSWORD}
+    DB_DATABASE: postgres
+    # COGNITO_USER_POOL: ${self:custom.offlineConfig.${self:custom.isOffline}.cognitoUserPool}
     AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE: true
     MAX_DISCUSSION_AUDIOS: 5
     MAX_DISCUSSION_IMAGES: 5
