@@ -22,7 +22,7 @@ Resources:
       UserPoolTags:
         Stage: ${sls:stage}
         Service: vwanu-api-backend
-      AliasAttributes:
+      UsernameAttributes:
         - email
       AutoVerifiedAttributes:
         - email
