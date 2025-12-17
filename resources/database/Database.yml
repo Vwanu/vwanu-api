@@ -1,10 +1,13 @@
 Resources:
+  # RDS Database Instance (Publicly accessible)
+  # Using hardcoded credentials: postgres/postgres (dev environment)
   VwanuDb:
     Type: AWS::RDS::DBInstance
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
     Properties:
-      DBInstanceIdentifier: vwanu-api-backend-${sls:stage}-new-23
+      DBInstanceIdentifier: vwanu-api-backend-${sls:stage}
+      DBName: vwanu
       DBInstanceClass: db.t4g.small
       Engine: postgres
       EngineVersion: 13

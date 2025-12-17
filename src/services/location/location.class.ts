@@ -98,20 +98,23 @@ export class Location implements ServiceMethods<Data> {
       ...options
     };
     this.app = app;
-    
+
     // Initialize AWS Location Service client
+    // In ECS, the SDK automatically uses the task IAM role for credentials
+    // Explicit credentials are only used when running locally
     const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
     const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
-    
-    if (!accessKeyId || !secretAccessKey) {
-      throw new Error('AWS credentials not found in environment variables');
-    }
+
     this.client = new LocationClient({
       region: this.options.region,
-      credentials: {
-        accessKeyId,
-        secretAccessKey
-      }
+      // Only provide explicit credentials if they exist (local development)
+      // In ECS, this will be undefined and SDK will use the task role
+      ...(accessKeyId && secretAccessKey && {
+        credentials: {
+          accessKeyId,
+          secretAccessKey
+        }
+      })
     });
   }
 

@@ -1,0 +1,31 @@
+Resources:
+  # AWS Location Service Place Index
+  VwanuPlaceIndex:
+    Type: AWS::Location::PlaceIndex
+    Properties:
+      IndexName: vwanu-place-index-${self:provider.stage}
+      DataSource: Esri
+      DataSourceConfiguration:
+        IntendedUse: SingleUse
+      Description: Place index for location search and autocomplete in Vwanu API
+      PricingPlan: RequestBasedUsage
+      Tags:
+        - Key: Environment
+          Value: ${self:provider.stage}
+        - Key: Service
+          Value: ${self:service}
+        - Key: ManagedBy
+          Value: Serverless
+
+Outputs:
+  PlaceIndexName:
+    Description: Name of the AWS Location Service Place Index
+    Value: !Ref VwanuPlaceIndex
+    Export:
+      Name: ${self:service}-${self:provider.stage}-place-index-name
+
+  PlaceIndexArn:
+    Description: ARN of the AWS Location Service Place Index
+    Value: !GetAtt VwanuPlaceIndex.Arn
+    Export:
+      Name: ${self:service}-${self:provider.stage}-place-index-arn

@@ -13,33 +13,13 @@ provider:
           Resource: '*'
         - Effect: 'Allow'
           Action:
-            - 's3:*'
-          Resource: '*'
-        - Effect: 'Allow'
-          Action:
             - 'logs:*'
-          Resource: '*'
-        - Effect: 'Allow'
-          Action:
-            - 'cognito-idp:*'
-          Resource: '*'
-        - Effect: 'Allow'
-          Action:
-            - 'ses:SendTemplatedEmail'
-          Resource: '*'
-        - Effect: Allow
-          Action:
-            - ec2:CreateNetworkInterface
-            - ec2:DescribeNetworkInterfaces
-            - ec2:DeleteNetworkInterface
-            - ec2:AssignPrivateIpAddresses
-            - ec2:UnassignPrivateIpAddresses
           Resource: '*'
         - Effect: Allow
           Action:
             - 'ssm:GetParameter'
             - 'ssm:GetParameters'
-          Resource: 
+          Resource:
             - 'arn:aws:ssm:${self:provider.region}:*:parameter/${sls:stage}/*'
   environment:
     STAGE: ${sls:stage}
@@ -47,23 +27,31 @@ provider:
     SERVICE_NAME: vwanu-api-backend
     GITHUB_USERNAME: ${env:GITHUB_USERNAME, 'system'}
     DB_HOST: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseHost}
-    DB_USERNAME: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseCredentials.username}
-    DB_PASSWORD: ${self:custom.offlineConfig.${self:custom.isOffline}.databaseCredentials.password}
-    COGNITO_USER_POOL: ${self:custom.offlineConfig.${self:custom.isOffline}.cognitoUserPool}
-    API_URL: ${self:custom.offlineConfig.${self:custom.isOffline}.apiUrl}
+    DB_USERNAME: ${ssm:/${sls:stage}/DB_USER}
+    DB_PASSWORD: ${ssm:/${sls:stage}/DB_PASSWORD}
+    DB_DATABASE: postgres
+    # COGNITO_USER_POOL: ${self:custom.offlineConfig.${self:custom.isOffline}.cognitoUserPool}
     AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE: true
-    CLIENT_ID: ${ssm:/${sls:stage}/clientId}
-    USER_POOL_ID: ${ssm:/${sls:stage}/userPoolId}
-    CLOUDINARY_API_SECRET: ${ssm:/${sls:stage}/CLOUDINARY_API_SECRET}
-    CLOUDINARY_API_KEY: ${ssm:/${sls:stage}/CLOUDINARY_API_KEY}
-    CLOUDINARY_CLOUD_NAME: ${ssm:/${sls:stage}/CLOUDINARY_CLOUD_NAME}
-    MAX_POST_VIDEOS: ${ssm:/${sls:stage}/maxPostVideos}
-    MAX_POST_AUDIOS: ${ssm:/${sls:stage}/maxPostAudios}
-    MAX_POST_IMAGES: ${ssm:/${sls:stage}/maxPostImages}
-    MAX_MESSAGE_IMAGES: ${ssm:/${sls:stage}/maxMessageImages}
-    MAX_DISCUSSION_VIDEOS: ${ssm:/${sls:stage}/maxDiscussionVideos}
-    MAX_DISCUSSION_AUDIOS: ${ssm:/${sls:stage}/maxDiscussionAudios}
-    MAX_DISCUSSION_IMAGES: ${ssm:/${sls:stage}/maxDiscussionImages}
+    MAX_DISCUSSION_AUDIOS: 5
+    MAX_DISCUSSION_IMAGES: 5
+    MAX_DISCUSSION_VIDEOS: 2
+    MAX_MESSAGE_IMAGES: 5
+    MAX_POST_AUDIOS: 5
+    MAX_POST_IMAGES: 5
+    MAX_POST_VIDEOS: 2
+    # Cognito refs moved to ECS environment.yml to resolve properly via CloudFormation
+    # COGNITO_USER_POOL:
+    #   Ref: CognitoUserPool
+    # CLIENT_ID:
+    #   Ref: CognitoUserPoolClient
+    # USER_POOL_ID:
+    #   Ref: CognitoUserPool
+    # API_URL: ${self:custom.offlineConfig.${self:custom.isOffline}.
+    # CLIENT_ID: ${ssm:/${sls:stage}/clientId}
+    # USER_POOL_ID: ${ssm:/${sls:stage}/userPoolId}
+    # CLOUDINARY_API_SECRET: ${ssm:/${sls:stage}/CLOUDINARY_API_SECRET} # temporarily until cloudinary is removed
+    # CLOUDINARY_API_KEY: ${ssm:/${sls:stage}/CLOUDINARY_API_KEY}
+    # CLOUDINARY_CLOUD_NAME: ${ssm:/${sls:stage}/CLOUDINARY_CLOUD_NAME}
    # REDIS_ENDPOINT: ${ssm:/${sls:stage}/redisEndpoint}
 
 plugins:
@@ -73,8 +61,8 @@ plugins:
 custom:
   shortServiceName: vwanu
   ecr:
-    repositoryUri: '058264272613.dkr.ecr.us-east-1.amazonaws.com/webvital/vwanu'
-    imageTag: ${param:imageTag}
+    repositoryUri: '178092210783.dkr.ecr.us-east-1.amazonaws.com/vwanu/vwanu-api'
+    imageTag: ${param:imageTag, "dev-latest"}
   isOffline: ${env:IS_OFFLINE, "false"}
   offlineConfig:
     true:
@@ -99,14 +87,17 @@ custom:
     prod: true
     staging: true
     dev: false
+    test: false
   adminDomains:
     prod: admin.wadsonvaval.click
     staging: admin-staging.wadsonvaval.click
     dev: admin-dev.wadsonvaval.click
+    test: admin-test.wadsonvaval.click
   subjectPrefix:
     prod: ''
     staging: '[STAGING] '
     dev: '[DEV] '
+    test: '[TEST] '
   prune:
     automatic: true
     number: 3
@@ -120,6 +111,9 @@ resources:
 
   # Cognito
   - ${file(resources/cognito/UserPool.yml)}
+
+  # Location Service
+  - ${file(resources/location/LocationService.yml)}
 
   # ECS
   - ${file(resources/ecs/ecs.yml)}
