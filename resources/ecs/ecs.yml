@@ -283,7 +283,7 @@ Resources:
     Type: AWS::Route53::RecordSet
     Properties:
       HostedZoneId: ${ssm:/${sls:stage}/hostedZoneId}
-      Name: api.${self:provider.stage}.wadsonvaval.click
+      Name: api-new.${self:provider.stage}.wadsonvaval.click
       Type: A
       AliasTarget:
         DNSName:
@@ -295,10 +295,10 @@ Resources:
   ApiLoadBalancerCertificate:
     Type: 'AWS::CertificateManager::Certificate'
     Properties:
-      DomainName: api.${self:provider.stage}.wadsonvaval.click
+      DomainName: api-new.${self:provider.stage}.wadsonvaval.click
       ValidationMethod: DNS
       DomainValidationOptions:
-        - DomainName: api.${self:provider.stage}.wadsonvaval.click
+        - DomainName: api-new.${self:provider.stage}.wadsonvaval.click
           HostedZoneId: ${ssm:/${sls:stage}/hostedZoneId}
 
   # Auto Restart Mechanism
