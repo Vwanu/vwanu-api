@@ -1,10 +1,15 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
-    // 1. Change column type from STRING to TSVECTOR
-    await queryInterface.changeColumn('users', 'search_vector', {
-      type: 'TSVECTOR',
-      allowNull: true,
-    });
+    // 1. Change column type from STRING to TSVECTOR with explicit conversion
+    await queryInterface.sequelize.query(`
+      ALTER TABLE users
+      ALTER COLUMN search_vector
+      TYPE tsvector
+      USING CASE
+        WHEN search_vector IS NULL OR search_vector = '' THEN NULL
+        ELSE to_tsvector('english', search_vector)
+      END;
+    `);
 
     // 2. Populate search_vector for all existing users
     await queryInterface.sequelize.query(`
@@ -26,9 +31,11 @@ module.exports = {
 
   async down(queryInterface, Sequelize) {
     await queryInterface.removeIndex('users', 'users_search_vector_idx');
-    await queryInterface.changeColumn('users', 'search_vector', {
-      type: Sequelize.STRING,
-      allowNull: true,
-    });
+    await queryInterface.sequelize.query(`
+      ALTER TABLE users
+      ALTER COLUMN search_vector
+      TYPE VARCHAR(255)
+      USING search_vector::text;
+    `);
   },
 };
