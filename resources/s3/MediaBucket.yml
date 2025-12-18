@@ -61,7 +61,7 @@ Resources:
         - Key: Stage
           Value: ${self:provider.stage}
         - Key: Purpose
-          Value: User media storage (profile pictures, posts, community images)
+          Value: user-media-storage
 
   # Bucket Policy for CloudFront or direct access (if needed)
   VwanuMediaBucketPolicy:
