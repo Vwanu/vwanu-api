@@ -1,9 +1,12 @@
 import { AddAssociations } from '../../../Hooks';
+import { User } from '../../../database/user';
+import { Conversation } from '../../../database/conversation';
+import { Media } from '../../../database/media';
 
 const IncludeSenderAndConversation = AddAssociations({
   models: [
     {
-      model: 'users',
+      model: User,
       as: 'sender',
       attributes: [
         'firstName',
@@ -13,8 +16,8 @@ const IncludeSenderAndConversation = AddAssociations({
         'createdAt',
       ],
     },
-    { model: 'conversation' },
-    { model: 'medias' },
+    { model: Conversation },
+    { model: Media },
   ],
 });
 

@@ -1,6 +1,6 @@
 --DROP FUNCTION fn_get_community_by_id(uuid,uuid) 
 CREATE OR REPLACE FUNCTION public.fn_get_community_by_id(p_user_id uuid, p_community_id uuid)
- RETURNS TABLE(comm_id uuid, community_name text, description text,  "profilePicture" text, "coverPicture" text, "numMembers" integer, "numAdmins" integer,  "Interests" JSONB[], members JSONB[], "canUserInvite" boolean, "canUserUploadDoc" boolean, "canUserUploadPhotos" boolean, "isMember" jsonb, "pendingInvitation" jsonb[], creator jsonb, "commPrivacyType" text, "commUserId" uuid)
+ RETURNS TABLE(comm_id uuid, community_name text, description text,  "profilePicture" text, "coverPicture" text, "numMembers" integer, "numAdmins" integer,  "Interests" JSONB[], members JSONB[], "canUserInvite" boolean, "canUserUploadDoc" boolean, "canUserUploadPhotos" boolean, "isMember" jsonb, "pendingInvitation" jsonb, creator jsonb, "commPrivacyType" text, "commUserId" uuid)
  LANGUAGE plpgsql
 AS $function$
 DECLARE
@@ -70,9 +70,6 @@ BEGIN
         "numAdmins" := v_community_record.num_admins;
 		"commPrivacyType":=v_community_record.privacy_type;
 
-        -- Assuming you have the interests in a table, fetch them as an array
- 
-
         SELECT array_agg(jsonb_build_object('id', i.id, 'name', i."name" )) INTO "Interests"
         FROM community_interests AS ci
         INNER JOIN interests AS i ON i.id = ci.interest_id
@@ -84,19 +81,21 @@ BEGIN
             "isMember" := jsonb_build_object('roleId', v_role_id, 'role', v_role_name,'id', p_user_id);
         END IF;
 
-        SELECT array_agg(json_build_object(
+        SELECT jsonb_build_object(
             'id', "INV"."id",
-            'role',"R"."name",
-            'roleId',"R"."id",
-            'createdAt',"INV"."created_at",
-            'updatedAt',"INV"."updated_at",
-            'hostId',"INV"."host",
-            'guestId',"INV"."guest"
-        )) INTO "pendingInvitation"
-       FROM community_invitation_requests AS "INV" 
-       INNER JOIN community_roles AS "R" ON "R"."id" = "INV"."community_role_id"
-       WHERE "INV".community_id=p_community_id 
-       AND "INV".guest=p_user_id AND "INV"."response" IS NULL;
+            'role', "R"."name",
+            'roleId', "R"."id",
+            'createdAt', "INV"."created_at",
+            'updatedAt', "INV"."updated_at",
+            'hostId', "INV"."host_id",
+            'guestId', "INV"."guest_id"
+        ) INTO "pendingInvitation"
+        FROM community_invitation_requests AS "INV" 
+        INNER JOIN community_roles AS "R" ON "R"."id" = "INV"."community_role_id"
+        WHERE "INV".community_id = p_community_id 
+        AND "INV".guest_id = p_user_id 
+        AND "INV"."response" IS NULL
+        LIMIT 1;
 
        SELECT array_agg(
         jsonb_build_object(
@@ -106,9 +105,13 @@ BEGIN
         'profilePicture', u."profile_picture"
               )) 
        INTO "members"
-       FROM community_users AS cu
-       INNER JOIN users AS u ON u.id = cu.user_id
-       WHERE cu.community_id = p_community_id;
+       FROM (
+           SELECT u.* 
+           FROM community_users AS cu
+           INNER JOIN users AS u ON u.id = cu.user_id
+           WHERE cu.community_id = p_community_id
+           LIMIT 5
+       ) AS u;
 
        SELECT jsonb_build_object(
         'id', u."id", 

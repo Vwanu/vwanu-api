@@ -1,7 +1,7 @@
-import { Table, Column, Model, DataType, ForeignKey , BelongsTo, BelongsToMany, TableOptions} from 'sequelize-typescript';
+import { Table, Column, Model, DataType, ForeignKey , BelongsTo, BelongsToMany, HasMany, TableOptions} from 'sequelize-typescript';
 import { CommunityPrivacyType, CommunityPermissionLevel } from '../types/enums';
 import { User } from './user';
-// import { CommunityUsers } from './community-users';
+import { CommunityUser } from './community-users';
 // import { CommunityInvitationRequest } from './communityInvitationRequest';
 import { Interest } from './interest'; // Assuming Interest model is defined in interest.ts
 
@@ -136,7 +136,6 @@ export class Community extends Model<CommunityInterface> {
   })
   search_vector!: string;
 
-
   // Instance methods for better encapsulation
   public canUserInvite(userRole: CommunityPermissionLevel): boolean {
     const permissionHierarchy = {
@@ -180,7 +179,6 @@ export class Community extends Model<CommunityInterface> {
     otherKey: 'interest_id',        // FK pointing to Interest
   })
   interests!: Interest[];
-
   
   // Note: For User-Community relationship, we use the explicit CommunityUsers model
   // because it has additional fields like role, joinedAt, etc.
@@ -190,6 +188,6 @@ export class Community extends Model<CommunityInterface> {
   // @HasMany(() => CommunityInvitationRequest, { foreignKey: 'communityId' })
   // invitationRequests!: CommunityInvitationRequest[];
   
-  // @HasMany(() => CommunityUsers, { foreignKey: 'communityId' })
-  // communityUsers!: CommunityUsers[];
+  @HasMany(() => CommunityUser, { foreignKey: 'communityId' })
+  members!: CommunityUser[];
 }

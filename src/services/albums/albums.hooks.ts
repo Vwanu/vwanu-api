@@ -1,4 +1,6 @@
 import { Op } from 'sequelize';
+import { User } from '../../database/user';
+import { Media } from '../../database/media';
 import addAssociation from '../../Hooks/AddAssociations';
 
 // import IncludeAssociations from '../../Hooks/IncludeAssociations';
@@ -19,7 +21,7 @@ export default {
       addAssociation({
         models: [
           {
-            model: 'users',
+            model: User,
             attributes: [
               'firstName',
               'lastName',
@@ -29,7 +31,7 @@ export default {
             ],
           },
           {
-            model: 'medias',
+            model: Media,
             as: 'Medias',
           },
         ],
