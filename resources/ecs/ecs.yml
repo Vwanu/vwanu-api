@@ -147,7 +147,7 @@ Resources:
       VpcId:
         Ref: VwanuVPC
       TargetType: ip
-      HealthCheckIntervalSeconds: 30
+      HealthCheckIntervalSeconds: 60
       HealthCheckProtocol: HTTP
       HealthCheckPath: /health
       Matcher:
@@ -292,7 +292,7 @@ Resources:
     Type: AWS::Route53::RecordSet
     Properties:
       HostedZoneId: ${ssm:/${sls:stage}/hostedZoneId}
-      Name: api-new.${self:provider.stage}.vwanu.click
+      Name: api.${self:provider.stage}.vwanu.click
       Type: A
       AliasTarget:
         DNSName:
@@ -304,10 +304,10 @@ Resources:
   ApiLoadBalancerCertificate:
     Type: 'AWS::CertificateManager::Certificate'
     Properties:
-      DomainName: api-new.${self:provider.stage}.vwanu.click
+      DomainName: api.${self:provider.stage}.vwanu.click
       ValidationMethod: DNS
       DomainValidationOptions:
-        - DomainName: api-new.${self:provider.stage}.vwanu.click
+        - DomainName: api.${self:provider.stage}.vwanu.click
           HostedZoneId: ${ssm:/${sls:stage}/hostedZoneId}
 
   # Auto Restart Mechanism

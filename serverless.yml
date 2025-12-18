@@ -115,6 +115,9 @@ resources:
   # Location Service
   - ${file(resources/location/LocationService.yml)}
 
+  # S3 Media Storage
+  - ${file(resources/s3/MediaBucket.yml)}
+
   # ECS
   - ${file(resources/ecs/ecs.yml)}
 

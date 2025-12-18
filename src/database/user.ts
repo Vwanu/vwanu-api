@@ -33,6 +33,8 @@ export class User extends Model<UserInterface> {
         }
       },
     },
+    // @ts-ignore
+    level: 'B',
   })
   email: string;
   
@@ -62,13 +64,17 @@ export class User extends Model<UserInterface> {
   @Column({
       type: DataType.STRING,
       allowNull: true,
-      defaultValue: 'Not specified'
+      defaultValue: 'Not specified',
+      // @ts-ignore
+      level: 'A',
   })
   lastName: string;
     @Column({
       type: DataType.STRING,
       allowNull: true,
-      defaultValue: 'Not specified'
+      defaultValue: 'Not specified',
+      // @ts-ignore
+      level: 'A',
   })
   firstName:string;
 
@@ -120,9 +126,9 @@ export class User extends Model<UserInterface> {
   // coverPicture: string;
 
   @Column({
-   type: DataType.STRING,
+   type: DataType.TEXT,
   allowNull: true,
-  defaultValue: 'Not specified'
+  field: 'search_vector',
       })
   search_vector: string;
 

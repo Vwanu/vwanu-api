@@ -1,6 +1,6 @@
 /**
  * Auto-generated TypeScript types from Zod schemas
- * Generated on: 2025-10-06T02:39:04.596Z
+ * Generated on: 2025-12-18T03:00:12.565Z
  *
  * DO NOT EDIT MANUALLY - This file is generated automatically
  * Run 'npm run generate-types' to regenerate

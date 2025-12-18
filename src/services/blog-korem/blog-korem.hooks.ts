@@ -1,4 +1,5 @@
 import commonHooks from 'feathers-hooks-common';
+import { User } from '../../database/user';
 
 // Don't remove this comment. It's needed to format import lines nicely.
 import {
@@ -48,7 +49,7 @@ export default {
       AddAssociations({
         models: [
           {
-            model: 'users',
+            model: User,
             attributes: UserAttributes,
           },
         ],

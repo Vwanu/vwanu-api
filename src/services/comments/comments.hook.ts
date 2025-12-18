@@ -1,4 +1,5 @@
 import addAssociation from '../../Hooks/AddAssociations';
+import { User } from '../../database/user';
 import autoOwn from '../../Hooks/AutoOwn';
 import LimitToOwner from '../../Hooks/LimitToOwner';
 
@@ -8,7 +9,7 @@ export default {
       addAssociation({
         models: [
           {
-            model: 'users',
+            model: User,
             attributes: [
               'firstName',
               'lastName',
@@ -24,7 +25,7 @@ export default {
       addAssociation({
         models: [
           {
-            model: 'users',
+            model: User,
             attributes: [
               'firstName',
               'lastName',

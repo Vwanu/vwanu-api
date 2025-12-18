@@ -2,7 +2,8 @@ import { BadRequest } from '@feathersjs/errors';
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { Application } from '../../declarations';
 
-// eslint-disable-next-line import/prefer-default-export
+console.log('community user called')
+
 export class CommunityUsers extends Service {
   app;
   
@@ -36,4 +37,5 @@ export class CommunityUsers extends Service {
         throw e      }
     } else throw new BadRequest('demote query param is required');
   }
+
 }

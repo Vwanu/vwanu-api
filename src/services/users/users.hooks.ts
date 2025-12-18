@@ -54,7 +54,9 @@ const hooks = {
 
     find: [protectKeys],
     // get: [AddVisitor, protectKeys],
+    create: [protectKeys, updateTsVector],
     patch: [protectKeys, updateTsVector],
+    update: [protectKeys, updateTsVector],
     remove: [protectKeys],
   },
   error: {

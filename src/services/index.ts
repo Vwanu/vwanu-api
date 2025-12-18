@@ -40,6 +40,7 @@ import location from './location/location.service';
 // import communityHistory from './community-history/community-history.service';
 // import notificationTypes from './notification_types/notification_types.service';
 // import userNotificationTypes from './user_notification_types/user_notification_types.service';
+import  communityRole  from './community-role/community-role.service';
 
 const services =[
 //   search,
@@ -63,7 +64,7 @@ const services =[
   korem,
 //   blogKorem,
 //   communityUsers,
-//   // communityRole,
+  communityRole,
 //   communityInvitationRequest,
 //   registration,
 //   communityJoin,
