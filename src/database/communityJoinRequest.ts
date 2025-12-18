@@ -84,7 +84,7 @@ export class CommunityJoinRequest extends Model<CommunityJoinRequestInterface>  
   @Column({
     type: DataType.DATE,
     allowNull: false,
-    field: 'response_date',
+    field: 'updated_at',
   })
   responseDate!: Date;
 
@@ -121,7 +121,7 @@ export class CommunityJoinRequest extends Model<CommunityJoinRequestInterface>  
   @BelongsTo(()=> CommunityRole, 'communityRoleId')
   communityRole!: CommunityRole
 
-  
+
 
   // Instance methods for better encapsulation
   public isPending(): boolean {
