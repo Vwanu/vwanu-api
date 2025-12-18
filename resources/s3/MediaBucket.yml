@@ -30,11 +30,12 @@ Resources:
               - ETag
             MaxAge: 3000
       # Public Access Block Settings
+      # Allow public read access for media files (profile pictures, posts, etc.)
       PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
+        BlockPublicAcls: true        # Block public ACLs on objects
+        BlockPublicPolicy: false     # Allow bucket policies to grant public access
+        IgnorePublicAcls: true       # Ignore any public ACLs on objects
+        RestrictPublicBuckets: false # Allow public bucket policies
       # Lifecycle Rules for cost optimization
       LifecycleConfiguration:
         Rules:
@@ -85,6 +86,14 @@ Resources:
             Resource:
               - !Sub '${VwanuMediaBucket.Arn}/*'
               - !GetAtt VwanuMediaBucket.Arn
+          # Allow public read access to all objects (for viewing profile pictures, posts, etc.)
+          - Sid: PublicReadAccess
+            Effect: Allow
+            Principal: '*'
+            Action:
+              - s3:GetObject
+            Resource:
+              - !Sub '${VwanuMediaBucket.Arn}/*'
           # Optional: Add CloudFront origin access identity if you add CDN later
           # - Sid: AllowCloudFrontAccess
           #   Effect: Allow
