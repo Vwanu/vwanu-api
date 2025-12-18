@@ -147,7 +147,7 @@ Resources:
       VpcId:
         Ref: VwanuVPC
       TargetType: ip
-      HealthCheckIntervalSeconds: 30
+      HealthCheckIntervalSeconds: 60
       HealthCheckProtocol: HTTP
       HealthCheckPath: /health
       Matcher:
