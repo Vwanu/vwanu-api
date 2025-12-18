@@ -1,6 +1,4 @@
 Resources:
-  # RDS Database Instance (Publicly accessible)
-  # Using hardcoded credentials: postgres/postgres (dev environment)
   VwanuDb:
     Type: AWS::RDS::DBInstance
     DeletionPolicy: Retain
