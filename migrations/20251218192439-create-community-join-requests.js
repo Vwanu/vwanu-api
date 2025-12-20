@@ -64,6 +64,13 @@ module.exports = {
         defaultValue: Sequelize.NOW,
       },
     });
+
+    // Add unique constraint: a user can only request to join a community once
+    await queryInterface.addConstraint('community_join_requests', {
+      fields: ['guest_id', 'community_id'],
+      type: 'unique',
+      name: 'unique_guest_community_join_request',
+    });
   },
   async down(queryInterface) {
     await queryInterface.dropTable('community_join_requests');

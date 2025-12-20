@@ -20,6 +20,13 @@ export interface CommunityJoinRequestInterface {
   tableName: 'community_join_requests',
   // Note: responseDate serves as the updatedAt timestamp for better semantic clarity
   underscored: true,
+  indexes: [
+    {
+      unique: true,
+      fields: ['guest_id', 'community_id'],
+      name: 'unique_guest_community_join_request',
+    },
+  ],
 } as TableOptions<CommunityJoinRequest>)
 export class CommunityJoinRequest extends Model<CommunityJoinRequestInterface>   {
 
