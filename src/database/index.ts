@@ -29,10 +29,11 @@ import {CommunityJoinRequest} from './communityJoinRequest';
 // import {CommunityHistory} from './community-history';
 // import {NotificationType} from './notifications_types';
 // import {UserNotificationSettings} from './user_notifications_settings';
-// import {ErrorCode} from './errorCodes.db'; 
+// import {ErrorCode} from './errorCodes.db';
 // import {ExpiryTime} from './expiryTime';
 // import {UserNotificationTypes} from './user_notification_types';
 import { CommunityRole } from './communityRole.model';
+import {CommunityInterest} from './junction-tables';
 
 export default [
 //   // Call,
@@ -60,6 +61,7 @@ export default [
   CommunityInvitationRequest,
   CommunityJoinRequest,
   CommunityRole,
+  CommunityInterest,
 //   Forum,
 //   Place,
 //   NotificationType,
@@ -70,4 +72,3 @@ export default [
 ];
 
 // export default [];
-
