@@ -20,6 +20,13 @@ export interface CommunityJoinRequestInterface {
   tableName: 'community_join_requests',
   // Note: responseDate serves as the updatedAt timestamp for better semantic clarity
   underscored: true,
+  indexes: [
+    {
+      unique: true,
+      fields: ['guest_id', 'community_id'],
+      name: 'unique_guest_community_join_request',
+    },
+  ],
 } as TableOptions<CommunityJoinRequest>)
 export class CommunityJoinRequest extends Model<CommunityJoinRequestInterface>   {
 
@@ -84,7 +91,7 @@ export class CommunityJoinRequest extends Model<CommunityJoinRequestInterface>  
   @Column({
     type: DataType.DATE,
     allowNull: false,
-    field: 'response_date',
+    field: 'updated_at',
   })
   responseDate!: Date;
 
@@ -121,7 +128,7 @@ export class CommunityJoinRequest extends Model<CommunityJoinRequestInterface>  
   @BelongsTo(()=> CommunityRole, 'communityRoleId')
   communityRole!: CommunityRole
 
-  
+
 
   // Instance methods for better encapsulation
   public isPending(): boolean {
