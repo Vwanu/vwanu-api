@@ -1,11 +1,15 @@
 /**
  * Junction Tables for Many-to-Many Relationships
- * 
+ *
  * This file contains lightweight junction table definitions for simple many-to-many
  * relationships that don't warrant their own separate files.
  */
+import { difference } from 'lodash';
+import { Id } from '@feathersjs/feathers';
+import { Table, Column, Model, DataType, ForeignKey, TableOptions, PrimaryKey } from 'sequelize-typescript';
 
-import { Table, Column, Model, DataType, ForeignKey, TableOptions } from 'sequelize-typescript';
+
+
 import { Community } from './communities';
 import { Interest } from './interest';
 import { User } from './user';
@@ -17,14 +21,17 @@ import { User } from './user';
   underscored: true,
 } as TableOptions<CommunityInterest>)
 export class CommunityInterest extends Model {
+  @PrimaryKey
   @ForeignKey(() => Community)
   @Column({
     type: DataType.UUID,
     allowNull: false,
     field: 'community_id',
+
   })
   communityId!: string;
 
+  @PrimaryKey
   @ForeignKey(() => Interest)
   @Column({
     type: DataType.UUID,
@@ -45,6 +52,27 @@ export class CommunityInterest extends Model {
   //   defaultValue: DataType.NOW,
   // })
   // addedAt?: Date;
+
+  /**
+   * Calculate the delta between current community interests and new interests
+   * Returns only the interest IDs that are not already associated with the community
+   * @param communityId - The community ID to check
+   * @param newInterests - Array of new interest IDs to compare
+   * @returns Array of interest IDs that need to be added
+   */
+   static async getInterestDelta (communityId: Id, newInterests: string[]): Promise<string[]> {
+          // @ts-ignore
+          const existingInterests = await this.findAll({
+            where: { communityId },
+            attributes: ['interestId'],
+          });
+          if(!existingInterests || existingInterests.length === 0){
+            return newInterests;
+          }
+          const existingInterestIds = existingInterests.map((ci: CommunityInterest) => ci.interestId);
+          // Return new interests that don't exist in existing interests
+          return difference(newInterests, existingInterestIds);
+        }
 }
 
 // Example: User-Interest junction table (user's interests/skills)

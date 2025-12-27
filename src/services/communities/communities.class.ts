@@ -1,14 +1,9 @@
 // import { QueryTypes } from 'sequelize';
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
-
 import { Id, Params } from '@feathersjs/feathers';
-
-import common from '../../lib/utils/common';
+import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { Application } from '../../declarations';
 import { Community } from '../../database/communities';
-
-const { getUploadedFiles } = common;
-
+import { CommunityInterest } from '../../database/junction-tables';
 
 
 export class Communities extends Service {
@@ -20,52 +15,42 @@ export class Communities extends Service {
     this.app = app;
   }
 
-  async create(data, params) {
-    const communityData = getUploadedFiles(['profilePicture', 'coverPicture'], data);
-    const { Media: mediaData, } = communityData;
+  private async createOrUpdateCommunityInterests(data , params:Params,communityid?:Id) {
+    const editMode = !!communityid;
+    const { interests } = data;
 
-    const { interests, ...otherData } = data;
+    const community = editMode
+    ? await super.patch(communityid as Id, data, { params })
+    // @ts-ignore
+    : await Community.create(data);
 
-    const communityFields = {
-      ...otherData,
-      profilePicture: mediaData?.[0]?.original,
-      coverPicture: mediaData?.[0]?.original,
-      creatorId: params.User.id
-    }
+    if(interests && Array.isArray(interests) && interests.length > 0){
+        const interestDelta = editMode
+        ? await CommunityInterest.getInterestDelta(communityid as Id, interests)
+        : interests;
 
-    
-    // First create the community without interests
-     // @ts-ignore 
-    const community = await Community.create(communityFields)
-
-    const sequelize = this.app.get('sequelizeClient');
-    const Interest = sequelize.models.Interest;
-    
-    // Then add interests if they exist
-    if (interests && Array.isArray(interests) && interests.length > 0) {
-      for (const interestId of interests) {
-        const interest = await Interest.findByPk(interestId);
-        if (!interest) {
-          throw new Error(`Interest not found`);
+        if(interestDelta && interestDelta.length > 0){
+            // @ts-ignore
+        await CommunityInterest.bulkCreate(interestDelta.map((interestId) => ({
+          communityId: communityid || community.id,interestId,
+        }))).catch((err) => {
+          console.error('Error creating CommunityInterest records:', err);
+        });
         }
-        await community.addInterest(interest);
-      }
     }
-
-
-
-    // if (mediaData && mediaData.length > 0) {
-    //   const mediaRecords = await this.app
-    //     .get('sequelizeClient')
-    //     .models.Media.bulkCreate(mediaData);
-      
-    //   await post.addMedia(mediaRecords);
-
-    // }
-
-    const updatedCommunity = await this.app.service('communities').get(community.id, params);
-    return Promise.resolve(updatedCommunity);
+    return editMode ? communityid as Id : community.id;
   }
+  async create(data, params) {
+    const communityId = await this.createOrUpdateCommunityInterests(data, params);
+    const newCommunity = await this.app.service('communities').get(communityId, params);
+    return Promise.resolve(newCommunity);
+  }
+  
+    async patch(id: Id, data, params) {
+      const communityId = await this.createOrUpdateCommunityInterests(data, params, id);
+      const updatedCommunity = await this.app.service('communities').get(communityId, params);
+      return Promise.resolve(updatedCommunity);
+    }
 
   async get(id: Id, params: Params) {
     const sequelize = this.app.get('sequelizeClient');
