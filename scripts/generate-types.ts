@@ -242,7 +242,6 @@ class TypeGenerator {
 
     const header = `/**
  * Auto-generated TypeScript types from Zod schemas
- * Generated on: ${new Date().toISOString()}
  *
  * DO NOT EDIT MANUALLY - This file is generated automatically
  * Run 'npm run generate-types' to regenerate
