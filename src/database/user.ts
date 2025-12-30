@@ -9,6 +9,8 @@ export const authorizationEnums = ['public', 'private', 'friend'];
   modelName: 'User',
   tableName: 'users',
   underscored: true,
+//   timestamps: true,
+//   updatedAt: 'last_seen',
 } as TableOptions<User>)
 
 export class User extends Model<UserInterface> {
@@ -20,7 +22,7 @@ export class User extends Model<UserInterface> {
     allowNull: false,
   })
   id: string;
-  
+
   @Column({
     type: DataType.STRING,
     allowNull: false,
@@ -37,20 +39,20 @@ export class User extends Model<UserInterface> {
     level: 'B',
   })
   email: string;
-  
-  @Column({ 
+
+  @Column({
       type: DataType.INTEGER,
       defaultValue: 0,
       allowNull: false,
   })
   amountOfFollower: string;
-  @Column({ 
+  @Column({
       type: DataType.INTEGER,
       defaultValue: 0,
       allowNull: false,
   })
   amountOfFollowing: number;
-    @Column({ 
+    @Column({
       type: DataType.INTEGER,
       defaultValue: 0,
       allowNull: false,
@@ -89,7 +91,7 @@ export class User extends Model<UserInterface> {
         }
       },
     },
-  })  
+  })
   gender: string;
   @Column({
     type: DataType.STRING,
@@ -103,7 +105,13 @@ export class User extends Model<UserInterface> {
     defaultValue: false
   })
   verified: boolean;
-  
+ @Column({
+    type: DataType.STRING,
+    allowNull: true,
+    defaultValue: 'Not specified',
+    field:'online',
+  })
+  online: boolean;
   @Column({
     type: DataType.STRING,
     allowNull: true,
@@ -207,4 +215,3 @@ export class User extends Model<UserInterface> {
     // }
 
 };
-

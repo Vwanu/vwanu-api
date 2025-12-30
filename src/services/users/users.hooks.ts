@@ -4,7 +4,7 @@ import * as local from '@feathersjs/authentication-local';
 
 import isSelf from '../../Hooks/isSelf.hook';
 import saveProfilePicture from '../../Hooks/SaveProfilePictures.hooks';
-import MediaStringToMediaObject from '../../Hooks/ProfileCoverToObject';
+// import MediaStringToMediaObject from '../../Hooks/ProfileCoverToObject';
 
 // import { AddVisitor } from './hook';
 import updateTsVector from './hook/updateTsVector';
@@ -50,7 +50,6 @@ const hooks = {
   },
 
   after: {
-    all: [MediaStringToMediaObject(['profilePicture', 'coverPicture'])],
 
     find: [protectKeys],
     // get: [AddVisitor, protectKeys],
