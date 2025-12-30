@@ -8,18 +8,18 @@ import comments from './comments/comments.service';
 // import followers from './followers/followers.service';
 // import userVisitors from './userVisitors/user-visitors.service';
 // import friendRequest from './friendRequest/friendRequests.service';
-// import undesiredFriend from './undesiredFriends/undesiredFriends.service';  
+// import undesiredFriend from './undesiredFriends/undesiredFriends.service';
 // import timeline from './timeline/timeline.service';
 // import blogs from './blogs/blogs.service';
 // import albums from './albums/albums.service';
-// import notification from './notification/notification.service';
+import notifications from './notification/notification.service';
 import interests from './interests/interests.service';
 // import medias from './medias/medias.service';
 import communities from './communities/communities.service';
 // import discussion from './discussion/discussion.service';
 // import blogResponse from './blog-response/blog-response.service';
 import korem from './korem/korem.service';
-// import blogKorem from './blog-korem/blog-korem.service';      
+// import blogKorem from './blog-korem/blog-korem.service';
 // import communityUsers from './community-users/community-users.service';
 // import communityInvitationRequest from './community-invitation-request/community-invitation-request.service';
 // import registration from './communityRegistration/communityRegistration.service';
@@ -55,7 +55,7 @@ const services =[
 //   undesiredFriend,
 //   blogs,
 //   albums,
-//   notification,
+  notifications,
   interests,
 //   medias,
   communities,
@@ -89,4 +89,3 @@ export default function (app: Application): void {
   services.forEach(service => app.configure(service));
   app.configure(location);
 }
-
