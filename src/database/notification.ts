@@ -4,14 +4,13 @@ import { NotificationType, EntityType } from '../types/enums';
 
 export interface NotificationInterface {
   id: string;
-  toUserId: string;
+  userId: string;
   message?: string;
   type?: string;
-  viewed: boolean;
+  read: boolean;
   entityName?: EntityType;
   entityId?: string;
   notificationType: NotificationType;
-  sound: boolean;
   fromUserId?: string;
 }
 
@@ -21,7 +20,7 @@ export interface NotificationInterface {
   underscored: true,
 } as TableOptions<Notification>)
 export class Notification extends Model<NotificationInterface> implements NotificationInterface {
-  
+
   @PrimaryKey
   @Column({
     type: DataType.UUID,
@@ -36,9 +35,9 @@ export class Notification extends Model<NotificationInterface> implements Notifi
   @Column({
     type: DataType.UUID,
     allowNull: false,
-    field: 'to',
+    field: 'user_id',
   })
-  toUserId!: string;
+  userId!: string;
 
   @Column({
     type: DataType.STRING,
@@ -68,14 +67,6 @@ export class Notification extends Model<NotificationInterface> implements Notifi
 
   @AllowNull(false)
   @Column({
-    type: DataType.BOOLEAN,
-    allowNull: false,
-    defaultValue: true,
-  })
-  sound!: boolean;
-
-  @AllowNull(false)
-  @Column({
     type: DataType.ENUM(...Object.values(NotificationType)),
     allowNull: false,
     field: 'notification_type',
@@ -88,7 +79,7 @@ export class Notification extends Model<NotificationInterface> implements Notifi
     allowNull: false,
     field: 'view',
   })
-  viewed!: boolean;
+  read!: boolean;
 
   @ForeignKey(() => User)
   @Column({
@@ -99,39 +90,27 @@ export class Notification extends Model<NotificationInterface> implements Notifi
   fromUserId?: string;
 
   // Associations
-  @BelongsTo(() => User, 'toUserId')
-  toUser!: User;
+  @BelongsTo(() => User, 'userId')
+  user!: User;
 
   @BelongsTo(() => User, 'fromUserId')
   fromUser?: User;
 
   // Instance methods for better encapsulation
-  public isViewed(): boolean {
-    return this.viewed;
+  public isRead(): boolean {
+    return this.read;
   }
 
   public isUnread(): boolean {
-    return !this.viewed;
+    return !this.read;
   }
 
   public markAsRead(): void {
-    this.viewed = true;
+    this.read = true;
   }
 
   public markAsUnread(): void {
-    this.viewed = false;
-  }
-
-  public isSoundEnabled(): boolean {
-    return this.sound;
-  }
-
-  public enableSound(): void {
-    this.sound = true;
-  }
-
-  public disableSound(): void {
-    this.sound = false;
+    this.read = false;
   }
 
   public isCommunityNotification(): boolean {

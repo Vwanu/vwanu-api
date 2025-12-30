@@ -1,6 +1,5 @@
 /**
  * Auto-generated TypeScript types from Zod schemas
- * Generated on: 2025-12-18T19:55:23.594Z
  *
  * DO NOT EDIT MANUALLY - This file is generated automatically
  * Run 'npm run generate-types' to regenerate
@@ -204,6 +203,44 @@ export interface NotifierOptions { [key: string]: any }
 
 export interface NotificationTypesInterface {
   name: string;
+}
+
+// ============================================================================
+// Types from notification.schema.ts
+// ============================================================================
+
+export interface NotificationInterface {
+  id: string;
+  userId: string;
+  message?: string;
+  type?: string;
+  viewed: boolean;
+  entityName?: any;
+  entityId?: string;
+  notificationType: any;
+  fromUserId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateNotificationInput {
+  id: number;
+}
+
+export interface GetNotificationInput {
+  id: number;
+}
+
+export interface UpdateNotificationInput {
+  id: number;
+}
+
+export interface DeleteNotificationInput {
+  id: number;
+}
+
+export interface QueryNotificationInput {
+  id: number;
 }
 
 // ============================================================================

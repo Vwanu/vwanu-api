@@ -11,59 +11,51 @@ export default function (app: Application): void {
   }
 
   app.on('connection', (connection: any): void => {
-  
-    app.channel('anonymous').join(connection);
+    const user = connection.user;
+    if (user)
+      app.channel('authenticated').join(connection);
   });
   app.on('disconnect', (connection: any): void => {
     if (connection) {
-      const { User } = connection;
-      if (User)
-        app
-          .service('users')
-          .patch(User.id, { online: false, lastSeen: Date.now() });
+     app.channel('authenticated').leave(connection);
+    //   const { User } = connection;
+    //   if (User)
+        // app
+        //   .service('users')
+        //   .patch(User.id, { online: false, lastSeen: Date.now() });
     }
   });
 
   app.on('login', (authResult: any, { connection }: any): void => {
-  
+    console.log('[WebSocket] User login event (REST):', {
+      userId: authResult?.user?.id || authResult?.User?.id,
+      hasConnection: !!connection,
+      timestamp: new Date().toISOString()
+    });
     // connection can be undefined if there is no
     // real-time connection, e.g. when logging in via REST
+    // Note: Socket connections are authenticated via socket middleware,
+    // this event is mainly for REST-based authentication
     if (connection) {
-      app.channel('anonymous').leave(connection);
-      // Add it to the authenticated user channel
-      app.channel('authenticated').join(connection);
-      // Joining all chat rooms for updates of new messages
-
       const { User } = connection;
+      console.log('[WebSocket] REST login - updating channels:', {
+        userId: User?.id,
+        connectionId: connection.id
+      });
 
-      app
-        .service('users')
-        .patch(User.id, { online: true, lastSeen: Date.now() });
-      app
-        .service('conversation')
-        .find({
-          query: {},
-          paginate: false,
-          User,
-        })
-        .then((conversationUsers: any) => {
-          conversationUsers.forEach((conversationUser: any) => {
-            app.channel(`conversation-${conversationUser.id}`).join(connection);
-          });
-        });
-
+      app.channel('anonymous').leave(connection);
+      app.channel('authenticated').join(connection);
       app.channel(`userIds-${User.id}`).join(connection);
     }
   });
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  app.publish((data: any, hook: HookContext) => {
+  app.publish((_data: any, _hook: HookContext) => {
     // Here you can add event publishers to channels set up in `channels.ts`
     // To publish only for a specific event use `app.publish(eventname, () => {})`
 
-    // se.log('Publishing all events to all authenticated users. See `channels.ts` and https://docs.feathersjs.com/api/channels.html for more information.'); // eslint-disable-line
-
-    // e.g. to publish all service events to all authenticated users use
+    // Default: publish all events to all authenticated users
+    // Individual services can override this with their own publish handlers
     return app.channel('authenticated');
   });
 

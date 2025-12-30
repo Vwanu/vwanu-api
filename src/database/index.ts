@@ -17,7 +17,7 @@ import {Community} from './communities';
 // import {Discussion} from './discussion';
 
 // import {Conversation} from './conversation';
-// import {Notification} from './notification';
+import {Notification} from './notification';
 // import {BlogResponse} from './blog-response';
 import {CommunityUser} from './community-users';
 import {CommunityInvitationRequest} from './communityInvitationRequest';
@@ -53,7 +53,7 @@ export default [
   Community,
 //   Discussion,
 //   Conversation,
-//   Notification,
+  Notification,
 //   BlogResponse,
   CommunityUser,
 //   CommunityBan,
