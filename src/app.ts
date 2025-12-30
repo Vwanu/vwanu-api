@@ -11,7 +11,7 @@ import { Request, Response, NextFunction } from 'express';
 import * as path from 'path';
 import * as fs from 'fs';
 
-// import channels from './channels';
+import channels from './channels';
 import services from './services';
 import sequelize from './sequelize';
 // import middleware from './middleware';
@@ -20,6 +20,7 @@ import healthCheck from './services/healthCheck';
 // import RequestBody from './middleware/RequestBody';
 import morganMiddleware from './middleware/morgan.middleware';
 import requireLogin from './middleware/requireLogin';
+import socketLogin from './middleware/requireLogin/socketLogin';
 import authentication from './services/authentication';
 // import location from './services/location/location.service';
 // import AppError from './errors';
@@ -30,7 +31,7 @@ app.use(express.json());
 
 
 // app.use(cors());
-// app.use(helmet());  
+// app.use(helmet());
 // app.use(RequestBody);
 // app.use(methodOverride('_method'));
 app.use(morgan(':method :url :status', { skip: morganMiddleware }));
@@ -44,13 +45,13 @@ const API_CONFIGURATION = {
 app.set('API_CONFIGURATION', API_CONFIGURATION);
 
 app.configure(express.rest());
-app.configure(socketio());
+app.configure(socketio(socketLogin));
 app.configure(sequelize);
 
 // app.configure(middleware);
-// app.configure(channels);
 
-          
+
+
 app.get('/health', healthCheck);
 
 // API Types endpoint - serves generated TypeScript types for frontend consumption
@@ -90,6 +91,7 @@ app.get('/api/types', (_req: Request, res: Response) => {
 
 app.use('/auth', authentication(app));
 app.use(requireLogin);
+app.configure(channels);
 app.configure(services);
 
 app.use(express.notFound());
@@ -124,7 +126,7 @@ app.use(
     console.log(err)
 
     // Send JSON error response
-    return res.status(status).json({ 
+    return res.status(status).json({
       error: message,
       statusCode: status,
       path: req.path,

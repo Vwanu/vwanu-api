@@ -1,45 +1,39 @@
 
 import { HookContext } from '@feathersjs/feathers';
 import { User } from '../../database/user';
-// Don't remove this comment. It's needed to format import lines nicely.
 import addAssociation from '../../Hooks/AddAssociations';
 
-
-
-
-
-export default {
-  before: {
- 
-    find: [
-      addAssociation({
+const addFromUserAssociation = addAssociation({
         models: [
           {
             model: User,
+            as: 'fromUser',
             attributes: [
               'firstName',
               'lastName',
               'id',
               'profilePicture',
-              'createdAt',
             ],
           },
         ],
-      }),
-    ],
-    get: [],
-    create: [
-      async (context: HookContext) => {
-        const { data, app } = context;
-        const sequelizeClient = app.get('sequelizeClient');
-        const { notificationType } = data;
-        const dat = await sequelizeClient.models.UserNotificationTypes.findOne({
-          where: { user_id: data.to, notification_slug: notificationType },
-        });
-        context.data.sound = dat?.sound || false;
+      })
+
+const refetch = async (context : HookContext) : Promise<HookContext> => {
+  const notification = await context.app.service('notifications').get(context.result.id, context.params);
+    context.result = notification;
+ return context;
+};
+export default {
+  before: {
+    all:addFromUserAssociation,
+    find: [
+     (context)=>{
+        context.params.userId = context.params.cognitoUser.id;
         return context;
       },
     ],
+    get: [],
+    create: [],
     update: [],
     patch: [],
     remove: [],
@@ -49,7 +43,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [], // check the user setting and determing if text or email should be sent
+    create: refetch, // check the user setting and determing if text or email should be sent
     update: [],
     patch: [],
     remove: [],
