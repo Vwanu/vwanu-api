@@ -23,5 +23,6 @@ export default function (app: Application): void {
   app.use('/comments', new Comments(options, app));
 
   const service = app.service('comments');
+  service.publish('created',  () =>[]); // No one for now
   service.hooks(hooks);
 }
