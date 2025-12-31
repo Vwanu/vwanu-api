@@ -1,0 +1,177 @@
+diff --git a/src/database/user.ts b/src/database/user.ts
+index 6235036..0e38a7d 100644
+--- a/src/database/user.ts
++++ b/src/database/user.ts
+@@ -108,7 +108,7 @@ export class User extends Model<UserInterface> {
+  @Column({
+     type: DataType.STRING,
+     allowNull: true,
+-    defaultValue: 'Not specified',
++    defaultValue: false,
+     field:'online',
+   })
+   online: boolean;
+diff --git a/src/services/users/hook/addVisitor.ts b/src/services/users/hook/addVisitor.ts
+deleted file mode 100644
+index 23ced0b..0000000
+--- a/src/services/users/hook/addVisitor.ts
++++ /dev/null
+@@ -1,28 +0,0 @@
+-import { HookContext } from '@feathersjs/feathers';
+-
+-export default async (context: HookContext): Promise<HookContext> => {
+-  if (
+-    !context?.result?.id ||
+-    !context.params.provider ||
+-    !context.params.User ||
+-    !context.id ||
+-    context.params.User.id === context.id ||
+-    !context.params?.User?.eVisitedNotified
+-  )
+-    return context;
+-
+-  try {
+-    await context.app.service('notification').create({
+-      UserId: context.params.User.id,
+-      to: context.result.id,
+-      message: 'Visited your profile',
+-      type: 'direct',
+-      entityName: 'users',
+-      entityId: context.params.User.id,
+-    });
+-  } catch (error) {
+-    throw error;
+-  }
+-
+-  return context;
+-};
+diff --git a/src/services/users/hook/addWorkplace.ts b/src/services/users/hook/addWorkplace.ts
+deleted file mode 100644
+index bafa093..0000000
+--- a/src/services/users/hook/addWorkplace.ts
++++ /dev/null
+@@ -1,37 +0,0 @@
+-import { HookContext } from '@feathersjs/feathers';
+-import { BadRequest } from '@feathersjs/errors';
+-import {createLogger} from '../../../lib/utils/logger';
+-const Logger = createLogger('AddWorkplace');
+-
+-export default async (context: HookContext): Promise<HookContext> => {
+-  const { data } = context;
+-
+-  if (!data.workPlace) return context;
+-
+-  const { app } = context;
+-
+-  try {
+-    const sequelizeClient = app.get('sequelizeClient');
+-
+-    const { WorkPlace, UserWorkPlace } = sequelizeClient.models;
+-
+-    const [{ id: WorkPlaceId }] = await WorkPlace.findOrCreate({
+-      where: { name: data.workPlace.name },
+-    });
+-
+-    await UserWorkPlace.findOrCreate({
+-      where: {
+-        UserId: context.result.id,
+-        WorkPlaceId,
+-      },
+-      defaults: {
+-        ...data.workPlace,
+-      },
+-    });
+-  } catch (err) {
+-    Logger.error('Error saving workplace', err);
+-    throw new BadRequest('Error saving workplace');
+-  }
+-
+-  return context;
+-};
+diff --git a/src/services/users/users.hooks.ts b/src/services/users/users.hooks.ts
+index 15f2725..69d58db 100644
+--- a/src/services/users/users.hooks.ts
++++ b/src/services/users/users.hooks.ts
+@@ -1,5 +1,5 @@
+ import commonHooks from 'feathers-hooks-common';
+-import { HooksObject } from '@feathersjs/feathers';
++import { HookContext } from '@feathersjs/feathers';
+ import * as local from '@feathersjs/authentication-local';
+ 
+ import isSelf from '../../Hooks/isSelf.hook';
+@@ -9,6 +9,21 @@ import saveProfilePicture from '../../Hooks/SaveProfilePictures.hooks';
+ const { protect } = local.hooks;
+ const protectKeys = protect(...['search_vector']);
+ 
++const AddVisitor = async (context: HookContext): Promise<HookContext> => {
++  if (!context?.result)
++    return context;
++      await context.app.service('notifications').create({
++          userId: context.result.id,
++          fromUserId: context.params.User.id, //
++          message: 'Visited your profile',
++          type: 'direct',
++          entityName: 'User',
++          entityId: context.result.id,
++          notificationType: 'visit',
++        });
++  return context;
++};
++
+ const hooks = {
+   before: {
+     create: [],
+@@ -26,7 +41,7 @@ const hooks = {
+ 
+   after: {
+     find: [protectKeys],
+-    get: [protectKeys],
++    get: [AddVisitor, protectKeys],
+     create: [protectKeys, updateTsVector],
+     patch: [protectKeys, updateTsVector],
+     update: [protectKeys, updateTsVector],
+@@ -34,6 +49,6 @@ const hooks = {
+   },
+   error: {
+   },
+-} as HooksObject<any>;
++}
+ 
+ export default hooks;
+diff --git a/src/types/enums.ts b/src/types/enums.ts
+index 3a8e55e..0da9663 100644
+--- a/src/types/enums.ts
++++ b/src/types/enums.ts
+@@ -46,7 +46,8 @@ export enum EntityType {
+   DISCUSSION = 'Discussion',
+   COMMUNITY = 'Community',
+   COMMENT = 'Comment',
+-  MESSAGE = 'Message'
++  MESSAGE = 'Message',
++  USER = 'User'
+ }
+ 
+ export enum PrivacyType {
+@@ -61,18 +62,19 @@ export enum NotificationType {
+   COMMUNITY_JOIN = 'community_join',
+   COMMUNITY_POST = 'community_post',
+   COMMUNITY_MENTION = 'community_mention',
+-  
++
+   // Social notifications
+   FRIEND_REQUEST = 'friend_request',
+   FRIEND_ACCEPT = 'friend_accept',
+   FOLLOW = 'follow',
+-  
++  VISIT = 'visit',
++
+   // Content notifications
+   POST_LIKE = 'post_like',
+   POST_COMMENT = 'post_comment',
+   BLOG_LIKE = 'blog_like',
+   BLOG_COMMENT = 'blog_comment',
+-  
++
+   // System notifications
+   SYSTEM_UPDATE = 'system_update',
+   SECURITY_ALERT = 'security_alert'
