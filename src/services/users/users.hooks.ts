@@ -1,6 +1,6 @@
 import commonHooks from 'feathers-hooks-common';
-import { HooksObject } from '@feathersjs/feathers';
 import * as local from '@feathersjs/authentication-local';
+import { HookContext } from '@feathersjs/feathers';
 
 import isSelf from '../../Hooks/isSelf.hook';
 import updateTsVector from './hook/updateTsVector';
@@ -8,6 +8,21 @@ import saveProfilePicture from '../../Hooks/SaveProfilePictures.hooks';
 
 const { protect } = local.hooks;
 const protectKeys = protect(...['search_vector']);
+
+const Addvisitor= async (context: HookContext): Promise<HookContext> => {
+  if (!context?.result ) return context;
+    await context.app.service('notifications').create({
+      fromUserId: context.params.User.id,
+      userId: context.result.id,
+      message: 'Visited your profile',
+      type: 'direct',
+      entityName: 'User',
+      entityId: context.params.User.id,
+      notificationType: 'visit',
+    });
+  return context;
+};
+
 
 const hooks = {
   before: {
@@ -26,7 +41,7 @@ const hooks = {
 
   after: {
     find: [protectKeys],
-    get: [protectKeys],
+    get: [Addvisitor, protectKeys],
     create: [protectKeys, updateTsVector],
     patch: [protectKeys, updateTsVector],
     update: [protectKeys, updateTsVector],
@@ -34,6 +49,6 @@ const hooks = {
   },
   error: {
   },
-} as HooksObject<any>;
+}
 
 export default hooks;
