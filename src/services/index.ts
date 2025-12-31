@@ -6,7 +6,6 @@ import users from './users/users.service';
 // import friend from './friends/friends.service';
 import comments from './comments/comments.service';
 // import followers from './followers/followers.service';
-// import userVisitors from './userVisitors/user-visitors.service';
 // import friendRequest from './friendRequest/friendRequests.service';
 // import undesiredFriend from './undesiredFriends/undesiredFriends.service';
 // import timeline from './timeline/timeline.service';
@@ -50,7 +49,6 @@ const services =[
 //   timeline,
   comments,
 //   followers,
-//   userVisitors,
 //   friendRequest,
 //   undesiredFriend,
 //   blogs,

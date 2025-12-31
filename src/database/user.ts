@@ -197,12 +197,6 @@ export class User extends Model<UserInterface> {
     //     onDelete: 'CASCADE',
     //   });
 
-    //   // User.belongsToMany(models.User, {
-    //   //   through: 'User_visitors',
-    //   //   as: 'Visitor',
-    //   //   constraints: false,
-    //   //   unique: false,
-    //   // });
 
     //   // User.belongsToMany(models.User, {
     //   //   as: 'follower',

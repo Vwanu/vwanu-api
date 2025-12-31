@@ -8,9 +8,7 @@ import {Media} from './media';
 import {PostMedia} from './post-media';
 import {Korem} from './korem';
 // import {Friend} from './Friends';
-
 // import {Message} from './message';
-// import {Visitor} from './Visitors';
 import {Interest} from './interest';
 // import {Template} from './template';
 import {Community} from './communities';
@@ -47,7 +45,6 @@ export default [
 //   Friend,
 
 //   Message,
-//   Visitor,
   Interest,
 //   Template,
   Community,
