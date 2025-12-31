@@ -46,7 +46,8 @@ export enum EntityType {
   DISCUSSION = 'Discussion',
   COMMUNITY = 'Community',
   COMMENT = 'Comment',
-  MESSAGE = 'Message'
+  MESSAGE = 'Message',
+  USER = 'User'
 }
 
 export enum PrivacyType {
@@ -61,18 +62,19 @@ export enum NotificationType {
   COMMUNITY_JOIN = 'community_join',
   COMMUNITY_POST = 'community_post',
   COMMUNITY_MENTION = 'community_mention',
-  
+
   // Social notifications
   FRIEND_REQUEST = 'friend_request',
   FRIEND_ACCEPT = 'friend_accept',
   FOLLOW = 'follow',
-  
+  VISIT = 'visit',
+
   // Content notifications
   POST_LIKE = 'post_like',
   POST_COMMENT = 'post_comment',
   BLOG_LIKE = 'blog_like',
   BLOG_COMMENT = 'blog_comment',
-  
+
   // System notifications
   SYSTEM_UPDATE = 'system_update',
   SECURITY_ALERT = 'security_alert'
