@@ -12,11 +12,6 @@ export default async (context: HookContext): Promise<HookContext> => {
     return context;
 
   try {
-    await context.app.service('userVisitor').create({
-      UserId: context.id,
-      VisitorId: context.params.User.id,
-    });
-
     await context.app.service('notification').create({
       UserId: context.params.User.id,
       to: context.result.id,
