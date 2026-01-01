@@ -47,7 +47,8 @@ export enum EntityType {
   COMMUNITY = 'Community',
   COMMENT = 'Comment',
   MESSAGE = 'Message',
-  USER = 'User'
+  USER = 'User',
+  FRIENDSHIP = 'Friendship'
 }
 
 export enum PrivacyType {
@@ -68,6 +69,7 @@ export enum NotificationType {
   FRIEND_ACCEPT = 'friend_accept',
   FOLLOW = 'follow',
   VISIT = 'visit',
+  
 
   // Content notifications
   POST_LIKE = 'post_like',
@@ -105,4 +107,10 @@ export enum NotificationChannel {
   EMAIL = 'email',
   SMS = 'sms',
   PUSH = 'push'
+}
+
+export enum FriendshipStatus {
+  PENDING = 0,
+  ACCEPTED = 1,
+  DENIED = 2
 }

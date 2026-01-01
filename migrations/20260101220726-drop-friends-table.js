@@ -1,5 +1,11 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
+    // Drop the friends table as it's been replaced by friendships
+    await queryInterface.dropTable('friends');
+  },
+
+  async down(queryInterface, Sequelize) {
+    // Recreate the friends table for rollback purposes
     await queryInterface.createTable('friends', {
       user_id: {
         type: Sequelize.UUID,
@@ -30,8 +36,5 @@ module.exports = {
         type: Sequelize.DATE,
       },
     });
-  },
-  async down(queryInterface) {
-    await queryInterface.dropTable('friends');
   },
 };
