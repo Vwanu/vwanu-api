@@ -3,10 +3,9 @@ import { Application } from '../declarations';
 import post from './posts/posts.service';
 import users from './users/users.service';
 // import search from './search/search.service';
-// import friend from './friends/friends.service';
 import comments from './comments/comments.service';
 // import followers from './followers/followers.service';
-// import friendRequest from './friendRequest/friendRequests.service';
+import friendRequest from './friendships/friendship.service';
 // import undesiredFriend from './undesiredFriends/undesiredFriends.service';
 // import timeline from './timeline/timeline.service';
 // import blogs from './blogs/blogs.service';
@@ -45,11 +44,10 @@ const services =[
 //   search,
   post,
   users,
-//   friend,
 //   timeline,
   comments,
 //   followers,
-//   friendRequest,
+  friendRequest,
 //   undesiredFriend,
 //   blogs,
 //   albums,

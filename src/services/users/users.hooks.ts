@@ -5,6 +5,7 @@ import { HookContext } from '@feathersjs/feathers';
 import isSelf from '../../Hooks/isSelf.hook';
 import updateTsVector from './hook/updateTsVector';
 import saveProfilePicture from '../../Hooks/SaveProfilePictures.hooks';
+import includeFriendshipStatus from './hook/includeFriendshipStatus';
 
 const { protect } = local.hooks;
 const protectKeys = protect(...['search_vector']);
@@ -27,6 +28,7 @@ const Addvisitor= async (context: HookContext): Promise<HookContext> => {
 const hooks = {
   before: {
     create: [],
+    get: [includeFriendshipStatus],
     update: commonHooks.disallow(),
     patch: [
       isSelf,
