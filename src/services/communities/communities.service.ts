@@ -37,18 +37,18 @@ export default function (app: Application): void {
   };
 
   const communityUsersOptions ={
-    Model:CommunityUser, 
+    Model:CommunityUser,
     paginate:app.get('paginate')
   }
 
   const communityInvitationRequestOptions ={
-    Model:InvitationModel, 
+    Model:InvitationModel,
     paginate:app.get('paginate'),
     multi: ['create'], // Allow bulk creation of invitation requests
   }
 
   const communityJoinOptions ={
-    Model:CommunityJoinRequestModel, 
+    Model:CommunityJoinRequestModel,
     paginate:app.get('paginate')
   }
 
@@ -62,15 +62,18 @@ export default function (app: Application): void {
     fileToFeathers,
     new Communities(communityOptions, app)
   );
-  
+
   app.use('/communities/:communityId/members', new CommunityUsers(communityUsersOptions, app))
   app.use('/communities/:communityId/joinRequest', new CommunityJoinRequest(communityJoinOptions, app))
-  app.use('/communities/:communityId/invitations', new CommunityInvitationRequest(communityInvitationRequestOptions, app))
-  
+  app.use('/communities/:communityId/invitations', (req, res, next)=>{
+    console.log('🆘🫀Community Invitation Request Middleware');
+    return next();
+  },  new CommunityInvitationRequest(communityInvitationRequestOptions, app))
+
   app.service('communities/:communityId/members').hooks(communityUsersHooks)
   app.service('communities/:communityId/invitations').hooks(communityInvitationRequestHooks)
   app.service('communities/:communityId/joinRequest').hooks(communityJoinHooks)
-  
+
   const service = app.service('communities');
 
   service.hooks({

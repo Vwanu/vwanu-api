@@ -30,12 +30,12 @@ export default function (app: Application): void {
       });
     });
 
-    // service.publish('patched', (data:FriendshipModel) =>{
-    //   // letting the user know their friend request was accepted
-    //   return app.channel('authenticated').filter((connection) => {
-    //     return connection.user
-    //     && connection.user.id === data.userId
-    //     || connection.user.id === data.targetId;
-    //   });
-    // }
+    service.publish('patched', (data:FriendshipModel) =>{
+      // letting the user know their friend request was accepted
+      return app.channel('authenticated').filter((connection) => {
+        return connection.user
+        && connection.user.id === data.userId
+        || connection.user.id === data.targetId;
+      });
+    });
 }
