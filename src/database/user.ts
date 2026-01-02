@@ -108,7 +108,7 @@ export class User extends Model<UserInterface> {
  @Column({
     type: DataType.STRING,
     allowNull: true,
-    defaultValue: 'Not specified',
+    defaultValue: false,
     field:'online',
   })
   online: boolean;

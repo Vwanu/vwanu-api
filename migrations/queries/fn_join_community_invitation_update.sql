@@ -17,7 +17,7 @@ IF TG_OP = 'UPDATE' THEN
 
 		IF p_role IS NULL THEN
 			INSERT INTO community_users (user_id, community_id, community_role_id, created_at)
-			VALUES (NEW.guest_id, NEW.community_id, NEW.community_roleId, CURRENT_TIMESTAMP);
+			VALUES (NEW.guest_id, NEW.community_id, NEW.community_role_id, CURRENT_TIMESTAMP);
 		ELSE
 
 		-- check if it is the same role as the one in the community_users table

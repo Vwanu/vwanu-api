@@ -1,14 +1,13 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { Application } from '../../declarations';
 import { BadRequest } from '@feathersjs/errors';
-import type { Community } from '@root/database/communities';
-import type { CommunityUser } from '@root/database/community-users';
-import type { CommunityInvitationRequest as Bodel } from '@root/database/communityInvitationRequest';
+import  { Community } from '../../database/communities';
+import  { CommunityUser } from '../../database/community-users';
+import  { CommunityInvitationRequest as Bodel } from '../../database/communityInvitationRequest';
 
 // @ts-ignore
 import { Op } from 'sequelize';
 
-// eslint-disable-next-line import/prefer-default-export
 export class CommunityInvitationRequest extends Service {
   app;
 
@@ -27,7 +26,7 @@ export class CommunityInvitationRequest extends Service {
     .Community
     .findByPk(params.route.communityId, {
       include: [
-        { model: models.CommunityUser, as: 'members' },
+        { model: models.CommunityUsers, as: 'members' },
       ],
     }) as (Community & { members: CommunityUser[] }) | null;
 
@@ -37,7 +36,7 @@ export class CommunityInvitationRequest extends Service {
     if (userIds.includes(community.creatorId))
       throw new BadRequest('Community\'s creator cannot be sent invitation to join their own community');
 
-    if(community.members?.some((member: CommunityUser) => userIds.includes(member.userId))){ 
+    if(community.members?.some((member: CommunityUser) => userIds.includes(member.userId))){
         throw new BadRequest('Some users are already members of this community');
     }
 
@@ -52,7 +51,7 @@ export class CommunityInvitationRequest extends Service {
 
     if (existingInvitations.length > 0)
       throw new BadRequest('Some users already have an invitation for this community');
-    
+
     console.log('Creating invitations for users:', userIds);
     // Prepare invitations to create
     const invitationsToCreate = userIds.map((guestId: string) => ({
@@ -62,7 +61,7 @@ export class CommunityInvitationRequest extends Service {
        communityRoleId: data.roleId
     }));
     console.log('Invitations to create:==>>', invitationsToCreate);
-    
+
     const createdInvitations = await super.create(invitationsToCreate, params);
     console.log('Created invitations:==>>', createdInvitations);
     return createdInvitations;
@@ -152,5 +151,5 @@ export class CommunityInvitationRequest extends Service {
     return super.remove(id, params);
   }
 
-  
+
 }
