@@ -43,7 +43,7 @@ const hooks = {
 
   after: {
     find: [protectKeys],
-    get: [Addvisitor, protectKeys],
+    // get: [Addvisitor, protectKeys],
     create: [protectKeys, updateTsVector],
     patch: [protectKeys, updateTsVector],
     update: [protectKeys, updateTsVector],
