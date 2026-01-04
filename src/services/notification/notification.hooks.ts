@@ -38,7 +38,7 @@ export default {
         return context;
       },
     ],
-    get: disallow(),
+    //get: disallow('external'),
     create: [],
     update: disallow(),
     patch: LimitToOwner,
