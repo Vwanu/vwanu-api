@@ -1,27 +1,29 @@
-/* eslint-disable no-case-declarations */
 import commonHooks from 'feathers-hooks-common';
+import { HookContext } from '@feathersjs/feathers';
 
 /** Local dependencies */
 import { AddTalker } from '../../Hooks';
 
 import {
-  SetType,
-  NotifyUsers,
+//   NotifyUsers,
   LimitToTalkersOnly,
   FilterConversations,
   LimitDirectConversations,
 } from './hook';
 
 
+const refetch = async (context : HookContext) : Promise<HookContext> => {
+  const conversation = await context.app.service('conversation').get(context.result.id, context.params);
+    context.result = conversation;
+ return context;
+};
 
 export default {
   before: {
- 
     find: [FilterConversations],
     get: [FilterConversations],
-    create: [SetType, LimitDirectConversations],
+    create: [LimitDirectConversations],
     update: [commonHooks.disallow('external')],
-    patch: [LimitToTalkersOnly],
     remove: [LimitToTalkersOnly],
   },
 
@@ -29,9 +31,8 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [AddTalker, NotifyUsers],
-    update: [],
-    patch: [],
+    create: [AddTalker, refetch],// notifiy users added to conversation
+    patch: [refetch],
     remove: [],
   },
 

@@ -5,16 +5,15 @@ import AdjustCount from './AdjustCount';
 
 export default async (context: HookContext) => {
   const { data } = context;
-  if (isNill(data.userIds)) return context;
+  if (isNill(data.userId)) return context;
+  const {ConversationUser} = context.app.get('sequelizeClient').models;
 
   const addedUser = await Promise.all(
-    [...data.userIds, context.params.User.id].map((userId) =>
-      context.app
-        .get('sequelizeClient')
-        .models.Conversation_Users.findOrCreate({
+    [data.userId, context.params.User.id].map((userId) =>
+      ConversationUser.findOrCreate({
           where: {
-            UserId: userId,
-            ConversationId: context.result.id,
+            userId: userId,
+            conversationId: context.result.id,
           },
         })
     )

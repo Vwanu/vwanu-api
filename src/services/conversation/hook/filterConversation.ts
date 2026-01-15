@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import { HookContext } from '@feathersjs/feathers';
 import isNill from 'lodash/isNil';
+// @ts-ignore
 import { Op } from 'sequelize';
 
 export default async (context: HookContext) => {
@@ -12,88 +13,66 @@ export default async (context: HookContext) => {
 
   const isParticipant = `(
     EXISTS (
-    SELECT 1 FROM "Conversation_Users" AS "CU" 
-    WHERE "CU"."UserId"='${context.params.User.id}' AND "CU"."ConversationId"= "Conversation"."id"
+    SELECT 1 FROM "conversation_users" AS "CU"
+    WHERE "CU"."user_id"='${context.params.User.id}' AND "CU"."conversation_id"= "Conversation"."id"
     )
   )`;
 
-  const amountOfMessage = `(
-    SELECT 
-    COUNT(DISTINCT "M"."id")
-    FROM "Messages" AS "M"
-    WHERE "M"."ConversationId"="Conversation"."id")::int`;
-
   const amountOfUnreadMessages = `(
-    SELECT 
+    SELECT
     COUNT(DISTINCT "M"."id")
-    FROM "Messages" AS "M"
-    WHERE "M"."ConversationId"="Conversation"."id" AND "M"."read"=false AND "M"."senderId" != '${context.params.User.id}'
+    FROM "messages" AS "M"
+    WHERE "M"."conversation_id"="Conversation"."id"
+    AND "M"."read_date" IS NULL AND "M"."user_id" != '${context.params.User.id}'
     )::int`;
 
   const amountOfPeople = `(
-    SELECT 
-    COUNT(DISTINCT "CU"."UserId")
-    FROM "Conversation_Users" AS "CU"
-    WHERE "CU"."ConversationId"="Conversation"."id")::int`;
+    SELECT
+    COUNT(DISTINCT "CU"."user_id")
+    FROM "conversation_users" AS "CU"
+    WHERE "CU"."conversation_id"="Conversation"."id")::int`;
 
   const Users = `(
-    SELECT 
+    SELECT
     json_agg(
     json_build_object(
       'id', "U"."id",
-      'firstName',"U"."firstName",
-      'lastName',"U"."lastName",
-      'createdAt',"U"."createdAt",
-      'updatedAt',"U"."updatedAt",
-      'profilePicture',"U"."profilePicture"
+      'firstName',"U"."first_name",
+      'lastName',"U"."last_name",
+      'createdAt',"U"."created_at",
+      'updatedAt',"U"."updated_at",
+      'profilePicture',"U"."profile_picture"
     )
       )
-     FROM "Conversation_Users" AS "CU" 
-     INNER JOIN "Users" AS "U" ON "U"."id" = "CU"."UserId"
-     WHERE "CU"."ConversationId"="Conversation"."id"
+     FROM "conversation_users" AS "CU"
+     INNER JOIN "users" AS "U" ON "U"."id" = "CU"."user_id"
+     WHERE "CU"."conversation_id"="Conversation"."id"
+     AND "U"."id" != '${context.params.User.id}'
   )`;
 
   const lastMessage = `(
     SELECT
     json_build_object(
       'id', "M"."id",
-      'messageText',"M"."messageText",
-      'createdAt',"M"."createdAt",
-      'read',"M"."read",
-      'received',"M"."received",
-      'readDate',"M"."readDate",
-      'receivedDate',"M"."receivedDate",
-      'ConversationId',"M"."ConversationId",
-      'updatedAt',"M"."updatedAt",
-      'senderId',"M"."senderId",
-      'senderFirstName',"U"."firstName",
-      'senderLastName',"U"."lastName",
-      'senderProfilePicture',"U"."profilePicture"
+      'messageText',"M"."message_text",
+      'createdAt',"M"."created_at",
+      'readDate',"M"."read_date",
+      'receivedDate',"M"."received_date",
+      'conversationId',"M"."conversation_id",
+      'updatedAt',"M"."updated_at",
+      'userId',"M"."user_id",
+      'senderFirstName',"U"."first_name",
+      'senderLastName',"U"."last_name",
+      'senderProfilePicture',"U"."profile_picture"
     )
-    FROM "Messages" AS "M"
-    INNER JOIN "Users" AS "U" ON "U"."id" = "M"."senderId"
-    WHERE "M"."ConversationId"="Conversation"."id"
-    ORDER BY "M"."createdAt" DESC
+    FROM "messages" AS "M"
+    INNER JOIN "users" AS "U" ON "U"."id" = "M"."user_id"
+    WHERE "M"."conversation_id"="Conversation"."id"
+    ORDER BY "M"."created_at" DESC
     LIMIT 1
   )`;
 
-  // const lastMassage = `(
-  //   SELECT
-  //   json_agg(
-  //   json_build_object(
-  //     'id', "CU"."id",
-  //     'firstName',"U"."firstName",
-  //     'lastName',"U"."lastName",
-  //     'createdAt',"U"."createdAt",
-  //     'updatedAt',"U"."updatedAt",
-  //     'profilePicture',"U"."profilePicture"
-  //   )
-  //     )
-  //    FROM "Conversation_Users" AS "CU"
-  //    INNER JOIN "Users" AS "U" ON "U"."id" = "CU"."UserId"
-  //    WHERE "CU"."ConversationId"="Conversations"."id"
-  //    L
-  // )`;
+
 
   const { query: where } = context.app
     .service(context.path)
@@ -109,8 +88,7 @@ export default async (context: HookContext) => {
     where: clause,
     attributes: {
       include: [
-        [Sequelize.literal(amountOfMessage), 'amountOfMessage'],
-        [Sequelize.literal(Users), 'Users'],
+        [Sequelize.literal(Users), 'users'],
         [Sequelize.literal(lastMessage), 'lastMessage'],
         [Sequelize.literal(amountOfPeople), 'amountOfPeople'],
         [Sequelize.literal(amountOfUnreadMessages), 'amountOfUnreadMessages'],

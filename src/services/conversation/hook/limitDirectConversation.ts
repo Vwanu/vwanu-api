@@ -1,10 +1,9 @@
-import { QueryTypes } from 'sequelize';
 import { HookContext } from '@feathersjs/feathers';
 
 export default async (context: HookContext) => {
   const { data } = context;
   if (data?.type !== 'direct') return context;
-  const { userIds } = data;
+  const { userId } = data;
   const Sequelize = context.app.get('sequelizeClient');
 
   const {
@@ -12,24 +11,29 @@ export default async (context: HookContext) => {
   } = context;
 
   try {
-    const existingConversation = await Sequelize.query(
-      `SELECT "ConversationId" FROM "Conversation_Users" WHERE "UserId" IN (${[
-        ...userIds,
-        User.id,
-      ].map((id) => `'${id}'`)}) 
-      GROUP BY "ConversationId"
-      HAVING COUNT("ConversationId") > 1`,
-      { type: QueryTypes.SELECT }
+    const existingConversations = await Sequelize.query(
+      `SELECT "conversation_id"
+      FROM "conversation_users"
+      WHERE "user_id" IN ('${userId}','${User.id}')
+      GROUP BY "conversation_id"
+      HAVING COUNT("conversation_id") > 1`,
+      { type: 'SELECT' }
     );
 
-    if (existingConversation.length > 0) {
-      // eslint-disable-next-line prefer-destructuring
-      context.result = existingConversation[0];
-      context.data.userIds = null;
+    console.log('Existing Conversation:', existingConversations);
+
+    if (existingConversations.length > 0) {
+      const existingConversation = existingConversations[0];
+      // Fetch the full conversation object to return
+      const fullConversation = await context.app.service('conversation').get(existingConversation.conversation_id, context.params);
+      context.result = fullConversation;
     }
   } catch (err) {
     console.log('Here is where the error occured');
+    // @ts-ignore
+    console.log(err.message);
    throw err;
   }
+  console.log('Context Result after checking existing conversation: >>>>', context.result);
   return context;
 };
