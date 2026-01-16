@@ -1,16 +1,11 @@
-/* eslint-disable no-unused-vars */
-// import { Op } from 'sequelize';
-// import { Params, Id } from '@feathersjs/feathers';
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
-// import { BadRequest, NotFound } from '@feathersjs/errors';
-/** Local dependencies */
 import { Application } from '../../declarations';
-import  {Id} from '@feathersjs/feathers';
+import { Id } from '@feathersjs/feathers';
 import { BadRequest , NotFound} from '@feathersjs/errors';
+// @ts-ignore
+import { Op, Sequelize } from 'sequelize';
+import { FriendshipStatus } from '../../types/enums';
 
-// import UrlToMedia from '../../lib/utils/UrlToMedia';
-
-// const userAttributes = ['firstName', 'lastName', 'id', 'profilePicture'];
 
 export class Friendship extends Service {
   app;
@@ -20,6 +15,43 @@ export class Friendship extends Service {
     this.app = app;
   }
 
+ async find (params) {
+    const query = params?.query || {};
+
+    if(query.search) {
+      const searchTerm = query.search.trim();
+      delete query.search;
+
+      const tsqueryTerm = searchTerm.split(/\s+/).map(term => term + ':*').join(' & ');
+
+      query[Op.and] = Sequelize.where(
+        Sequelize.col('search_vector'),
+        '@@',
+        Sequelize.fn('to_tsquery', 'english', tsqueryTerm)
+      );
+  }
+
+  const friendRelationId = params?.query?.friendRelationId || params.User?.id;
+
+  // Initialize params.sequelize if it doesn't exist
+  params.sequelize = params.sequelize || {};
+  params.sequelize.include = [
+    {
+      model: this.app.get('sequelizeClient').models.Friendship,
+      where: {
+        status: FriendshipStatus.ACCEPTED,
+        [Op.or]: [
+          { userId: friendRelationId },
+          { targetId: friendRelationId },
+        ],
+      },
+      attributes: [],
+    },
+  ];
+params.sequelize.attributes = ['id', 'firstName', 'lastName', 'profilePicture'];
+
+return this.app.service('users').find(params);
+}
  async patch (id: Id, data, params) {
     if(!data.status)
       throw new BadRequest('Status is required');
