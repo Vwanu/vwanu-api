@@ -1,9 +1,13 @@
 import { HookContext } from '@feathersjs/feathers';
+import { isEqual } from 'lodash';
+import { BadRequest } from '@feathersjs/errors';
 
 export default async (context: HookContext) => {
   const { data } = context;
   if (data?.type !== 'direct') return context;
   const { userId } = data;
+  if(isEqual(userId, context.params.User.id))
+    throw new BadRequest('Cannot create direct conversation with yourself');
   const Sequelize = context.app.get('sequelizeClient');
 
   const {

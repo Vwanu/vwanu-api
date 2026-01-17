@@ -5,11 +5,16 @@ import AdjustCount from './AdjustCount';
 
 export default async (context: HookContext) => {
   const { data } = context;
+  console.log('AddTalker Hook Data:', data);
   if (isNill(data.userId)) return context;
   const {ConversationUser} = context.app.get('sequelizeClient').models;
 
+  console.log('Adding talker to conversation:', data.userId, context.params.User.id);
+  console.log({userId : data.userId, user2Id: context.params.User.id});
+
   const addedUser = await Promise.all(
     [data.userId, context.params.User.id].map((userId) =>
+
       ConversationUser.findOrCreate({
           where: {
             userId: userId,
@@ -24,14 +29,15 @@ export default async (context: HookContext) => {
     field: 'amountOfPeople',
     key: context.result.id,
     foreignId: context.result.id,
-    incremental: addedUser.length,
+    incremental: addedUser.length -2, // subtract the two users already counted in creation
   });
 
   try {
-    await updateUserCount(context);
+    if(context.result.type!=='direct')
+        await updateUserCount(context);
     context.result.amountOfPeople = addedUser.length;
-  } catch (e: unknown | any) {
-    throw new GeneralError(e);
+  } catch ( e: Error | unknown) {
+    throw new GeneralError( e as Error );
   }
 
   return context;
