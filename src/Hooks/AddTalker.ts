@@ -5,7 +5,7 @@ import AdjustCount from './AdjustCount';
 
 export default async (context: HookContext) => {
   const { data } = context;
-  console.log('AddTalker Hook Data:', data);
+
   if (isNill(data.userId)) return context;
   const {ConversationUser} = context.app.get('sequelizeClient').models;
   const addedUser = await Promise.all(
