@@ -2,6 +2,8 @@
 import { HookContext } from '@feathersjs/feathers';
 import { User } from '../../database/user';
 import addAssociation from '../../Hooks/AddAssociations';
+import { LimitToOwner } from '../../Hooks';
+import { disallow } from 'feathers-hooks-common';
 
 const addFromUserAssociation = addAssociation({
         models: [
@@ -28,15 +30,19 @@ export default {
     all:addFromUserAssociation,
     find: [
      (context)=>{
-        context.params.userId = context.params.cognitoUser.id;
+        // Filter notifications to only show those for the logged-in user
+        context.params.query = {
+          ...context.params.query,
+          userId: context.params.cognitoUser.id
+        };
         return context;
       },
     ],
-    get: [],
+    //get: disallow('external'),
     create: [],
-    update: [],
-    patch: [],
-    remove: [],
+    update: disallow(),
+    patch: LimitToOwner,
+    remove: LimitToOwner,
   },
 
   after: {

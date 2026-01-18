@@ -22,7 +22,8 @@ export class Users extends Service {
       const searchTerm = query.search.trim();
       delete query.search;
 
-      const tsqueryTerm = searchTerm.split(/\s+/).join(' & ');
+      // Add :* suffix to each term for prefix matching (allows partial matches like "wad" for "wadson")
+      const tsqueryTerm = searchTerm.split(/\s+/).map(term => term + ':*').join(' & ');
 
       // Use PostgreSQL full-text search with @@ operator
       query[Op.and] = Sequelize.where(

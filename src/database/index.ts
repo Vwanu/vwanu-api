@@ -8,9 +8,7 @@ import {Media} from './media';
 import {PostMedia} from './post-media';
 import {Korem} from './korem';
 // import {Friend} from './Friends';
-
 // import {Message} from './message';
-// import {Visitor} from './Visitors';
 import {Interest} from './interest';
 // import {Template} from './template';
 import {Community} from './communities';
@@ -18,6 +16,7 @@ import {Community} from './communities';
 
 // import {Conversation} from './conversation';
 import {Notification} from './notification';
+import {Friendship} from './friendship';
 // import {BlogResponse} from './blog-response';
 import {CommunityUser} from './community-users';
 import {CommunityInvitationRequest} from './communityInvitationRequest';
@@ -47,13 +46,13 @@ export default [
 //   Friend,
 
 //   Message,
-//   Visitor,
   Interest,
 //   Template,
   Community,
 //   Discussion,
 //   Conversation,
   Notification,
+  Friendship,
 //   BlogResponse,
   CommunityUser,
 //   CommunityBan,
