@@ -16,30 +16,25 @@ export class Friendship extends Service {
   }
 
  async find (params) {
-    const query = params?.query || {};
-
-    if(query.search) {
-      const searchTerm = query.search.trim();
-      delete query.search;
-
-      const tsqueryTerm = searchTerm.split(/\s+/).map(term => term + ':*').join(' & ');
-
-      query[Op.and] = Sequelize.where(
-        Sequelize.col('search_vector'),
-        '@@',
-        Sequelize.fn('to_tsquery', 'english', tsqueryTerm)
-      );
-  }
-
+    if(!params.query.search)
+        return super.find(params);
   const friendRelationId = params?.query?.friendRelationId || params.User?.id;
 
   // Initialize params.sequelize if it doesn't exist
   params.sequelize = params.sequelize || {};
+
+  // Exclude the current user from results - only show their friends
+  params.sequelize.where = {
+    ...(params.sequelize.where || {}),
+    id: { [Op.ne]: params.User?.id }
+  };
+
   params.sequelize.include = [
     {
       model: this.app.get('sequelizeClient').models.Friendship,
       where: {
         status: FriendshipStatus.ACCEPTED,
+
         [Op.or]: [
           { userId: friendRelationId },
           { targetId: friendRelationId },

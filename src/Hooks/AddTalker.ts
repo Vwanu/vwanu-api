@@ -8,10 +8,6 @@ export default async (context: HookContext) => {
   console.log('AddTalker Hook Data:', data);
   if (isNill(data.userId)) return context;
   const {ConversationUser} = context.app.get('sequelizeClient').models;
-
-  console.log('Adding talker to conversation:', data.userId, context.params.User.id);
-  console.log({userId : data.userId, user2Id: context.params.User.id});
-
   const addedUser = await Promise.all(
     [data.userId, context.params.User.id].map((userId) =>
 
