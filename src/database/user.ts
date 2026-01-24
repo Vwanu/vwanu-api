@@ -1,7 +1,8 @@
 
-import { Table, Column, Model, DataType, TableOptions } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, TableOptions, HasMany } from 'sequelize-typescript';
 
 import { UpUserInterface as UserInterface } from '../schema/user';
+import { Friendship } from './friendship';
 
 export const authorizationEnums = ['public', 'private', 'friend'];
 
@@ -140,6 +141,14 @@ export class User extends Model<UserInterface> {
   field: 'search_vector',
       })
   search_vector: string;
+
+  // Associations
+
+  // has many friendships
+//  @HasMany(() => Friendship, 'userId')
+//     friendships!: Friendship[];
+@HasMany(() => Friendship, 'targetId')
+    friendOf!: Friendship[];
 
       // static associate(models: any) {
     //   User.hasMany(models.Post, {

@@ -1,33 +1,74 @@
-// Initializes the `conversation` service on path `/conversation`
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
-import { Conversation } from './conversation.class';
-import hooks from './conversation.hooks';
 
-// Add this service to the service type index
+import hooks from './conversation.hooks';
+import {Message} from '../message/message.class'
+import { Application } from '../../declarations';
+import MessageHook from '../message/message.hooks'
+import { Conversation } from './conversation.class';
+import { Message as MessageModel } from '../../database/message';
+import { Conversation as ConversationType } from '../../database/conversation';
+
 declare module '../../declarations' {
-  // eslint-disable-next-line no-unused-vars
   interface ServiceTypes {
-    conversation: Conversation & ServiceAddons<any>;
+    conversation: Conversation & ServiceAddons<ConversationType>;
+    ['conversation/:conversationId/messages']: MessageModel & ServiceAddons<MessageModel>;
   }
 }
 
 export default function (app: Application): void {
-  const options = {
-    Model: app.get('sequelizeClient').models.Conversation,
+  const conversationServiceOptions = {
+    Model: ConversationType,
     paginate: app.get('paginate'),
   };
 
-  // Initialize our service with any options it requires
-  app.use('/conversation', new Conversation(options, app));
+  app.use('/conversation', new Conversation(conversationServiceOptions, app));
+  const conversationService = app.service('conversation');
+  conversationService.hooks(hooks);
 
-  // Get our initialized service so that we can register hooks
-  const service = app.service('conversation');
-  // Sending notification to the receivers or the conversation
-  // service.publish((conversation, context) =>
-  //   app
-  //     .channel(`conversation-${conversation.id}`)
-  //     .filter((connection) => connection.User.id !== context.params.User.id)
-  // );
-  service.hooks(hooks);
+  conversationService.publish('created', async (_, context) => {
+    // @ts-ignore
+    const userIds = [context.params.User.id, context.data?.userId];
+    return app.channel(`authenticated`).filter((connection) => {
+        console.log('Connection User ID:', connection.user.id);
+      return connection && userIds.includes(connection.user.id);
+    });
+  });
+   conversationService.publish('patched', async (conversation, context) => {
+    const converationUserIds = await context
+    .app.get('sequelizeClient').models.ConversationUser.findAll({
+        where: { conversationId: conversation.id },
+        attributes: ['userId'],
+    }).then((records) => records.map((record) => record.userId));
+       return app.channel(`authenticated`).filter((connection) => {
+      return connection && converationUserIds.includes(connection.user.id);
+    });
+  });
+
+  const messageServiceOptions = {
+    Model: MessageModel,
+    paginate: app.get('paginate'),
+  };
+
+  app.use('/conversation/:conversationId/messages', new Message(messageServiceOptions, app));
+
+  const messageService = app.service('conversation/:conversationId/messages');
+  messageService.hooks(MessageHook);
+
+  messageService.publish(async (message, context) => {
+    const conversationId = message.conversationId;
+    const conversationUserModel = context.app.get('sequelizeClient').models.ConversationUser;
+    try {
+        const conversationParticipantIds = await conversationUserModel.findAll({
+            where: { conversationId },
+            attributes: ['userId'],
+    }).then(records => records.map(record => record.userId));
+
+   return app.channel(`authenticated`).filter((connection) => {
+      return connection && conversationParticipantIds.includes(connection.user.id);
+    });
+    }catch(e){
+        console.error('Error fetching conversation participants:', e);
+    }
+  });
+
 }

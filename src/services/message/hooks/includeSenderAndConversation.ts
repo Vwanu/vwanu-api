@@ -1,13 +1,13 @@
 import { AddAssociations } from '../../../Hooks';
 import { User } from '../../../database/user';
 import { Conversation } from '../../../database/conversation';
-import { Media } from '../../../database/media';
+// import { Media } from '../../../database/media';
 
 const IncludeSenderAndConversation = AddAssociations({
   models: [
     {
       model: User,
-      as: 'sender',
+      as: 'user',
       attributes: [
         'firstName',
         'lastName',
@@ -17,7 +17,7 @@ const IncludeSenderAndConversation = AddAssociations({
       ],
     },
     { model: Conversation },
-    { model: Media },
+    // { model: Media },
   ],
 });
 
