@@ -30,12 +30,10 @@ export default function (app: Application): void {
       });
     });
 
-    service.publish('patched', (data:FriendshipModel) =>{
-      // letting the user know their friend request was accepted
+    service.publish('patched', (friendship:FriendshipModel, ) =>{
+      const usersToNotify = [friendship.userId, friendship.targetId];
       return app.channel('authenticated').filter((connection) => {
-        return connection.user
-        && connection.user.id === data.userId
-        || connection.user.id === data.targetId;
+        return connection.user && usersToNotify.includes(connection.user.id);
       });
     });
 }
