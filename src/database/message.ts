@@ -8,11 +8,9 @@ import sanitizeHtml from '../lib/utils/sanitizeHtml';
 export interface MessageInterface {
   id: string;
   messageText?: string;
-  read: boolean;
-  received: boolean;
   readDate?: Date;
   receivedDate?: Date;
-  senderId: string;
+  userId: string;
   conversationId: string;
 }
 
@@ -22,7 +20,7 @@ export interface MessageInterface {
   underscored: true,
 } as TableOptions<Message>)
 export class Message extends Model<MessageInterface> implements MessageInterface {
-  
+
   @PrimaryKey
   @Column({
     type: DataType.UUID,
@@ -39,27 +37,13 @@ export class Message extends Model<MessageInterface> implements MessageInterface
   messageText?: string;
 
   @Column({
-    type: DataType.BOOLEAN,
-    defaultValue: false,
-    allowNull: false,
-  })
-  received!: boolean;
-
-  @Column({
-    type: DataType.BOOLEAN,
-    defaultValue: false,
-    allowNull: false,
-  })
-  read!: boolean;
-
-  @Column({
     type: DataType.DATE,
     allowNull: true,
     field: 'received_date',
   })
   receivedDate?: Date;
 
-  @Column({
+ @Column({
     type: DataType.DATE,
     allowNull: true,
     field: 'read_date',
@@ -71,9 +55,9 @@ export class Message extends Model<MessageInterface> implements MessageInterface
   @Column({
     type: DataType.UUID,
     allowNull: false,
-    field: 'sender_id',
+    field: 'user_id',
   })
-  senderId!: string;
+  userId!: string;
 
   @ForeignKey(() => Conversation)
   @AllowNull(false)
@@ -93,8 +77,8 @@ export class Message extends Model<MessageInterface> implements MessageInterface
   }
 
   // Associations
-  @BelongsTo(() => User, 'senderId')
-  sender!: User;
+  @BelongsTo(() => User, 'userId')
+  user!: User;
 
   @BelongsTo(() => Conversation, 'conversationId')
   conversation!: Conversation;
@@ -104,39 +88,22 @@ export class Message extends Model<MessageInterface> implements MessageInterface
 
   // Instance methods for better encapsulation
   public isRead(): boolean {
-    return this.read;
+    return !!this.readDate;
   }
 
   public isReceived(): boolean {
-    return this.received;
+    return !!this.receivedDate;
   }
 
   public markAsRead(): void {
-    this.read = true;
     this.readDate = new Date();
   }
 
   public markAsReceived(): void {
-    this.received = true;
     this.receivedDate = new Date();
   }
 
   public hasText(): boolean {
     return Boolean(this.messageText && this.messageText.trim().length > 0);
-  }
-
-  public getTimeSinceSent(): number {
-    return Date.now() - this.createdAt.getTime();
-  }
-
-  public getTimeSinceRead(): number | null {
-    if (!this.readDate) return null;
-    return Date.now() - this.readDate.getTime();
-  }
-
-  public getStatus(): 'sent' | 'received' | 'read' {
-    if (this.read) return 'read';
-    if (this.received) return 'received';
-    return 'sent';
   }
 }

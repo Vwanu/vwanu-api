@@ -1,7 +1,8 @@
 
-import { Table, Column, Model, DataType, TableOptions } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, TableOptions, HasMany } from 'sequelize-typescript';
 
 import { UpUserInterface as UserInterface } from '../schema/user';
+import { Friendship } from './friendship';
 
 export const authorizationEnums = ['public', 'private', 'friend'];
 
@@ -126,12 +127,13 @@ export class User extends Model<UserInterface> {
   })
   profilePicture: string;
 
-  // @Column({
-  //   type: DataType.STRING,
-  //   allowNull: true,
-  //   defaultValue: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
-  // })
-  // coverPicture: string;
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+    defaultValue: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
+    field:'cover_picture',
+  })
+  coverPicture: string;
 
   @Column({
    type: DataType.TEXT,
@@ -139,6 +141,14 @@ export class User extends Model<UserInterface> {
   field: 'search_vector',
       })
   search_vector: string;
+
+  // Associations
+
+  // has many friendships
+//  @HasMany(() => Friendship, 'userId')
+//     friendships!: Friendship[];
+@HasMany(() => Friendship, 'targetId')
+    friendOf!: Friendship[];
 
       // static associate(models: any) {
     //   User.hasMany(models.Post, {

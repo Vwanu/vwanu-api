@@ -1,48 +1,27 @@
+import { refetch, NestedPath } from '../../Hooks';
 
 import {
   AddSender,
   NewestFirst,
-  PublishMessage,
   AdjustReadAndReceivedDate,
   IncludeSenderAndConversation,
   AdjustAmountMessagesInConversation,
-  AdjustUnreadMessageInConversation,
 } from './hooks';
-
-
 
 export default {
   before: {
    all:[IncludeSenderAndConversation],
-    find: [NewestFirst],
-    get: [],
-    create: [AddSender],
-    update: [],
-    patch: [AdjustReadAndReceivedDate],
-    remove: [],
+    find: [NewestFirst, NestedPath],
+    create: [NestedPath,AddSender],
+    patch: AdjustReadAndReceivedDate
   },
 
   after: {
-    all: [],
-    find: [],
-    get: [],
     create: [
       AdjustAmountMessagesInConversation,
-      AdjustUnreadMessageInConversation,
-      PublishMessage,
+      refetch('conversation/:conversationId/messages')
     ],
-    update: [],
-    patch: [AdjustUnreadMessageInConversation, PublishMessage],
-    remove: [AdjustAmountMessagesInConversation],
-  },
-
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: [],
+    patch: AdjustAmountMessagesInConversation,
+    remove: AdjustAmountMessagesInConversation,
   },
 };

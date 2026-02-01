@@ -1,47 +1,23 @@
-/* eslint-disable no-case-declarations */
 import commonHooks from 'feathers-hooks-common';
-
-/** Local dependencies */
-import { AddTalker } from '../../Hooks';
+import { AddTalker, refetch } from '../../Hooks';
 
 import {
-  SetType,
-  NotifyUsers,
   LimitToTalkersOnly,
   FilterConversations,
   LimitDirectConversations,
 } from './hook';
 
-
-
 export default {
   before: {
- 
     find: [FilterConversations],
     get: [FilterConversations],
-    create: [SetType, LimitDirectConversations],
+    create: [LimitDirectConversations],
     update: [commonHooks.disallow('external')],
-    patch: [LimitToTalkersOnly],
     remove: [LimitToTalkersOnly],
   },
 
   after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [AddTalker, NotifyUsers],
-    update: [],
-    patch: [],
-    remove: [],
-  },
-
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: [],
+    patch: [refetch('conversation')],
+    create: [AddTalker, refetch('conversation')],
   },
 };

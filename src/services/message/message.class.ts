@@ -3,10 +3,10 @@ import { Params } from '@feathersjs/feathers';
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 
 /** Local dependencies */
-import common from '../../lib/utils/common';
+// import common from '../../lib/utils/common';
 import { Application } from '../../declarations';
 
-const { getUploadedFiles } = common;
+// const { getUploadedFiles } = common;
 // eslint-disable-next-line import/prefer-default-export
 export class Message extends Service {
   app;
@@ -18,13 +18,16 @@ export class Message extends Service {
   }
 
   async create(data, params: Params) {
-    const messageData = getUploadedFiles(['messageImage'], data);
-    const message = await this.app
-      .service('message')
-      .Model.create(messageData, {
-        include: [{ model: this.app.get('sequelizeClient').models.Media }],
-      });
+    const conversationId = params?.route?.conversationId;
+//     const messageData = getUploadedFiles(['messageImage'], data);
+//     const message = await this.app
+//       .service('message')
+//       .Model.create(messageData, {
+//         include: [{ model: this.app.get('sequelizeClient').models.Media }],
+//       });
 
-    return Promise.resolve(message);
+    return super.create({ conversationId, ...data }, params);
+
+    // });
   }
 }

@@ -71,9 +71,10 @@ const notifyFriendAccept = async (context: HookContext): Promise<HookContext> =>
 
 export default {
   before: {
-    all: AddTargetUser,
+    find: AddTargetUser,
     update: disallow(),
-    create: AutoAssignHook({userId:null}),
+    patch: AddTargetUser,
+    create:[AddTargetUser, AutoAssignHook({userId:null})],
   },
   after: {
     create: notifyFriendRequest,

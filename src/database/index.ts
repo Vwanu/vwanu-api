@@ -8,13 +8,14 @@ import {Media} from './media';
 import {PostMedia} from './post-media';
 import {Korem} from './korem';
 // import {Friend} from './Friends';
-// import {Message} from './message';
+import {Message} from './message';
 import {Interest} from './interest';
 // import {Template} from './template';
 import {Community} from './communities';
 // import {Discussion} from './discussion';
 
-// import {Conversation} from './conversation';
+import {Conversation} from './conversation';
+import {ConversationUser} from './conversation-user';
 import {Notification} from './notification';
 import {Friendship} from './friendship';
 // import {BlogResponse} from './blog-response';
@@ -45,12 +46,13 @@ export default [
   Korem,
 //   Friend,
 
-//   Message,
+  Message,
   Interest,
 //   Template,
   Community,
 //   Discussion,
-//   Conversation,
+  Conversation,
+  ConversationUser,
   Notification,
   Friendship,
 //   BlogResponse,

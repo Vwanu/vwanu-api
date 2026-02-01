@@ -1,6 +1,5 @@
 /* eslint-disable camelcase */
 import { HookContext } from '@feathersjs/feathers';
-import { Op } from 'sequelize';
 import isNill from 'lodash/isNil';
 
 export default async (context: HookContext) => {
@@ -13,7 +12,7 @@ export default async (context: HookContext) => {
     where: {
       ConversationId: id,
       read: false,
-      senderId: { [Op.ne]: params.User.id },
+      senderId: { ["ne"]: params.User.id },
     },
   });
   result.amountOfUnreadMessages = amountOfUnreadMessages;
