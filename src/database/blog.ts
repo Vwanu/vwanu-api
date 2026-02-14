@@ -1,25 +1,15 @@
 /* eslint-disable no-param-reassign */
-import { Table, Column, Model, DataType, BeforeSave, TableOptions } from 'sequelize-typescript';
 import slugify from '../lib/utils/slugify';
 import sanitizeHtml from '../lib/utils/sanitizeHtml';
-
-export interface BlogInterface {
-  id: string;
-  blogText: string;
-  blogTitle: string;
-  coverPicture: string;
-  publish: boolean;
-  slug: string;
-  amountOfLikes: number;
-  amountOfComments: number;
-  search_vector: string;
-}
+import { Table, Column, Model, DataType, BeforeSave, TableOptions ,CreatedAt,UpdatedAt} from 'sequelize-typescript';
+import {Blog as BlogInterface} from 'schema/blog.schema'
 
 @Table({
   modelName: 'Blog',
   tableName: 'blogs',
   underscored: true,
 } as TableOptions<Blog>)
+
 export class Blog extends Model<BlogInterface> implements BlogInterface {
   @Column({
     type: DataType.UUID,
@@ -33,26 +23,19 @@ export class Blog extends Model<BlogInterface> implements BlogInterface {
     type: DataType.TEXT,
     allowNull: false,
   })
-  blogText!: string;
+  content!: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
-  blogTitle!: string;
-
-  @Column({
-    type: DataType.BOOLEAN,
-    defaultValue: false,
-    allowNull: false,
-  })
-  publish!: boolean;
+  title!: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: true,
   })
-  coverPicture!: string;
+  titlePicture!: string;
 
   @Column({
     type: DataType.STRING,
@@ -74,6 +57,29 @@ export class Blog extends Model<BlogInterface> implements BlogInterface {
   })
   amountOfComments!: number;
 
+ @Column({
+    type: DataType.DATE,
+    allowNull: true,
+    field: 'updated_at',
+  })
+  publishedAt!: string;
+
+  @CreatedAt
+  @Column({
+    type: DataType.DATE,
+    allowNull: false,
+    field: 'created_at',
+  })
+  createdAt!: string;
+
+  @UpdatedAt
+  @Column({
+    type: DataType.DATE,
+    allowNull: false,
+    field: 'updated_at',
+  })
+  updatedAt!: string;
+
   @Column({
     type: DataType.TEXT,
     allowNull: true,
@@ -82,9 +88,9 @@ export class Blog extends Model<BlogInterface> implements BlogInterface {
 
   @BeforeSave
   static sanitizeAndSlugify(instance: Blog) {
-    instance.blogText = sanitizeHtml(instance.blogText);
-    instance.blogTitle = sanitizeHtml(instance.blogTitle);
-    instance.slug = slugify(instance.blogTitle, {
+    instance.content = sanitizeHtml(instance.content);
+    instance.title = sanitizeHtml(instance.title);
+    instance.slug = slugify(instance.title, {
       replacement: '-',
       lower: true,
       strict: true,
@@ -94,11 +100,11 @@ export class Blog extends Model<BlogInterface> implements BlogInterface {
   // TODO: Add associations with decorators
   // @BelongsTo(() => User)
   // user!: User;
-  
-  
+
+
   // @BelongsToMany(() => Interest, () => BlogInterest)
   // interests!: Interest[];
-  
+
   // @HasMany(() => Korem, { foreignKey: 'entityId', constraints: false, scope: { entityType: 'Blog' } })
   // reactions!: Korem[];
 }
