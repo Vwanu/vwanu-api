@@ -10,7 +10,7 @@ import fileToFeathers from '../../middleware/PassFilesToFeathers/file-to-feather
 declare module '../../declarations' {
   // eslint-disable-next-line no-unused-vars
   interface ServiceTypes {
-    users: Users & ServiceAddons<any>;
+    users: Users & ServiceAddons<Users>;
   }
 }
 

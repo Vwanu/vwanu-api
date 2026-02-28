@@ -5,16 +5,19 @@ const validNotificationStatus = ['sound', 'email', 'sound_email', 'disable'];
 export const createuserNotificationSettingsSchema = object({
   body: object({
     user_id: number({
-      required_error: 'Please provide the user id',
-      invalid_type_error: 'Invalid user id',
+       error: (iss)=> iss.input===undefined
+      ? 'Please provide the user id'
+      : 'Invalid user id',
     }),
     notification_setting_id: number({
-      required_error: 'Please provide the notification setting id',
-      invalid_type_error: 'Invalid notification setting id',
+       error: (iss)=> iss.input===undefined
+       ? 'Please provide the notification setting id'
+       : 'Invalid notification setting id',
     }),
     notification_status: string({
-      required_error: 'Please provide the notification status',
-      invalid_type_error: 'Invalid notification status',
+       error: (iss)=> iss.input===undefined
+      ? 'Please provide the notification status'
+      : 'Invalid notification status',
     }),
   }).refine(
     (data) => validNotificationStatus.includes(data.notification_status),

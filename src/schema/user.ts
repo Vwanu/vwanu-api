@@ -3,20 +3,17 @@ import { z, object, string, TypeOf } from 'zod';
 export const createUserSchema = object({
   body: object({
     firstName: string({
-      required_error: 'Please provide a first name',
+      error: (iss)=> iss.input===undefined? 'Please provide a first name': 'FristName must be a valid string',
     }),
     lastName: string({
-      required_error: 'Please provide a last name',
+      error: 'Please provide a last name',
     }),
-    email: string({
-      required_error: 'You must provide a valid email address',
-    }).email('The email address you provided is not a valid email'),
+    email: z.email('The email address you provided is not a valid email'),
     password: string({
-      required_error: 'Please provide a password',
+      error: 'Please provide a password',
     }).min(8, 'Password must be at least 8 characters long'),
     birthdate: z.coerce.date({
-      required_error: 'Please provide a birthdate',
-      invalid_type_error: 'Birthdate must be a date',
+      error: (issue)=> issue.input===undefined? 'Please provide a birthdate' : 'Birthdate must be a date',
     }).min(new Date('1900-01-01'), 'Birthdate must be after 1900-01-01'),
     gender: z.enum(['m', 'f']),
   }),

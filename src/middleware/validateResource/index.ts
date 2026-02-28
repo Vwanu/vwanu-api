@@ -1,7 +1,7 @@
-import { AnyZodObject } from 'zod';
+import { ZodObject } from 'zod';
 import { BadRequest } from '@feathersjs/errors';
 
-const validateResource = (schema: AnyZodObject) => (context) => {
+const validateResource = (schema: ZodObject) => (context) => {
   try {
     schema.parse({
       body: context.data,

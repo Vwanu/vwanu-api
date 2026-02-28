@@ -18,27 +18,32 @@ const validNotificationsSlugs = [
 export const createUsernotificationTypesSchema = object({
   body: object({
     notification_slug: string({
-      required_error: 'Please provide notification slug',
-      invalid_type_error: 'Invalid notification slug',
+      error: (iss)=> iss.input===undefined
+      ? 'Please provide notification slug'
+      : 'Invalid notification slug',
     }),
     user_id: string({
-      required_error: 'Please provide notification name',
-      invalid_type_error: 'Invalid notification name',
+      error: (iss)=> iss.input===undefined
+      ? 'Please provide notification name'
+      : 'Invalid notification name',
     }),
     text: z.boolean({
-      required_error: 'Please provide notification text',
-      invalid_type_error: 'Invalid notification text',
+      error: (iss)=> iss.input===undefined
+      ?'Please provide notification text'
+      : 'Invalid notification text',
     }),
     email: z.boolean(
       {
-        required_error: 'Please provide notification email',
-        invalid_type_error: 'Invalid notification email',
+        error: (iss)=> iss.input===undefined
+        ? 'Please provide notification email'
+        : 'Invalid notification email'
       }
     ),
     sound: z.boolean((
       {
-        required_error: 'Please provide notification sound',
-        invalid_type_error: 'Invalid notification sound',
+        error: (iss)=> iss.input===undefined
+        ?'Please provide notification sound'
+        : 'Invalid notification sound',
       }
     )),
   }).refine(
@@ -52,12 +57,14 @@ export const createUsernotificationTypesSchema = object({
 
 export const userNotificationTypesSchema = object({
   notification_slug: string({
-    required_error: 'Please provide notification slug',
-    invalid_type_error: 'Invalid notification slug',
+    error: (iss)=> iss.input===undefined
+    ? 'Please provide notification slug'
+    : 'Invalid notification slug',
   }),
   user_id: string({
-    required_error: 'Please provide notification name',
-    invalid_type_error: 'Invalid notification name',
+    error: (iss)=> iss.input===undefined
+    ?  'Please provide notification name'
+    : 'Invalid notification name',
   }),
 
   text: z.boolean(),

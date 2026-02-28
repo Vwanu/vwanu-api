@@ -12,7 +12,7 @@ import { Blog as BlogModel } from '../../database/blog';
 declare module '../../declarations' {
   // eslint-disable-next-line no-unused-vars
   interface ServiceTypes {
-    blogs: Blogs & ServiceAddons<any>;
+    blogs: Blogs & ServiceAddons<Blogs>;
   }
 }
 

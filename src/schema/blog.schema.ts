@@ -8,9 +8,9 @@ export const BlogSchema = z.object({
   slug: string(),
   amountOfLikes: z.number(),
   amountOfComments: z.number(),
-  publishedAt: z.iso.date(),
-  createdAt: z.iso.date(),
-  updatedAt:z.iso.date(),
+  publishedAt: z.coerce.date(),
+  createdAt: z.coerce.date(),
+  updatedAt:z.coerce.date(),
   search_vector: z.string(),
 });
 

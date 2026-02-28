@@ -7,6 +7,14 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4,
         allowNull: false,
       },
+      user_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: 'users',
+          key: 'id',
+        },
+      },
       content: {
         type: Sequelize.TEXT,
         allowNull: false,
@@ -56,7 +64,7 @@ module.exports = {
     await queryInterface.addIndex('blogs', ['slug']);
   },
 
-  async down(queryInterface, Sequelize) {
+  async down(queryInterface) {
     await queryInterface.dropTable('blogs');
   },
 };

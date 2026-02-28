@@ -28,7 +28,7 @@ export class Post extends Model<PostInterface> implements PostInterface {
     allowNull: false,
     field: 'id',
   })
-  id?: string; 
+  id?: string;
 
   @Column({
     type: DataType.TEXT,
@@ -66,7 +66,7 @@ export class Post extends Model<PostInterface> implements PostInterface {
   @ForeignKey(() => Community)
   @Column({
     type: DataType.UUID,
-    allowNull: true, 
+    allowNull: true,
     field: 'community_id',
   })
   communityId?: string;
@@ -79,25 +79,25 @@ export class Post extends Model<PostInterface> implements PostInterface {
   })
   PostId?: string;
 
-  // TODO: Convert these associations to decorators when other models are converted
+  
   @BelongsTo(() => User)
   user!: User;
-  
+
   @BelongsTo(() => Community, { onDelete: 'SET NULL' }) // Use SET NULL instead of CASCADE for optional relationship
-  community?: Community; // Optional - post may not be part of a community   
-  
+  community?: Community; // Optional - post may not be part of a community
+
   @BelongsToMany(() => Media, {
     through: () => require('./post-media').PostMedia,
     foreignKey: 'post_id',
     otherKey: 'medium_id',
   })
   media!: Media[];
-  
-  
+
+
   @HasMany(() => Post, { as: 'Comments' })
   comments!: Post[];
 
-  @HasMany(() => Korem, { 
+  @HasMany(() => Korem, {
     //through: 'post_reactions', // Junction table for reactions
     foreignKey: 'entityId',
     otherKey: 'koremId',
@@ -141,8 +141,8 @@ export class Post extends Model<PostInterface> implements PostInterface {
 
   public getPreview(maxLength = 150): string {
     if (!this.postText) return '';
-    return this.postText.length > maxLength 
-      ? `${this.postText.substring(0, maxLength)}...` 
+    return this.postText.length > maxLength
+      ? `${this.postText.substring(0, maxLength)}...`
       : this.postText;
   }
 

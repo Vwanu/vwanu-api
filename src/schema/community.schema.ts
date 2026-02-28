@@ -22,44 +22,41 @@ export const CommunitySchema = z.object({
 export const createCommunitySchema = object({
   body: object({
     name: string({
-      required_error: 'Community name is required',
-      invalid_type_error: 'Community name must be a string',
+      error: (iss) => iss.input === undefined ? 'Community name is required' : 'Community name must be a string',
     })
       .min(3, 'Community name must be at least 3 characters long')
       .max(100, 'Community name must be at most 100 characters long')
       .trim(),
 
     description: string({
-      required_error: 'Community description is required',
-      invalid_type_error: 'Community description must be a string',
+      error: (iss) => iss.input === undefined ? 'Community description is required' : 'Community description must be a string',
     })
       .min(10, 'Description must be at least 10 characters long')
       .max(2000, 'Description must be at most 2000 characters long')
       .trim(),
 
     privacyType: z.nativeEnum(CommunityPrivacyType, {
-      required_error: 'Privacy type is required',
-      invalid_type_error: 'Invalid privacy type',
+      error: (iss) => iss.input === undefined ? 'Privacy type is required' : 'Invalid privacy type',
     }).default(CommunityPrivacyType.PUBLIC),
 
     canInvite: z.nativeEnum(CommunityPermissionLevel, {
-      invalid_type_error: 'Invalid permission level for invitations',
+      error: (iss) => iss.input === undefined ? undefined : 'Invalid permission level for invitations',
     }).default(CommunityPermissionLevel.ADMINS),
 
     canPost: z.nativeEnum(CommunityPermissionLevel, {
-      invalid_type_error: 'Invalid permission level for posting',
+      error: (iss) => iss.input === undefined ? undefined : 'Invalid permission level for posting',
     }).default(CommunityPermissionLevel.EVERYONE),
 
     canMessageInGroup: z.nativeEnum(CommunityPermissionLevel, {
-      invalid_type_error: 'Invalid permission level for messaging',
+      error: (iss) => iss.input === undefined ? undefined : 'Invalid permission level for messaging',
     }).default(CommunityPermissionLevel.EVERYONE),
 
     haveDiscussionForum: z.boolean({
-      invalid_type_error: 'Discussion forum setting must be a boolean',
+      error: (iss) => iss.input === undefined ? undefined : 'Discussion forum setting must be a boolean',
     }).default(true),
 
     interests: array(z.string(), {
-      invalid_type_error: 'Interests must be an array of strings',
+      error: (iss) => iss.input === undefined ? undefined : 'Interests must be an array of strings',
     }).optional(),
 
     profilePicture: string().url('Profile picture must be a valid URL').optional(),
@@ -71,8 +68,7 @@ export const createCommunitySchema = object({
 export const updateCommunitySchema = object({
   params: object({
     id: string({
-      required_error: 'Community ID is required',
-      invalid_type_error: 'Community ID must be a string',
+      error: (iss) => iss.input === undefined ? 'Community ID is required' : 'Community ID must be a string',
     }).uuid('Community ID must be a valid UUID'),
   }),
   body: object({
@@ -109,8 +105,7 @@ export const updateCommunitySchema = object({
 export const getCommunitySchema = object({
   params: object({
     id: string({
-      required_error: 'Community ID is required',
-      invalid_type_error: 'Community ID must be a string',
+      error: (iss) => iss.input === undefined ? 'Community ID is required' : 'Community ID must be a string',
     }).uuid('Community ID must be a valid UUID'),
   }),
 });
@@ -133,8 +128,7 @@ export const listCommunitiesSchema = object({
 export const deleteCommunitySchema = object({
   params: object({
     id: string({
-      required_error: 'Community ID is required',
-      invalid_type_error: 'Community ID must be a string',
+      error: (iss) => iss.input === undefined ? 'Community ID is required' : 'Community ID must be a string',
     }).uuid('Community ID must be a valid UUID'),
   }),
 });
@@ -143,8 +137,7 @@ export const deleteCommunitySchema = object({
 export const joinCommunitySchema = object({
   params: object({
     id: string({
-      required_error: 'Community ID is required',
-      invalid_type_error: 'Community ID must be a string',
+      error: (iss) => iss.input === undefined ? 'Community ID is required' : 'Community ID must be a string',
     }).uuid('Community ID must be a valid UUID'),
   }),
 });
@@ -152,8 +145,7 @@ export const joinCommunitySchema = object({
 export const leaveCommunitySchema = object({
   params: object({
     id: string({
-      required_error: 'Community ID is required',
-      invalid_type_error: 'Community ID must be a string',
+      error: (iss) => iss.input === undefined ? 'Community ID is required' : 'Community ID must be a string',
     }).uuid('Community ID must be a valid UUID'),
   }),
 });

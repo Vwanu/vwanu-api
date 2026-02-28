@@ -1,8 +1,9 @@
 /* eslint-disable no-param-reassign */
 import slugify from '../lib/utils/slugify';
 import sanitizeHtml from '../lib/utils/sanitizeHtml';
-import { Table, Column, Model, DataType, BeforeSave, TableOptions ,CreatedAt,UpdatedAt} from 'sequelize-typescript';
+import { Table, Column, Model, DataType, BeforeSave, BelongsTo, TableOptions ,CreatedAt,UpdatedAt, ForeignKey} from 'sequelize-typescript';
 import {Blog as BlogInterface} from 'schema/blog.schema'
+import {User } from './user'
 
 @Table({
   modelName: 'Blog',
@@ -57,12 +58,20 @@ export class Blog extends Model<BlogInterface> implements BlogInterface {
   })
   amountOfComments!: number;
 
+  @ForeignKey(() => User)
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+    field: 'user_id',
+  })
+  userId!: string;
+
  @Column({
     type: DataType.DATE,
     allowNull: true,
     field: 'updated_at',
   })
-  publishedAt!: string;
+  publishedAt!: Date;
 
   @CreatedAt
   @Column({
@@ -70,7 +79,7 @@ export class Blog extends Model<BlogInterface> implements BlogInterface {
     allowNull: false,
     field: 'created_at',
   })
-  createdAt!: string;
+  createdAt!: Date;
 
   @UpdatedAt
   @Column({
@@ -78,7 +87,7 @@ export class Blog extends Model<BlogInterface> implements BlogInterface {
     allowNull: false,
     field: 'updated_at',
   })
-  updatedAt!: string;
+  updatedAt!: Date;
 
   @Column({
     type: DataType.TEXT,
@@ -86,6 +95,11 @@ export class Blog extends Model<BlogInterface> implements BlogInterface {
   })
   search_vector!: string;
 
+  @BelongsTo(() => User)
+  user!: User;
+
+    // @BelongsToMany(() => Interest, () => BlogInterest)
+  // interests!: Interest[];
   @BeforeSave
   static sanitizeAndSlugify(instance: Blog) {
     instance.content = sanitizeHtml(instance.content);
@@ -97,13 +111,10 @@ export class Blog extends Model<BlogInterface> implements BlogInterface {
     });
   }
 
-  // TODO: Add associations with decorators
-  // @BelongsTo(() => User)
-  // user!: User;
 
 
-  // @BelongsToMany(() => Interest, () => BlogInterest)
-  // interests!: Interest[];
+
+
 
   // @HasMany(() => Korem, { foreignKey: 'entityId', constraints: false, scope: { entityType: 'Blog' } })
   // reactions!: Korem[];

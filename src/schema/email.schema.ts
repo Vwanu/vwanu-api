@@ -21,14 +21,10 @@ export type NotifierOptions={
   source: 'email'| 'sms'
 }
 const Messenger = z.object({
-  send: z
-    .function()
-    .args(z.string(), z.string(), z.string())
-    .returns(z.promise(z.object({ ok: z.boolean() }))),
-  sendTemplate: z
-    .function()
-    .args(z.string(), z.string(), z.any())
-    .returns(z.promise(z.object({ ok: z.boolean() }))),
+  send: z.function(),
+  sendTemplate: z.function()
+    // .args(z.string(), z.string(), z.any())
+    // .returns(z.promise(z.object({ ok: z.boolean() }))),
 });
 export type IMessenger = z.infer<typeof Messenger>;
 export type SendEmailType = z.infer<typeof SendEmail>;
