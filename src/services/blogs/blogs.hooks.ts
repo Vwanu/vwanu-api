@@ -8,13 +8,13 @@ import {
   LimitToOwner,
   SaveInterest,
   ValidateResource,
-  TrueBoolean,
 } from '../../Hooks';
 import { User } from '../../database/user';
 
 // import QueryBlogs from './hooks/findBlog';
 
 import * as Schema from '../../schema/blog.schema';
+import setPublishedAt from './hooks/setPublishedAt.hook';
 
 const UserAttributes = [
   'firstName',
@@ -41,7 +41,7 @@ export default {
     // find: [QueryBlogs],
     // get: [QueryBlogs],
     create: [
-      TrueBoolean(['publish']),
+      setPublishedAt,
       ValidateResource(Schema.createBlogSchema),
       AutoOwn,
       saveProfilePicture(['titlePicture'],'blog'),
@@ -52,8 +52,7 @@ export default {
         commonHooks.isProvider('external'),
         commonHooks.preventChanges(true, ...['slug', 'id'])
       ),
-      TrueBoolean(['publish']),
-      ValidateResource(Schema.editBlogSchema),
+      setPublishedAt,
       LimitToOwner,
      saveProfilePicture(['titlePicture']),
     ],

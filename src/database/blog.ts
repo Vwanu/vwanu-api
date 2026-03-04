@@ -67,12 +67,12 @@ export class Blog extends Model<BlogInterface> implements BlogInterface {
   })
   userId!: string;
 
- @Column({
+  @Column({
     type: DataType.DATE,
     allowNull: true,
-    field: 'updated_at',
+    field: 'published_at',
   })
-  publishedAt!: Date;
+  publishedAt!: Date | null;
 
   @CreatedAt
   @Column({

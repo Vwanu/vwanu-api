@@ -8,7 +8,7 @@ export const BlogSchema = z.object({
   slug: string(),
   amountOfLikes: z.number(),
   amountOfComments: z.number(),
-  publishedAt: z.coerce.date(),
+  publishedAt: z.coerce.date().nullable().optional(),
   createdAt: z.coerce.date(),
   updatedAt:z.coerce.date(),
   search_vector: z.string(),
@@ -27,16 +27,16 @@ export const createBlogSchema = object({
     }).min(1),
 
     titlePicture: string().optional(),
-    publishAt: z.boolean().optional(),
+    publishedAt: z.boolean().optional(),
   }),
 });
 
-const mustHaveEditBlog = ['content', 'title', 'titlePicture'];
+const mustHaveEditBlog = ['content', 'title', 'titlePicture', 'publishedAt'];
 export type Blog = z.infer<typeof BlogSchema>;
 export const editBlogSchema = object({
   body: object({
     content: string().optional(),
-    tittle: string().optional(),
+    title: string().optional(),
     titlePicture: string().optional(),
     publishedAt: z.boolean().optional(),
   }).refine(

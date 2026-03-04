@@ -411,7 +411,7 @@ export interface Blog {
   slug: string;
   amountOfLikes: number;
   amountOfComments: number;
-  publishedAt: Date;
+  publishedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
   search_vector: string;
