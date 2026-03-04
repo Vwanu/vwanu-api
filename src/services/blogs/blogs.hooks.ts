@@ -10,6 +10,7 @@ import {
 //   ValidateResource,
 } from '../../Hooks';
 import { User } from '../../database/user';
+import { Interest } from '../../database/interest';
 
 // import QueryBlogs from './hooks/findBlog';
 
@@ -35,16 +36,30 @@ const AddAutor = AddAssociations({
     },
   ],
 });
+
+const AddInterests = AddAssociations({
+  models: [
+    {
+      model: Interest,
+      as: 'interests',
+    },
+  ],
+});
 export default {
   before: {
-    all: AddAutor,
-    // find: [QueryBlogs],
-    // get: [QueryBlogs],
+    all: [AddAutor],
+    find: [AddInterests],
+    get: [AddInterests],
     create: [
       setPublishedAt,
     //   ValidateResource(Schema.createBlogSchema),
       AutoOwn,
       saveProfilePicture(['titlePicture'],'blog'),
+      (context) => {
+        context.params._interests = context.data.interests;
+        delete context.data.interests;
+        return context;
+      },
     ],
     update: [commonHooks.disallow('external')],
     patch: [
@@ -61,8 +76,14 @@ export default {
 
   after: {
     all: [],
-    find: [],
-    get: [],
+    find: [(c)=>{
+        console.log('🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥after find')
+        console.log(c.result)
+        return c;}],
+    get: [(c)=>{
+        console.log('🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥after find')
+        console.log(c.result)
+        return c;}],
     create: [SaveInterest],
     update: [],
     patch: [SaveInterest],

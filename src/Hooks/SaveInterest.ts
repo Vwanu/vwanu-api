@@ -8,11 +8,12 @@ const UserAttributes = [
   'createdAt',
 ];
 export default async (context: HookContext) => {
-  const { data, result, app } = context;
-  if (!data.interests) return context;
-  const interests = Array.isArray(data.interests)
-    ? data.interests
-    : [data.interests];
+  const { data, result, app, params } = context;
+  const rawInterests = data.interests ?? params._interests;
+  if (!rawInterests) return context;
+  const interests = Array.isArray(rawInterests) ? rawInterests : [rawInterests];
+
+    console.log('🆘🆘🆘🆘🆘🆘🆘🆘🆘🆘 Interests in SaveInterest hook:', interests);
   const {
     Interest: InterestModel,
     BlogInterest: BlogInterestTable,
