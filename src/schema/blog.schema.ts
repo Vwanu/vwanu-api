@@ -28,6 +28,7 @@ export const createBlogSchema = object({
 
     titlePicture: string().optional(),
     publishedAt: z.boolean().optional(),
+    interests: z.array(z.string().uuid()).optional(),
   }),
 });
 
@@ -39,6 +40,7 @@ export const editBlogSchema = object({
     title: string().optional(),
     titlePicture: string().optional(),
     publishedAt: z.boolean().optional(),
+    interests: z.array(z.string().uuid()).optional(),
   }).refine(
     (data) =>
       mustHaveEditBlog.some((item) => {

@@ -7,13 +7,13 @@ import {
   AutoOwn,
   LimitToOwner,
   SaveInterest,
-  ValidateResource,
+//   ValidateResource,
 } from '../../Hooks';
 import { User } from '../../database/user';
 
 // import QueryBlogs from './hooks/findBlog';
 
-import * as Schema from '../../schema/blog.schema';
+// import * as Schema from '../../schema/blog.schema';
 import setPublishedAt from './hooks/setPublishedAt.hook';
 
 const UserAttributes = [
@@ -42,7 +42,7 @@ export default {
     // get: [QueryBlogs],
     create: [
       setPublishedAt,
-      ValidateResource(Schema.createBlogSchema),
+    //   ValidateResource(Schema.createBlogSchema),
       AutoOwn,
       saveProfilePicture(['titlePicture'],'blog'),
     ],
@@ -63,7 +63,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [SaveInterest],
     update: [],
     patch: [SaveInterest],
     remove: [],

@@ -5,6 +5,7 @@ import { Table, Column, Model, DataType, BeforeSave, BelongsTo,BelongsToMany, Ta
 import {Blog as BlogInterface} from 'schema/blog.schema'
 import {User } from './user'
 import { Media } from './media';
+import { Interest } from './interest';
 
 @Table({
   modelName: 'Blog',
@@ -104,8 +105,12 @@ export class Blog extends Model<BlogInterface> implements BlogInterface {
     otherKey: 'medium_id' })
   media!: Media[];
 
-    // @BelongsToMany(() => Interest, () => BlogInterest)
-  // interests!: Interest[];
+  @BelongsToMany(() => Interest, {
+    through: () => require('./junction-tables').BlogInterest,
+    foreignKey: 'blog_id',
+    otherKey: 'interest_id',
+  })
+  interests!: Interest[];
   @BeforeSave
   static sanitizeAndSlugify(instance: Blog) {
     instance.content = sanitizeHtml(instance.content);
