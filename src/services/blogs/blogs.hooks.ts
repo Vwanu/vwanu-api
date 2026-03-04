@@ -16,6 +16,7 @@ import { Interest } from '../../database/interest';
 
 // import * as Schema from '../../schema/blog.schema';
 import setPublishedAt from './hooks/setPublishedAt.hook';
+import filterByInterests from './hooks/filterByInterests.hook';
 
 const UserAttributes = [
   'firstName',
@@ -48,7 +49,7 @@ const AddInterests = AddAssociations({
 export default {
   before: {
     all: [AddAutor],
-    find: [AddInterests],
+    find: [AddInterests, filterByInterests],
     get: [AddInterests],
     create: [
       setPublishedAt,
@@ -76,14 +77,8 @@ export default {
 
   after: {
     all: [],
-    find: [(c)=>{
-        console.log('🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥after find')
-        console.log(c.result)
-        return c;}],
-    get: [(c)=>{
-        console.log('🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥🆘❤️‍🔥after find')
-        console.log(c.result)
-        return c;}],
+    find: [],
+    get: [],
     create: [SaveInterest],
     update: [],
     patch: [SaveInterest],
