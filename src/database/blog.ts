@@ -1,9 +1,10 @@
 /* eslint-disable no-param-reassign */
 import slugify from '../lib/utils/slugify';
 import sanitizeHtml from '../lib/utils/sanitizeHtml';
-import { Table, Column, Model, DataType, BeforeSave, BelongsTo, TableOptions ,CreatedAt,UpdatedAt, ForeignKey} from 'sequelize-typescript';
+import { Table, Column, Model, DataType, BeforeSave, BelongsTo,BelongsToMany, TableOptions ,CreatedAt,UpdatedAt, ForeignKey} from 'sequelize-typescript';
 import {Blog as BlogInterface} from 'schema/blog.schema'
 import {User } from './user'
+import { Media } from './media';
 
 @Table({
   modelName: 'Blog',
@@ -97,6 +98,11 @@ export class Blog extends Model<BlogInterface> implements BlogInterface {
 
   @BelongsTo(() => User)
   user!: User;
+  @BelongsToMany(() => Media, {
+    through: () => require('./blog-media').BlogMedia,
+    foreignKey: 'blog_id',
+    otherKey: 'medium_id' })
+  media!: Media[];
 
     // @BelongsToMany(() => Interest, () => BlogInterest)
   // interests!: Interest[];

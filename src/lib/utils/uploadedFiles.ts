@@ -3,14 +3,14 @@ import isValidUrl from './validUrl';
 
 /**
  * Process uploaded files with immediate S3 URL generation
- * 
+ *
  * Flow:
  * 1. Handle media links from URLs (external links)
  * 2. Process uploaded files:
  *    - Generate S3 URLs immediately
  *    - Add to Media array with generated URLs
  *    - Upload to S3 asynchronously in background
- * 
+ *
  * @param mediaArray - Array of media field names to process
  * @param data - Request data containing UploadedMedia
  * @returns Modified data object with Media array
@@ -26,13 +26,14 @@ export interface MediaItem {
   UserId: string; // Keep consistent with existing codebase naming
 }
 
-export type MediaFieldType = 
-  | 'postImage' 
-  | 'postVideo' 
+export type MediaFieldType =
+  | 'postImage'
+  | 'postVideo'
   | 'postAudio'
-  | 'profilePicture' 
+  | 'profilePicture'
   | 'coverPicture'
-  | 'messageImage';
+  | 'messageImage'
+  | 'titlePicture';
 
 export interface UploadedFile {
   originalname: string;
@@ -66,8 +67,8 @@ const processMediaLinks = (mediaUrls: string[], targetUserId: string): MediaItem
  * Process uploaded files and generate S3 URLs
  */
 const processUploadedFiles = (
-  fieldNames: MediaFieldType[], 
-  filesByField: Record<string, UploadedFile[]>, 
+  fieldNames: MediaFieldType[],
+  filesByField: Record<string, UploadedFile[]>,
   targetUserId: string
 ): MediaItem[] => {
   const mediaItems: MediaItem[] = [];
@@ -81,7 +82,7 @@ const processUploadedFiles = (
         const { url, key } = generateS3Url(fieldName, uploadedFile.originalname, 'post');
         mediaItems.push(createMediaItem(url, targetUserId));
         uploadFileToS3Async(uploadedFile, key, fieldName);
-        
+
       } catch (error) {
         console.error(`Failed to process file ${uploadedFile.originalname} for ${fieldName}:`, error);
       }
@@ -107,8 +108,8 @@ const createMediaItem = (mediaUrl: string, ownerId: string): MediaItem => ({
  * Upload file to S3 asynchronously with error handling
  */
 const uploadFileToS3Async = (
-  fileData: UploadedFile, 
-  s3Key: string, 
+  fileData: UploadedFile,
+  s3Key: string,
   fieldName: string
 ): void => {
   setImmediate(() => {
@@ -124,7 +125,7 @@ const uploadFileToS3Async = (
  * Main function to process uploaded files and media links
  */
 export const getUploadedFiles = (
-    mediaFieldNames: MediaFieldType[], 
+    mediaFieldNames: MediaFieldType[],
     requestData: MediaProcessingData
   ): ProcessedMediaData => {
 
@@ -133,27 +134,27 @@ export const getUploadedFiles = (
       userId: requestData.userId,
       Media: []
     };
-  
+
     // Get user ID (support both naming conventions)
     const extractedUserId = requestData.UserId || requestData.userId;
     if (!extractedUserId) {
       throw new Error('User ID is required for media processing');
     }
-  
+
     // Process external media links
     if (requestData.mediaLinks?.length) {
       const validMediaUrls = requestData.mediaLinks.filter(isValidUrl);
       processedMediaResponse.Media.push(...processMediaLinks(validMediaUrls, extractedUserId));
     }
-  
+
     // Process uploaded files
     if (requestData.UploadedMedia) {
       const processedFileMedia = processUploadedFiles(mediaFieldNames, requestData.UploadedMedia, extractedUserId);
       processedMediaResponse.Media.push(...processedFileMedia);
     }
-  
+
     return processedMediaResponse;
   };
-  
+
 
 export default getUploadedFiles;

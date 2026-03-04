@@ -23,7 +23,7 @@ const UserAttributes = [
   'profilePicture',
   'createdAt',
 ];
-const SaveCover = saveProfilePicture(['coverPicture']);
+
 
 
 const AddAutor = AddAssociations({
@@ -44,7 +44,7 @@ export default {
       TrueBoolean(['publish']),
       ValidateResource(Schema.createBlogSchema),
       AutoOwn,
-      SaveCover,
+      saveProfilePicture(['titlePicture'],'blog'),
     ],
     update: [commonHooks.disallow('external')],
     patch: [
@@ -55,7 +55,7 @@ export default {
       TrueBoolean(['publish']),
       ValidateResource(Schema.editBlogSchema),
       LimitToOwner,
-      SaveCover,
+     saveProfilePicture(['titlePicture']),
     ],
     remove: [LimitToOwner],
   },
@@ -64,7 +64,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [SaveInterest],
+    create: [],
     update: [],
     patch: [SaveInterest],
     remove: [],

@@ -6,6 +6,7 @@ import {Blog} from './blog';
 // import {Album} from './album';
 import {Media} from './media';
 import {PostMedia} from './post-media';
+import {BlogMedia} from './blog-media';
 import {Korem} from './korem';
 // import {Friend} from './Friends';
 import {Message} from './message';
@@ -43,6 +44,7 @@ export default [
   // Album,
   Media,
   PostMedia,
+  BlogMedia,
   Korem,
 //   Friend,
 
