@@ -24,20 +24,18 @@ export const NotificationSchema = z.object({
 export const createNotificationSchema = object({
   body: object({
     userId: string({
-      required_error: 'User ID is required',
-      invalid_type_error: 'User ID must be a valid UUID',
+      error: (iss) => iss.input === undefined ? 'User ID is required' : 'User ID must be a valid UUID',
     }).uuid(),
     message: string({
-      invalid_type_error: 'Message must be a string',
+      error: (iss) => iss.input === undefined ? undefined : 'Message must be a string',
     }).optional(),
     type: string().optional(),
     entityName: z.nativeEnum(EntityType, {
-      errorMap: () => ({ message: 'Invalid entity type' }),
+      error: () => ({ message: 'Invalid entity type' }),
     }).optional(),
     entityId: string().uuid().optional(),
     notificationType: z.nativeEnum(NotificationType, {
-      required_error: 'Notification type is required',
-      errorMap: () => ({ message: 'Invalid notification type' }),
+      error: (iss) => iss.input === undefined ? 'Notification type is required' : 'Invalid notification type',
     }),
     fromUserId: string().uuid().optional(),
   }),
@@ -49,8 +47,7 @@ export const createNotificationSchema = object({
 export const getNotificationSchema = object({
   params: object({
     id: string({
-      required_error: 'Notification ID is required',
-      invalid_type_error: 'Notification ID must be a valid UUID',
+      error: (iss) => iss.input === undefined ? 'Notification ID is required' : 'Notification ID must be a valid UUID',
     }).uuid(),
   }),
 });
@@ -61,8 +58,7 @@ export const getNotificationSchema = object({
 export const updateNotificationSchema = object({
   params: object({
     id: string({
-      required_error: 'Notification ID is required',
-      invalid_type_error: 'Notification ID must be a valid UUID',
+      error: (iss) => iss.input === undefined ? 'Notification ID is required' : 'Notification ID must be a valid UUID',
     }).uuid(),
   }),
   body: object({
@@ -78,8 +74,7 @@ export const updateNotificationSchema = object({
 export const deleteNotificationSchema = object({
   params: object({
     id: string({
-      required_error: 'Notification ID is required',
-      invalid_type_error: 'Notification ID must be a valid UUID',
+      error: (iss) => iss.input === undefined ? 'Notification ID is required' : 'Notification ID must be a valid UUID',
     }).uuid(),
   }),
 });
@@ -96,7 +91,7 @@ export const queryNotificationSchema = object({
     entityId: string().uuid().optional(),
     $limit: z.number().or(z.string().transform(Number)).optional(),
     $skip: z.number().or(z.string().transform(Number)).optional(),
-    $sort: z.record(z.number()).optional(),
+    $sort: z.array(z.number()).optional(),
   }).optional(),
 });
 

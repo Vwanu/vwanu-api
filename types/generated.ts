@@ -110,25 +110,25 @@ export interface MulterRequest extends Request {
 export interface createPostReactionInput {
   body: any;
   PostId: any;
-  required_error: any;
+  error: any;
 }
 
 export interface createReactionInput {
   body: any;
   name: string;
-  required_error: any;
+  error: any;
 }
 
 export interface getReactionInput {
   params: any;
   id: any;
-  required_error: any;
+  error: any;
 }
 
 export interface editReactionInput {
   params: any;
   id: any;
-  required_error: any;
+  error: any;
 }
 
 // ============================================================================
@@ -299,6 +299,7 @@ export interface ErrorCodeInterface { [key: string]: any }
 
 export interface IMessenger {
   send: any;
+  sendTemplate: any;
   ok: boolean;
 }
 
@@ -396,6 +397,24 @@ export interface CallInterface {
   endTime: number;
   status: string;
   type: string;
+}
+
+// ============================================================================
+// Types from blog.schema.ts
+// ============================================================================
+
+export interface Blog {
+  id: any;
+  content: string;
+  title: string;
+  titlePicture: string;
+  slug: string;
+  amountOfLikes: number;
+  amountOfComments: number;
+  publishedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  search_vector: string;
 }
 
 // ============================================================================

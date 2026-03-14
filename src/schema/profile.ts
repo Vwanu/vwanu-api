@@ -14,16 +14,16 @@ export const ProfileSchema = object({
 export const createProfileSchema = object({
   body: object({
     userId: number({
-      required_error: 'You must provide a valid user id',
+      error: 'You must provide a valid user id',
     }),
     lastName: string({
-      required_error: 'Your last name is required to create a profile',
+      error: 'Your last name is required to create a profile',
     }),
     firstName: string({
-      required_error: 'Your first name is required to create a profile',
+      error: 'Your first name is required to create a profile',
     }),
     dob: z.string({
-      required_error: 'Your date of birth is required to create a profile',
+      error: 'Your date of birth is required to create a profile',
     }),
   }),
   params: object({

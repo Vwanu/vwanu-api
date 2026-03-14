@@ -1,37 +1,46 @@
 import { z, object, string } from 'zod';
 
 export const BlogSchema = z.object({
-  id: string(),
-  blogText: string(),
-  blogTitle: string(),
-  coverPicture: string(),
-  publish: z.boolean(),
+  id: z.uuidv4(),
+  content: string(),
+  title: string(),
+  titlePicture: string(),
   slug: string(),
+  amountOfLikes: z.number(),
+  amountOfComments: z.number(),
+  publishedAt: z.coerce.date().nullable().optional(),
+  createdAt: z.coerce.date(),
+  updatedAt:z.coerce.date(),
+  search_vector: z.string(),
 });
 
 export const createBlogSchema = object({
   body: object({
-    blogText: string({
-      required_error: 'Please provide some for your blog',
-      invalid_type_error: "You' have not provided a recognizable text",
-    }).min(1),
-    blogTitle: string({
-      required_error: 'Please provide a title for your blog',
-      invalid_type_error: "You' have not provided a recognizable text",
+    content: string({
+        error: (iss) => iss.input === undefined
+         ? "Please provide content for your blog."
+         : "You' have not provided recognizable text"}).min(10),
+    title: string({
+      error: (iss) => iss.input === undefined
+      ? 'Please provide a title for your blog'
+      : "You' have not provided recognizable text",
     }).min(1),
 
-    coverPicture: string().optional(),
-    publish: z.boolean().optional(),
+    titlePicture: string().optional(),
+    publishedAt: z.boolean().optional(),
+    interests: z.array(z.string().uuid()).optional(),
   }),
 });
 
-const mustHaveEditBlog = ['blogText', 'blogTitle', 'coverPicture', 'publish'];
+const mustHaveEditBlog = ['content', 'title', 'titlePicture', 'publishedAt'];
+export type Blog = z.infer<typeof BlogSchema>;
 export const editBlogSchema = object({
   body: object({
-    blogText: string().optional(),
-    blogTitle: string().optional(),
-    coverPicture: string().optional(),
-    publish: z.boolean().optional(),
+    content: string().optional(),
+    title: string().optional(),
+    titlePicture: string().optional(),
+    publishedAt: z.boolean().optional(),
+    interests: z.array(z.string().uuid()).optional(),
   }).refine(
     (data) =>
       mustHaveEditBlog.some((item) => {

@@ -1,12 +1,12 @@
 /**
  * S3 Storage Configuration with Memory-First Upload Strategy
- * 
+ *
  * Architecture:
  * 1. Files are stored in memory via multer.memoryStorage() for immediate response
  * 2. S3 URLs are generated instantly using predetermined keys
  * 3. Database is updated with S3 URLs and response sent to client (FAST!)
  * 4. Files are uploaded to S3 asynchronously in the background
- * 
+ *
  * Benefits:
  * - Fast API responses (no waiting for S3 upload)
  * - Improved user experience
@@ -22,8 +22,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 // ===== TYPES AND INTERFACES =====
 
-export type UploadType = 'post' | 'profile' | 'message';
-export type FileFieldType = 'profilePicture' | 'coverPicture' | 'postImage' | 'postVideo' | 'postAudio' | 'messageImage';
+export type UploadType = 'post' | 'profile' | 'message' | 'blog';
+export type FileFieldType = 'profilePicture' | 'coverPicture' | 'postImage' | 'postVideo' | 'postAudio' | 'messageImage' | 'titlePicture';
 
 export interface S3UrlResult {
   key: string;
@@ -63,6 +63,11 @@ const UPLOAD_CONFIGS: Record<UploadType, UploadConfiguration> = {
   message: {
     maxFileSize: 15 * 1024 * 1024, // 15MB
     maxFiles: 3,
+    allowedTypes: ALLOWED_FILE_TYPES.all,
+  },
+  blog: {
+    maxFileSize: 20 * 1024 * 1024, // 20MB
+    maxFiles: 5,
     allowedTypes: ALLOWED_FILE_TYPES.all,
   },
 };
@@ -114,7 +119,7 @@ const generateDatePath = (includeDay = false): string => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
-  
+
   return includeDay ? `${year}/${month}/${day}` : `${year}/${month}`;
 };
 
@@ -148,7 +153,7 @@ const getFileExtension = (filename: string): string => {
 const createFileFilter = (config: UploadConfiguration) => {
   return (req: Request, file: any, cb: multer.FileFilterCallback) => {
     const fileExtension = getFileExtension(file.originalname);
-    
+
     // Validate file type
     if (!config.allowedTypes.includes(fileExtension)) {
       const error = new Error(
@@ -156,7 +161,7 @@ const createFileFilter = (config: UploadConfiguration) => {
       );
       return cb(error, false);
     }
-    
+
     // Validate file size (if available)
     if (file.size && file.size > config.maxFileSize) {
       const error = new Error(
@@ -164,7 +169,7 @@ const createFileFilter = (config: UploadConfiguration) => {
       );
       return cb(error, false);
     }
-    
+
     cb(null, true);
   };
 };
@@ -176,11 +181,11 @@ const createFileFilter = (config: UploadConfiguration) => {
  */
 const generateS3Key = (uploadType: UploadType, fileType: string, filename: string): string => {
   const uniqueFilename = generateUniqueFilename(filename);
-  
+
   switch (uploadType) {
     case 'post':
       return `posts/${generateDatePath(true)}/${uniqueFilename}`;
-      
+
     case 'profile': {
       const datePath = generateDatePath(false);
       if (fileType === 'profilePicture') {
@@ -191,12 +196,12 @@ const generateS3Key = (uploadType: UploadType, fileType: string, filename: strin
         return `profiles/other/${datePath}/${uniqueFilename}`;
       }
     }
-      
+
     case 'message':
       return `messages/${generateDatePath(false)}/${uniqueFilename}`;
-      
+
     default:
-      return `misc/${generateDatePath(false)}/${uniqueFilename}`;
+      return `${uploadType}/${generateDatePath(true)}/${uniqueFilename}`;
   }
 };
 
@@ -206,13 +211,13 @@ const generateS3Key = (uploadType: UploadType, fileType: string, filename: strin
  * Generates S3 URL immediately without waiting for upload
  */
 export const generateS3Url = (
-  fileType: string, 
-  fileName: string, 
+  fileType: string,
+  fileName: string,
   uploadType: UploadType = 'post'
 ): S3UrlResult => {
   const key = generateS3Key(uploadType, fileType, fileName);
   const url = `https://${BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com/${key}`;
-  
+
   return { key, url };
 };
 
@@ -232,15 +237,15 @@ export const uploadToS3Async = async (file: any, s3Key: string): Promise<void> =
     console.warn('⚠️ S3 client not available, skipping upload');
     return;
   }
-  
+
   try {
     console.log(`🔄 Starting S3 upload: ${s3Key}`);
-    
+
     // Validate file buffer
     if (!file.buffer) {
       throw new Error('File buffer is missing - ensure multer is using memory storage');
     }
-    
+
     // Log file details
     console.log('📄 File details:', {
       name: file.originalname,
@@ -248,12 +253,12 @@ export const uploadToS3Async = async (file: any, s3Key: string): Promise<void> =
       size: formatFileSize(file.size),
       method: file.size > MEMORY_THRESHOLD ? 'STREAM' : 'MEMORY',
     });
-    
+
     // Warn about large files
     if (file.size > MEMORY_THRESHOLD) {
       console.warn(`⚠️ Large file detected: ${formatFileSize(file.size)}. Consider streaming upload.`);
     }
-    
+
     // Prepare upload parameters
     const uploadParams = {
       Bucket: BUCKET_NAME,
@@ -267,16 +272,16 @@ export const uploadToS3Async = async (file: any, s3Key: string): Promise<void> =
         fileSize: file.size?.toString() || '0',
       },
     };
-    
+
     // Execute upload
     const command = new PutObjectCommand(uploadParams);
     const result = await s3Client.send(command);
-    
+
     console.log(`✅ Upload successful: ${s3Key}`, {
       ETag: result.ETag,
       memoryUsage: `${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)}MB`,
     });
-    
+
   } catch (error) {
     console.error(`❌ Upload failed: ${s3Key}`, error);
     // TODO: Implement retry logic or failure notification system
@@ -296,10 +301,10 @@ const memoryStorage = multer.memoryStorage();
  */
 const createMulterConfig = (uploadType: UploadType): multer.Multer => {
   const config = UPLOAD_CONFIGS[uploadType];
-  
+
   return multer({
     storage: memoryStorage, // Always use memory for immediate response
-    limits: { 
+    limits: {
       fileSize: config.maxFileSize,
       files: config.maxFiles,
     },
@@ -315,6 +320,12 @@ const createMulterConfig = (uploadType: UploadType): multer.Multer => {
 export const postStorage = createMulterConfig('post');
 
 /**
+ * Multer configuration for blog media uploads
+ * Currently using postStorage config, but can be customized if needed
+ */
+export const blogStorage = createMulterConfig('blog');
+
+/**
  * Multer configuration for profile picture uploads
  */
 export const profileStorage = createMulterConfig('profile');
@@ -324,11 +335,11 @@ export const profileStorage = createMulterConfig('profile');
  */
 export const messageStorage = createMulterConfig('message');
 
-// ===== INITIALIZATION LOGGING =====
+// // ===== INITIALIZATION LOGGING =====
 
-console.log('🔧 S3 Storage initialized:', {
-  region: AWS_REGION,
-  bucket: BUCKET_NAME,
-  strategy: 'Memory-First Upload',
-  threshold: formatFileSize(MEMORY_THRESHOLD),
-});
+// console.log('🔧 S3 Storage initialized:', {
+//   region: AWS_REGION,
+//   bucket: BUCKET_NAME,
+//   strategy: 'Memory-First Upload',
+//   threshold: formatFileSize(MEMORY_THRESHOLD),
+// });

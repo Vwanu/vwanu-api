@@ -18,16 +18,19 @@ const validNotificationsNames = [
 export const createnotificationTypesSchema = object({
   body: object({
     notification_slug: string({
-      required_error: 'Please provide notification slug',
-      invalid_type_error: 'Invalid notification slug',
+      error: (iss)=> iss.input===undefined
+      ? 'Please provide notification slug'
+      : 'Invalid notification slug',
     }),
     notification_name: string({
-      required_error: 'Please provide notification name',
-      invalid_type_error: 'Invalid notification name',
+      error: (iss)=> iss.input===undefined
+      ? 'Please provide notification name'
+      : 'Invalid notification name',
     }),
     notification_description: string({
-      required_error: 'Please provide a last name',
-      invalid_type_error: 'Invalid notification description',
+      error: (iss)=> iss.input===undefined
+      ? 'Please provide a last name'
+      : 'Invalid notification description',
     }),
   }).refine(
     (data) => validNotificationsNames.includes(data.notification_slug),
@@ -40,16 +43,19 @@ export const createnotificationTypesSchema = object({
 
 export const notificationTypesSchema = object({
   notification_slug: string({
-    required_error: 'Please provide notification slug',
-    invalid_type_error: 'Invalid notification slug',
+    error: (iss)=> iss.input===undefined
+    ? 'Please provide notification slug'
+    : 'Invalid notification slug',
   }),
   notification_name: string({
-    required_error: 'Please provide notification name',
-    invalid_type_error: 'Invalid notification name',
+    error: (iss)=> iss.input===undefined
+    ? 'Please provide notification name'
+    : 'Invalid notification name',
   }),
   notification_description: string({
-    required_error: 'Please provide a last name',
-    invalid_type_error: 'Invalid notification description',
+    error: (iss)=> iss.input===undefined
+    ?'Please provide a last name'
+    : 'Invalid notification description',
   }),
 });
 

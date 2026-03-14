@@ -8,7 +8,7 @@ import comments from './comments/comments.service';
 import friendRequest from './friendships/friendship.service';
 // import undesiredFriend from './undesiredFriends/undesiredFriends.service';
 // import timeline from './timeline/timeline.service';
-// import blogs from './blogs/blogs.service';
+import blogs from './blogs/blogs.service';
 // import albums from './albums/albums.service';
 import notifications from './notification/notification.service';
 import interests from './interests/interests.service';
@@ -49,7 +49,7 @@ const services =[
 //   followers,
   friendRequest,
 //   undesiredFriend,
-//   blogs,
+  blogs,
 //   albums,
   notifications,
   interests,

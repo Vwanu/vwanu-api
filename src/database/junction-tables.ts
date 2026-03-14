@@ -13,6 +13,7 @@ import { Table, Column, Model, DataType, ForeignKey, TableOptions, PrimaryKey } 
 import { Community } from './communities';
 import { Interest } from './interest';
 import { User } from './user';
+import { Blog } from './blog';
 
 // Example: Community-Interest junction table (if you needed more than just IDs)
 @Table({
@@ -113,8 +114,35 @@ export class UserInterest extends Model {
   interestLevel?: number; // 1-5 rating of how interested they are
 }
 
+@Table({
+  modelName: 'BlogInterest',
+  tableName: 'blog_interests',
+  timestamps: false,
+  underscored: true,
+} as TableOptions<BlogInterest>)
+export class BlogInterest extends Model {
+  @PrimaryKey
+  @ForeignKey(() => Blog)
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+    field: 'blog_id',
+  })
+  blogId!: string;
+
+  @PrimaryKey
+  @ForeignKey(() => Interest)
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+    field: 'interest_id',
+  })
+  interestId!: string;
+}
+
 // Export all junction tables
 export const JunctionTables = {
   CommunityInterest,
   UserInterest,
+  BlogInterest,
 };
