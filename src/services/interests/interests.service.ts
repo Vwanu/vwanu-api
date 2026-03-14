@@ -2,28 +2,35 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import { Interests } from './interests.class';
-import hooks from './interests.hooks';
+import interestHook from './interests.hooks';
 import { Interest } from '../../database/interest';
+import { Discussion } from '../discussions/discussions.class';
+import discussionHooks from '../discussions/discussions.hooks';
 
-// Add this service to the service type index
 declare module '../../declarations' {
   // eslint-disable-next-line no-unused-vars
   interface ServiceTypes {
-    interests: Interests & ServiceAddons<any>;
+    interests: Interests & ServiceAddons<Interest>;
+    ['interests/:interestId/discussion']: Discussion & ServiceAddons<Discussion>;
+
   }
 }
 
 export default function (app: Application): void {
-  const options = {
+  const interestServiceOptions = {
     Model: Interest,
     // paginate: app.get('paginate'),
   };
 
+  const discussionServiceOptions = {
+    Model : Discussion,
+    paginate : app.get('paginate')
+}
+
   // Initialize our service with any options it requires
-  app.use('/interests', new Interests(options, app));
-
-  // Get our initialized service so that we can register hooks
-  const service = app.service('interests');
-
-  service.hooks(hooks);
+  app.use('/interests', new Interests(interestServiceOptions, app));
+  app.use('/interests/:interestId/discussion', new Discussion(discussionServiceOptions, app));
+hooks
+  app.service('interests').hooks(interestHook);
+  app.service('interests/:interestId/discussion').hooks(discussionHooks);
 }
