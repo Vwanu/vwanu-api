@@ -1,3 +1,4 @@
+import { AddAssociations } from '../../Hooks';
 import commonHooks from 'feathers-hooks-common';
 import saveProfilePicture from '../../Hooks/SaveProfilePictures.hooks';
 
@@ -6,14 +7,16 @@ import {
   AutoOwn,
   LimitToOwner,
   SaveInterest,
-  ValidateResource,
-  TrueBoolean,
-  IncludeAssociations,
+//   ValidateResource,
 } from '../../Hooks';
+import { User } from '../../database/user';
+import { Interest } from '../../database/interest';
 
-import QueryBlogs from './hooks/findBlog';
+// import QueryBlogs from './hooks/findBlog';
 
-import * as Schema from '../../schema/blog.schema';
+// import * as Schema from '../../schema/blog.schema';
+import setPublishedAt from './hooks/setPublishedAt.hook';
+import filterByInterests from './hooks/filterByInterests.hook';
 
 const UserAttributes = [
   'firstName',
@@ -22,28 +25,42 @@ const UserAttributes = [
   'profilePicture',
   'createdAt',
 ];
-const SaveCover = saveProfilePicture(['coverPicture']);
+
+
+
+const AddAutor = AddAssociations({
+  models: [
+    {
+      model: User,
+      as: 'user',
+      attributes: UserAttributes,
+    },
+  ],
+});
+
+const AddInterests = AddAssociations({
+  models: [
+    {
+      model: Interest,
+      as: 'interests',
+    },
+  ],
+});
 export default {
   before: {
-    all: [
-      IncludeAssociations({
-        include: [
-          {
-            model: 'blogs',
-            as: 'User',
-            attributes: UserAttributes,
-          },
-          { model: 'blogs', as: 'Interests' },
-        ],
-      }),
-    ],
-    find: [QueryBlogs],
-    get: [QueryBlogs],
+    all: [AddAutor],
+    find: [AddInterests, filterByInterests],
+    get: [AddInterests],
     create: [
-      TrueBoolean(['publish']),
-      ValidateResource(Schema.createBlogSchema),
+      setPublishedAt,
+    //   ValidateResource(Schema.createBlogSchema),
       AutoOwn,
-      SaveCover,
+      saveProfilePicture(['titlePicture'],'blog'),
+      (context) => {
+        context.params._interests = context.data.interests;
+        delete context.data.interests;
+        return context;
+      },
     ],
     update: [commonHooks.disallow('external')],
     patch: [
@@ -51,10 +68,9 @@ export default {
         commonHooks.isProvider('external'),
         commonHooks.preventChanges(true, ...['slug', 'id'])
       ),
-      TrueBoolean(['publish']),
-      ValidateResource(Schema.editBlogSchema),
+      setPublishedAt,
       LimitToOwner,
-      SaveCover,
+     saveProfilePicture(['titlePicture']),
     ],
     remove: [LimitToOwner],
   },

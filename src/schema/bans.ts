@@ -5,12 +5,10 @@ import { z, object, string } from 'zod';
 export const createBanSchema = object({
   body: object({
     userId: string({
-      required_error: 'You have not provided the user id',
-      invalid_type_error: 'It must be a valid user id',
+      error: (iss) => iss.input === undefined ? 'You have not provided the user id' : 'It must be a valid user id',
     }),
     communityId: string({
-      required_error: 'You have not provided the community id',
-      invalid_type_error: 'It must be a valid community id',
+      error: (iss) => iss.input === undefined ? 'You have not provided the community id' : 'It must be a valid community id',
     }),
     comment: string().optional(),
     until: z.date().optional(),

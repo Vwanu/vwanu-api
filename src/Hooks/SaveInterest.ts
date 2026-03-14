@@ -9,30 +9,22 @@ const UserAttributes = [
 ];
 export default async (context: HookContext) => {
   const { data, result, app, params } = context;
-  if (!data.interests) return context;
-  const interests = Array.isArray(data.interests)
-    ? data.interests
-    : [data.interests];
+  const rawInterests = data.interests ?? params._interests;
+  if (!rawInterests) return context;
+  const interests = Array.isArray(rawInterests) ? rawInterests : [rawInterests];
+
+    console.log('🆘🆘🆘🆘🆘🆘🆘🆘🆘🆘 Interests in SaveInterest hook:', interests);
   const {
     Interest: InterestModel,
-    Blog_Interest: BlogInterestTable,
+    BlogInterest: BlogInterestTable,
     Blog: BlogModel,
     User: UserModel,
   } = app.get('sequelizeClient').models;
-  const interestList = await Promise.all(
-    interests.map((name) =>
-      InterestModel.findOrCreate({
-        where: { name },
-        defaults: {
-          UserId: params.User.id,
-        },
-      })
-    )
-  );
+
   await Promise.all(
-    interestList.map((interest) =>
+    interests.map((interest, idx) =>
       BlogInterestTable.findOrCreate({
-        where: { BlogId: result.id, InterestId: interest[0].id },
+        where: { blogId: result.id, interestId: interests[idx]},
       })
     )
   );

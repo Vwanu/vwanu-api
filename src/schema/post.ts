@@ -21,7 +21,7 @@ export const createPostSchema = object({
     communityId: string().uuid().optional(),
     privacyType: string().optional(),
     postText: string({
-      invalid_type_error: "You' have not provided a recognizable text",
+     error:(iss)=> iss.code==="invalid_type" && "You' have not provided a recognizable text"|| null
     })
       .min(1)
       .optional(),
@@ -31,7 +31,7 @@ export const createPostSchema = object({
 export const getOnePostSchema = object({
   params: object({
     id: z
-      .number({ required_error: 'Please provide an id' })
+      .number({ error: 'Please provide an id' })
       .or(z.string().regex(/\d+/).transform(Number)),
   }),
 });
@@ -39,7 +39,7 @@ export const getOnePostSchema = object({
 export const editPostSchema = object({
   params: object({
     id: z
-      .number({ required_error: 'Please provide an id' })
+      .number({ error: 'Please provide an id' })
       .or(z.string().regex(/\d+/).transform(Number)),
   }),
   body: object({
@@ -48,8 +48,9 @@ export const editPostSchema = object({
     hashTag: string().optional(),
     private: z.boolean().optional(),
     postText: string({
-      required_error: 'A post need at least to have some text',
-      invalid_type_error: "You' have not provided a recognizable text",
+      error: (iss)=> iss.input===undefined
+      ? 'A post need at least to have some text'
+      : "You' have not provided a recognizable text",
     })
       .min(1)
       .optional(),
@@ -64,17 +65,18 @@ export const createCommentSchema = object({
 
     PostId: z
       .number({
-        required_error: 'You need a post to create a comment',
+        error: 'You need a post to create a comment',
       })
       .or(z.string().regex(/\d+/).transform(Number)),
     UserId: z
       .number({
-        required_error: 'You cannot create a post if you are not a user',
+        error: 'You cannot create a post if you are not a user',
       })
       .or(z.string().regex(/\d+/).transform(Number)),
     postText: string({
-      required_error: 'A post need at least to have some text',
-      invalid_type_error: "You' have not provided a recognizeable text",
+      error: (iss)=> iss.input===undefined
+      ? 'A post need at least to have some text'
+      : "You' have not provided a recognizeable text",
     }).min(1),
   }),
 });
@@ -82,7 +84,7 @@ export const createCommentSchema = object({
 export const editCommentSchema = object({
   params: object({
     id: z
-      .number({ required_error: 'Please provide an id' })
+      .number({ error: 'Please provide an id' })
       .or(z.string().regex(/\d+/).transform(Number)),
   }),
   body: object({
@@ -91,8 +93,9 @@ export const editCommentSchema = object({
     hashTag: string().optional(),
     private: z.boolean().optional(),
     postText: string({
-      required_error: 'A post need at least to have some text',
-      invalid_type_error: "You' have not provided a recognizable text",
+      error: (iss)=> iss.input===undefined
+      ? 'A post need at least to have some text'
+      : "You' have not provided a recognizable text",
     }).min(1),
   }),
 });
@@ -101,16 +104,18 @@ export const getAllPost = object({
   query: object({
     UserId: z
       .number({
-        required_error: 'You cannot create a post if you are not a user',
-        invalid_type_error: 'It must be a number',
+        error: (iss)=> iss.input===undefined
+        ? 'You cannot create a post if you are not a user'
+        : 'It must be a number',
       })
       .or(z.string().regex(/\d+/).transform(Number))
       .optional(),
 
     GroupId: z
       .number({
-        required_error: 'You cannot create a post if you are not a user',
-        invalid_type_error: 'It must be a number',
+        error: (iss)=> iss.input===undefined
+        ? 'You cannot create a post if you are not a user'
+        : 'It must be a number',
       })
       .or(z.string().regex(/\d+/).transform(Number))
       .optional(),
@@ -136,16 +141,18 @@ export const getAllComment = object({
   query: object({
     UserId: z
       .number({
-        required_error: 'You cannot create a post if you are not a user',
-        invalid_type_error: 'It must be a number',
+        error: (iss)=> iss.input===undefined
+        ? 'You cannot create a post if you are not a user'
+        : 'It must be a number',
       })
       .or(z.string().regex(/\d+/).transform(Number))
       .optional(),
 
     PostId: z
       .number({
-        required_error: 'You cannot create a post if you are not a user',
-        invalid_type_error: 'It must be a number',
+        error: (iss)=> iss.input===undefined
+        ?'You cannot create a post if you are not a user'
+        : 'It must be a number',
       })
       .or(z.string().regex(/\d+/).transform(Number))
       .optional(),

@@ -10,13 +10,13 @@ export const EmailTemplateSchema = object({
 export const createEmailTemplateSchema = object({
   body: object({
     name: z.string({
-      required_error: 'Please provide a name for the template',
+      error: (iss) => iss.input === undefined ? 'Please provide a name for the template' : undefined,
     }),
     subject: z.string({
-      required_error: 'Please provide a title for the template',
+      error: (iss) => iss.input === undefined ? 'Please provide a title for the template' : undefined,
     }),
     content: z
-      .string({ required_error: 'Please provide a a content for the email' })
+      .string({ error: (iss) => iss.input === undefined ? 'Please provide a a content for the email' : undefined })
       .min(20),
   }),
 });

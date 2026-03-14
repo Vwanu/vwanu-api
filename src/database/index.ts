@@ -6,6 +6,7 @@ import {Blog} from './blog';
 // import {Album} from './album';
 import {Media} from './media';
 import {PostMedia} from './post-media';
+import {BlogMedia} from './blog-media';
 import {Korem} from './korem';
 // import {Friend} from './Friends';
 import {Message} from './message';
@@ -33,7 +34,7 @@ import {CommunityJoinRequest} from './communityJoinRequest';
 // import {ExpiryTime} from './expiryTime';
 // import {UserNotificationTypes} from './user_notification_types';
 import { CommunityRole } from './communityRole.model';
-import {CommunityInterest} from './junction-tables';
+import {CommunityInterest, BlogInterest} from './junction-tables';
 
 export default [
 //   // Call,
@@ -43,6 +44,7 @@ export default [
   // Album,
   Media,
   PostMedia,
+  BlogMedia,
   Korem,
 //   Friend,
 
@@ -63,6 +65,7 @@ export default [
   CommunityJoinRequest,
   CommunityRole,
   CommunityInterest,
+  BlogInterest,
 //   Forum,
 //   Place,
 //   NotificationType,

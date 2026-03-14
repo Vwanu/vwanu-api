@@ -1,8 +1,8 @@
 /* eslint-disable prefer-destructuring */
 import { HookContext } from '@feathersjs/feathers';
-import { generateS3Url, uploadToS3Async } from '../storage/s3';
+import { generateS3Url, uploadToS3Async, UploadType } from '../storage/s3';
 
-export default (mediaArray: string[]) =>
+export default (mediaArray: string[], upLoadFolder: UploadType='profile') =>
   async (context: HookContext): Promise<HookContext> => {
     if (!mediaArray) throw new Error('Please specify mediaArrays');
     const documentFiles = context.data.UploadedMedia;
@@ -13,7 +13,7 @@ export default (mediaArray: string[]) =>
     mediaArray.forEach((mediaGroup) => {
       if (documentFiles[mediaGroup]) {
         const file = documentFiles[mediaGroup][0];
-        const { url, key } = generateS3Url(mediaGroup, file.originalname, 'profile');
+        const { url, key } = generateS3Url(mediaGroup, file.originalname, upLoadFolder);
         // Set the generated URL immediately
         context.data[mediaGroup] = url;
         // Upload to S3 asynchronously (don't wait)
