@@ -4,7 +4,7 @@ import { Interest } from './interest';
 
 export interface ForumDiscussionInterface {
   id: string;
-  title: string;
+  title?: string;
   body: string;
   userId: string;
   interestId: string;
@@ -26,12 +26,11 @@ export class ForumDiscussion extends Model<ForumDiscussionInterface> implements 
   })
   id!: string;
 
-  @AllowNull(false)
   @Column({
     type: DataType.TEXT,
-    allowNull: false,
+    allowNull: true,
   })
-  title!: string;
+  title?: string;
 
   @AllowNull(false)
   @Column({
@@ -65,6 +64,20 @@ export class ForumDiscussion extends Model<ForumDiscussionInterface> implements 
     field: 'parent_id',
   })
   parentId?: string;
+
+   @Column({
+    type: DataType.INTEGER,
+    defaultValue: 0,
+    field: 'amount_of_replies',
+  })
+  amountOfReplies?: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: 0,
+    field: 'amount_of_likes',
+  })
+  amountOfLikes?: number;
 
   @BelongsTo(() => User, 'userId')
   user!: User;
