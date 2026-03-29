@@ -4,6 +4,8 @@ import { Table, Column, Model, DataType, TableOptions } from 'sequelize-typescri
 export interface InterestInterface {
   id: string;
   name: string;
+  description?: string;
+  coverPicture?: string;
 }
 
 @Table({
@@ -32,6 +34,18 @@ export class Interest extends Model<InterestInterface> {
   })
   name!: string;
 
+  @Column({
+    type: DataType.TEXT,
+    allowNull: true,
+  })
+  description?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+    field: 'cover_picture',
+  })
+  coverPicture?: string;
 
   // TODO: Add associations with decorators when other models are converted
   // @BelongsToMany(() => User, () => UserInterests)

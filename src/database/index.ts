@@ -35,6 +35,7 @@ import {CommunityJoinRequest} from './communityJoinRequest';
 // import {UserNotificationTypes} from './user_notification_types';
 import { CommunityRole } from './communityRole.model';
 import {CommunityInterest, BlogInterest} from './junction-tables';
+import {ForumDiscussion} from './forumDiscussion';
 
 export default [
 //   // Call,
@@ -66,6 +67,7 @@ export default [
   CommunityRole,
   CommunityInterest,
   BlogInterest,
+  ForumDiscussion,
 //   Forum,
 //   Place,
 //   NotificationType,
