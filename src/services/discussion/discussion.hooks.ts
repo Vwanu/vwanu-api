@@ -1,48 +1,43 @@
-import AutoOwn from '../../Hooks/AutoOwn';
+import {  AddAssociations, AutoOwn, NestedPath } from '../../Hooks';
+import AdjustAmountOfReplies from './hooks/adjustAmountOfReplies';
+import AddIsReactor from './hooks/addIsReactor';
 
-import LimitToOwner from '../../Hooks/LimitToOwner';
-import NoCommentOnLockParents from '../../Hooks/NoCommentOnLockParents';
-import CanDiscussInCommunity from '../../Hooks/CanDoInCommunity.hook';
-
-
-import { includeUserAndLastComment, AssociateWithForumInterest } from './hooks';
+import { User } from '../../database/user';
 
 
+const UserAttributes = [
+  'firstName',
+  'lastName',
+  'id',
+  'profilePicture',
+  'createdAt',
+];
+
+const ParseNullQuery = (context) => {
+ if (context.params.query?.parentId === 'null') {
+      context.params.query.parentId = null;
+    }
+return context; };
+const JoinCreator = AddAssociations({
+  models: [
+    {
+      model: User,
+      as: 'user',
+      attributes: UserAttributes,
+    },
+  ],
+});
 
 export default {
-  before: {
- 
-    find: [includeUserAndLastComment(false)],
-    get: [includeUserAndLastComment(true)],
-    create: [AutoOwn, CanDiscussInCommunity, NoCommentOnLockParents],
-    update: [LimitToOwner],
-    patch: [LimitToOwner],
-    remove: [LimitToOwner],
-  },
-
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [AssociateWithForumInterest],
-    update: [],
-    patch: [],
-    remove: [],
-  },
-
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [
-      (ctx) => {
-        console.log('Error in discussion create hook');
-        console.log(ctx.error);
-        return ctx;
-      },
-    ],
-    update: [],
-    patch: [],
-    remove: [],
-  },
+    before: {
+        all: [JoinCreator],
+        find: [ParseNullQuery, AddIsReactor],
+        get: [AddIsReactor],
+        create: [
+            AutoOwn, NestedPath],
+    },
+    after: {
+        create: [AdjustAmountOfReplies],
+        remove: [AdjustAmountOfReplies],
+    }
 };
