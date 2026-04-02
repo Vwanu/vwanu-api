@@ -6,15 +6,15 @@ Resources:
     Properties:
       DBInstanceIdentifier: vwanu-api-backend-${sls:stage}
       DBName: vwanu
-      DBInstanceClass: db.t4g.small
+      DBInstanceClass: ${self:custom.dbInstanceClass.${sls:stage}}
       Engine: postgres
       EngineVersion: 13
       AllocatedStorage: 20
-      MaxAllocatedStorage: 100
+      MaxAllocatedStorage: ${self:custom.dbMaxStorage.${sls:stage}}
       StorageType: gp3
-      BackupRetentionPeriod: 30
+      BackupRetentionPeriod: ${self:custom.dbBackupRetention.${sls:stage}}
       MultiAZ: ${self:custom.databaseMultiAz.${sls:stage}}
-      EnablePerformanceInsights: true
+      EnablePerformanceInsights: ${self:custom.dbPerformanceInsights.${sls:stage}}
       PubliclyAccessible: true
       DeletionProtection: false
       MasterUsername: ${self:provider.environment.DB_USERNAME}
