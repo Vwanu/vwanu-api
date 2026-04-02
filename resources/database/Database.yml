@@ -8,7 +8,7 @@ Resources:
       DBName: vwanu
       DBInstanceClass: ${self:custom.dbInstanceClass.${sls:stage}}
       Engine: postgres
-      EngineVersion: '16.6'
+      EngineVersion: '16.10'
       AllocatedStorage: 20
       MaxAllocatedStorage: ${self:custom.dbMaxStorage.${sls:stage}}
       StorageType: gp3
