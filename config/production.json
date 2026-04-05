@@ -3,7 +3,13 @@
   "host": "HOST",
   "dbSettings": {
     "dialect": "postgres",
-    "seederStorage": "sequelize"
+    "seederStorage": "sequelize",
+    "dialectOptions": {
+      "ssl": {
+        "require": true,
+        "rejectUnauthorized": false
+      }
+    }
   },
   "maxPostImages": 10,
   "maxDiscussionImages": 10,

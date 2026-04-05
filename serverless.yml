@@ -88,6 +88,31 @@ custom:
     staging: true
     dev: false
     test: false
+  dbInstanceClass:
+    prod: db.t4g.small
+    staging: db.t4g.small
+    dev: db.t4g.micro
+    test: db.t4g.micro
+  dbBackupRetention:
+    prod: 30
+    staging: 30
+    dev: 0
+    test: 0
+  dbMaxStorage:
+    prod: 100
+    staging: 100
+    dev: 30
+    test: 30
+  dbPerformanceInsights:
+    prod: true
+    staging: true
+    dev: false
+    test: false
+  containerInsights:
+    prod: enabled
+    staging: enabled
+    dev: disabled
+    test: disabled
   adminDomains:
     prod: admin.wadsonvaval.click
     staging: admin-staging.wadsonvaval.click
