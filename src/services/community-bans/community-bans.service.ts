@@ -2,6 +2,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import { CommunityBans } from './community-bans.class';
+import {CommunityBan} from '../../database/community-bans'
 import hooks from './community-bans.hooks';
 
 // Add this service to the service type index
@@ -14,7 +15,7 @@ declare module '../../declarations' {
 
 export default function (app: Application): void {
   const options = {
-    Model: app.get('sequelizeClient').models.CommunityBans,
+    Model: CommunityBan,
     paginate: app.get('paginate'),
   };
 

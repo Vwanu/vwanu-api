@@ -13,6 +13,7 @@ import blogs from './blogs/blogs.service';
 import notifications from './notification/notification.service';
 import interests from './interests/interests.service';
 // import medias from './medias/medias.service';
+import communityBan from './community-bans/community-bans.service';
 import communities from './communities/communities.service';
 // import discussion from './discussion/discussion.service';
 // import blogResponse from './blog-response/blog-response.service';
@@ -55,6 +56,7 @@ const services =[
   interests,
 //   medias,
   communities,
+  communityBan,
 //   discussion,
 //   blogResponse,
   korem,
