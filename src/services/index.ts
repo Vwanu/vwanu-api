@@ -4,7 +4,7 @@ import post from './posts/posts.service';
 import users from './users/users.service';
 // import search from './search/search.service';
 import comments from './comments/comments.service';
-// import followers from './followers/followers.service';
+import followers from './followers/followers.service';
 import friendRequest from './friendships/friendship.service';
 // import undesiredFriend from './undesiredFriends/undesiredFriends.service';
 // import timeline from './timeline/timeline.service';
@@ -46,7 +46,7 @@ const services =[
   users,
 //   timeline,
   comments,
-//   followers,
+  followers,
   friendRequest,
 //   undesiredFriend,
   blogs,

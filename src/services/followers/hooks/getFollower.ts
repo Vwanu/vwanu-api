@@ -1,8 +1,8 @@
 import { HookContext } from '@feathersjs/feathers';
 import { BadRequest } from '@feathersjs/errors';
-import { Op } from 'sequelize';
+import { Op } from '@sequelize/core';
 
-import userQuery from '../../../lib/utils/userQuery';
+// import userQuery from '../../../lib/utils/userQuery';
 
 const exclude = [
   'password',
@@ -64,22 +64,20 @@ export default (context: HookContext): HookContext => {
   const { action, UserId } = where;
   delete where.action;
   delete where.UserId;
+  const targetUserId = UserId || params.User.id;
+
   const follower = `(
     EXISTS(
     SELECT 1
-    FROM "User_Follower" AS "UF"
-    WHERE "UF"."UserId"='${
-      UserId || params.User.id
-    }' AND "UF"."FollowerId"="User"."id"
+    FROM "followers" AS "UF"
+    WHERE "UF"."user_id"='${targetUserId}' AND "UF"."follower_id"="User"."id"
   ))`;
 
   const following = `(
-    EXISTS( 
-    SELECT 1 
-    FROM "User_Follower" AS "UF"
-    WHERE "UF"."UserId"="User"."id" AND "UF"."FollowerId"='${
-      UserId || params.User.id
-    }'))`;
+    EXISTS(
+    SELECT 1
+    FROM "followers" AS "UF"
+    WHERE "UF"."user_id"="User"."id" AND "UF"."follower_id"='${targetUserId}'))`;
 
   const clause = {
     ...where,
@@ -96,24 +94,13 @@ export default (context: HookContext): HookContext => {
       throw new BadRequest('This action is not supported');
   }
 
-  const attributes = userQuery(params.User.id, Sequelize, exclude);
+//   const attributes = userQuery(params.User.id, Sequelize, exclude);
   params.sequelize = {
-    // logging: console.log,
     where: clause,
-    attributes,
-    // attributes: [
-    //   'firstName',
-    //   'lastName',
-    //   'email',
-    //   'id',
-    //   'profilePicture',
-    //   'createdAt',
-    //   'updatedAt',
-    // ],
-
-    // attributes: {
-    //   include: [[Sequelize.literal(friends), 'User']],
-    // },
+    // attributes,
+    attributes: {
+      exclude,
+    },
   };
 
   return context;
