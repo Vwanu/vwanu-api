@@ -35,7 +35,7 @@ import {CommunityJoinRequest} from './communityJoinRequest';
 // import {ExpiryTime} from './expiryTime';
 // import {UserNotificationTypes} from './user_notification_types';
 import { CommunityRole } from './communityRole.model';
-import {CommunityInterest, BlogInterest} from './junction-tables';
+import {CommunityInterest, BlogInterest, PostTag, ForumDiscussionTag} from './junction-tables';
 import {ForumDiscussion} from './forumDiscussion';
 import {UserFollower} from './user-follower';
 
@@ -69,6 +69,8 @@ export default [
   CommunityRole,
   CommunityInterest,
   BlogInterest,
+  PostTag,
+  ForumDiscussionTag,
   ForumDiscussion,
   UserFollower,
 //   Forum,
