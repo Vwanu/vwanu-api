@@ -1,36 +1,37 @@
 /* eslint-disable no-param-reassign */
-import { Op } from 'sequelize';
+import { Op } from '@sequelize/core';
 
 export const AreFriends = (UserId, Sequelize) => {
   const friends = `(
     EXISTS(
-    SELECT 1 
-    FROM "User_friends" 
-    WHERE 
-    ("User_friends"."UserId" = "User"."id" AND "User_friends"."friendId" = '${UserId}')
-    OR ("User_friends"."friendId" = "User"."id" AND "User_friends"."UserId" = '${UserId}')
-    ))`;
+    SELECT 1
+    FROM "friendships"
+    WHERE "friendships"."status" = 1
+    AND (
+    ("friendships"."user_id" = "User"."id" AND "friendships"."target_id" = '${UserId}')
+    OR ("friendships"."target_id" = "User"."id" AND "friendships"."user_id" = '${UserId}')
+    )))`;
   return Sequelize.literal(friends);
 };
 export const OnlyInterests = (interest) =>
   `(
   EXISTS(
-    SELECT 1 FROM "Interests" AS "I" 
+    SELECT 1 FROM "Interests" AS "I"
     INNER JOIN "User_Interest" AS "CI" ON "CI"."InterestId"="I"."id" AND "CI"."UserId"="User"."id"
     WHERE "I"."name"= '${interest}' )
-  
+
   )`;
 export const notMemberOfCommunity = (communityId) => `(
   NOT EXISTS(
-    SELECT 1 FROM 
+    SELECT 1 FROM
     community_users AS "CU"
     LEFT JOIN community_invitation_requests AS "CIR" ON "CIR"."guest"="CU"."user_id"
-    WHERE 
+    WHERE
    ("CU"."user_id"="User"."id" AND
-   "CU"."community_id"='${communityId}') 
+   "CU"."community_id"='${communityId}')
     OR (
-    "CIR".community_id='${communityId}'  
-    AND "CIR".response IS NULL) 
+    "CIR".community_id='${communityId}'
+    AND "CIR".response IS NULL)
   )
   )`;
 export const queryClause = (context, where) => {
@@ -97,11 +98,11 @@ export const queryClause = (context, where) => {
   return clause;
 };
 export const Addresses = `(
-  SELECT 
+  SELECT
     json_agg(
       json_build_object(
         'id', "EntityAddresses"."id",
-        --'street', "Streets"."name",  
+        --'street', "Streets"."name",
         'country', "countries"."name",
         'state', "States"."name",
         'city', "Cities"."name",
@@ -118,11 +119,11 @@ export const Addresses = `(
   )`;
 
 export const WorkPlaces = `(
-  SELECT 
+  SELECT
     json_agg(
       json_build_object(
         'id', "WorkPlaces"."id",
-        'name', "WorkPlaces"."name",  
+        'name', "WorkPlaces"."name",
         'description', "UserWorkPlaces"."description",
         'from', "UserWorkPlaces"."from",
         'to', "UserWorkPlaces"."to"
@@ -130,48 +131,48 @@ export const WorkPlaces = `(
     FROM "WorkPlaces"
     INNER JOIN "UserWorkPlaces" ON "WorkPlaces"."id" = "UserWorkPlaces"."WorkPlaceId"
     WHERE "UserWorkPlaces"."UserId" = "User"."id"
-    
+
   )`;
 export default (UserId, Sequelize, ex?:string[]|null) => {
   const Interests = `(
-SELECT 
+SELECT
   json_agg(
     json_build_object(
       'name',"I"."name",
       'id',"I"."id"
-  )) FROM "Interests" AS "I" 
+  )) FROM "Interests" AS "I"
   INNER JOIN "User_Interest" AS "UI" ON "UI"."InterestId" = "I"."id"
   WHERE "UI"."UserId"="User"."id"
 )`;
 
   const isFriend = `(
         EXISTS(
-          SELECT 1 FROM "User_friends" WHERE ("User_friends"."UserId" = '${UserId}' AND "User_friends"."friendId" = "User"."id") OR ("User_friends"."UserId" = "User"."id" AND "User_friends"."friendId" = '${UserId}')
+          SELECT 1 FROM "friendships" WHERE "friendships"."status" = 1 AND (("friendships"."user_id" = '${UserId}' AND "friendships"."target_id" = "User"."id") OR ("friendships"."user_id" = "User"."id" AND "friendships"."target_id" = '${UserId}'))
         )
   )`;
 
   const iFollow = `(
         EXISTS(
-          SELECT 1 FROM "User_Follower"  WHERE "User_Follower"."UserId" = "User"."id" AND "User_Follower"."FollowerId" = '${UserId}' 
+          SELECT 1 FROM "followers" WHERE "followers"."user_id" = "User"."id" AND "followers"."follower_id" = '${UserId}'
         )
   )`;
   const isAFollower = `(
         EXISTS(
-          SELECT 1 FROM "User_Follower" WHERE "User_Follower"."UserId" = '${UserId}' AND "User_Follower"."FollowerId" = "User"."id" 
+          SELECT 1 FROM "followers" WHERE "followers"."user_id" = '${UserId}' AND "followers"."follower_id" = "User"."id"
         )
   )`;
   const hasReceivedFriendRequest = `(
     EXISTS(
-    SELECT  1 FROM "User_friends_request" WHERE "User_friends_request"."UserId" ='${UserId}' AND "User_friends_request"."friendsRequestId" =  "User"."id" 
+    SELECT 1 FROM "friendships" WHERE "friendships"."status" = 0 AND "friendships"."user_id" = "User"."id" AND "friendships"."target_id" = '${UserId}'
       ))`;
 
   const hasSentFriendRequest = `(
     EXISTS(
-    SELECT  1 FROM "User_friends_request" WHERE ("User_friends_request"."friendsRequestId" = '${UserId}' AND "User_friends_request"."UserId" = "User"."id" )
+    SELECT 1 FROM "friendships" WHERE "friendships"."status" = 0 AND "friendships"."user_id" = '${UserId}' AND "friendships"."target_id" = "User"."id"
       ))`;
 
   const amountOfFriendRequest = `(
-    SELECT COUNT(*) FROM "User_friends_request" WHERE "User_friends_request"."UserId" = "User"."id"
+    SELECT COUNT(*) FROM "friendships" WHERE "friendships"."status" = 0 AND "friendships"."target_id" = "User"."id"
   )::int`;
 
   const exclude = ex || [

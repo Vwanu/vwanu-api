@@ -54,5 +54,29 @@ export default async (context: HookContext): Promise<HookContext> => {
     'friendship'
   ]);
 
+  // Add isFollowing: true if the signed-in user follows this user
+  context.params.sequelize.attributes.include.push([
+    sequelize.literal(`(
+      EXISTS(
+        SELECT 1 FROM "followers"
+        WHERE "followers"."user_id" = "User"."id"
+          AND "followers"."follower_id" = '${signedInUserId}'
+      )
+    )`),
+    'isFollowing'
+  ]);
+
+  // Add isFollowedBy: true if this user follows the signed-in user
+  context.params.sequelize.attributes.include.push([
+    sequelize.literal(`(
+      EXISTS(
+        SELECT 1 FROM "followers"
+        WHERE "followers"."user_id" = '${signedInUserId}'
+          AND "followers"."follower_id" = "User"."id"
+      )
+    )`),
+    'isFollowedBy'
+  ]);
+
   return context;
 };
