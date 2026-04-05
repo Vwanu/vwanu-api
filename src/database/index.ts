@@ -13,6 +13,7 @@ import {Message} from './message';
 import {Interest} from './interest';
 // import {Template} from './template';
 import {Community} from './communities';
+import { CommunityBan } from './community-bans';
 // import {Discussion} from './discussion';
 
 import {Conversation} from './conversation';
@@ -61,7 +62,7 @@ export default [
   Friendship,
 //   BlogResponse,
   CommunityUser,
-//   CommunityBan,
+  CommunityBan,
 //   CommunityHistory,
   CommunityInvitationRequest,
   CommunityJoinRequest,
