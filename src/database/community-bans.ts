@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, ForeignKey, BelongsTo, AllowNull, TableOptions } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, ForeignKey, BelongsTo, AllowNull, TableOptions, PrimaryKey } from 'sequelize-typescript';
 import { User } from './user';
 import { Community } from './communities';
 
@@ -14,11 +14,13 @@ export interface CommunityBanInterface {
 @Table({
   modelName: 'CommunityBans',
    tableName: 'community_bans',
+   updatedAt: false,
    underscored: true,
 } as TableOptions<CommunityBan>)
 export class CommunityBan extends Model<CommunityBanInterface> implements CommunityBanInterface {
-  
+
   @ForeignKey(() => User)
+  @PrimaryKey
   @AllowNull(false)
   @Column({
     type: DataType.UUID,
@@ -28,6 +30,7 @@ export class CommunityBan extends Model<CommunityBanInterface> implements Commun
   userId!: string;
 
   @ForeignKey(() => Community)
+  @PrimaryKey
   @AllowNull(false)
   @Column({
     type: DataType.UUID,

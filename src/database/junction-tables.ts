@@ -14,6 +14,8 @@ import { Community } from './communities';
 import { Interest } from './interest';
 import { User } from './user';
 import { Blog } from './blog';
+import { Post } from './post';
+import { ForumDiscussion } from './forumDiscussion';
 
 // Example: Community-Interest junction table (if you needed more than just IDs)
 @Table({
@@ -140,9 +142,63 @@ export class BlogInterest extends Model {
   interestId!: string;
 }
 
+@Table({
+  modelName: 'PostTag',
+  tableName: 'post_tags',
+  timestamps: false,
+  underscored: true,
+} as TableOptions<PostTag>)
+export class PostTag extends Model {
+  @PrimaryKey
+  @ForeignKey(() => Post)
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+    field: 'post_id',
+  })
+  postId!: string;
+
+  @PrimaryKey
+  @ForeignKey(() => User)
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+    field: 'user_id',
+  })
+  userId!: string;
+}
+
+@Table({
+  modelName: 'ForumDiscussionTag',
+  tableName: 'forum_discussion_tags',
+  timestamps: false,
+  underscored: true,
+} as TableOptions<ForumDiscussionTag>)
+export class ForumDiscussionTag extends Model {
+  @PrimaryKey
+  @ForeignKey(() => ForumDiscussion)
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+    field: 'forum_discussion_id',
+  })
+  forumDiscussionId!: string;
+
+  @PrimaryKey
+  @ForeignKey(() => User)
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+    field: 'user_id',
+  })
+  userId!: string;
+}
+
 // Export all junction tables
 export const JunctionTables = {
   CommunityInterest,
   UserInterest,
   BlogInterest,
+  PostTag,
+  ForumDiscussionTag,
 };

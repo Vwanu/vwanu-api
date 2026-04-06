@@ -13,6 +13,7 @@ import {Message} from './message';
 import {Interest} from './interest';
 // import {Template} from './template';
 import {Community} from './communities';
+import { CommunityBan } from './community-bans';
 // import {Discussion} from './discussion';
 
 import {Conversation} from './conversation';
@@ -34,8 +35,9 @@ import {CommunityJoinRequest} from './communityJoinRequest';
 // import {ExpiryTime} from './expiryTime';
 // import {UserNotificationTypes} from './user_notification_types';
 import { CommunityRole } from './communityRole.model';
-import {CommunityInterest, BlogInterest} from './junction-tables';
+import {CommunityInterest, BlogInterest, PostTag, ForumDiscussionTag} from './junction-tables';
 import {ForumDiscussion} from './forumDiscussion';
+import {UserFollower} from './user-follower';
 
 export default [
 //   // Call,
@@ -60,14 +62,17 @@ export default [
   Friendship,
 //   BlogResponse,
   CommunityUser,
-//   CommunityBan,
+  CommunityBan,
 //   CommunityHistory,
   CommunityInvitationRequest,
   CommunityJoinRequest,
   CommunityRole,
   CommunityInterest,
   BlogInterest,
+  PostTag,
+  ForumDiscussionTag,
   ForumDiscussion,
+  UserFollower,
 //   Forum,
 //   Place,
 //   NotificationType,

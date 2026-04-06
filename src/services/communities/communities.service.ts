@@ -7,12 +7,15 @@ import { Application } from '../../declarations';
 import { Communities } from './communities.class';
 import { Community } from '../../database/communities';
 import { CommunityUser } from '../../database/community-users';
+import { CommunityBan } from '../../database/community-bans';
 import { postStorage as profilesStorage } from '../../storage/s3';
 import updateTheTSVector from '../search/tsquery-and-search.hook';
 import communityJoinHooks from '../community-join/community-join.hooks'
 import {CommunityUsers} from '../community-users/community-users.class'
 import communityUsersHooks from '../community-users/community-users.hooks'
 import {CommunityJoinRequest} from '../community-join/community-join.class'
+import {CommunityBans} from '../community-bans/community-bans.class'
+import communityBansHooks from '../community-bans/community-bans.hooks'
 import fileToFeathers from '../../middleware/PassFilesToFeathers/file-to-feathers.middleware';
 import {CommunityJoinRequest as CommunityJoinRequestModel} from '../../database/communityJoinRequest'
 import {CommunityInvitationRequest as InvitationModel} from '../../database/communityInvitationRequest';
@@ -26,6 +29,7 @@ declare module '../../declarations' {
     ['communities/:communityId/members']:CommunityUsers & ServiceAddons<CommunityUsers>;
     ['communities/:communityId/joinRequest']:CommunityJoinRequest & ServiceAddons<CommunityJoinRequest>;
     ['communities/:communityId/invitations']:CommunityInvitationRequest & ServiceAddons<CommunityInvitationRequest>;
+    ['communities/:communityId/bans']:CommunityBans & ServiceAddons<CommunityBans>;
   }
 }
 
@@ -52,6 +56,11 @@ export default function (app: Application): void {
     paginate:app.get('paginate')
   }
 
+  const communityBansOptions ={
+    Model:CommunityBan,
+    paginate:app.get('paginate')
+  }
+
   // Initialize our service with any options it requires
   app.use(
     '/communities',
@@ -69,10 +78,12 @@ export default function (app: Application): void {
     console.log('🆘🫀Community Invitation Request Middleware');
     return next();
   },  new CommunityInvitationRequest(communityInvitationRequestOptions, app))
+  app.use('/communities/:communityId/bans', new CommunityBans(communityBansOptions, app))
 
   app.service('communities/:communityId/members').hooks(communityUsersHooks)
   app.service('communities/:communityId/invitations').hooks(communityInvitationRequestHooks)
   app.service('communities/:communityId/joinRequest').hooks(communityJoinHooks)
+  app.service('communities/:communityId/bans').hooks(communityBansHooks)
 
   const service = app.service('communities');
 

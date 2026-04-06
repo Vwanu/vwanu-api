@@ -1,3 +1,13 @@
+Conditions:
+  IsProductionLike:
+    Fn::Or:
+      - Fn::Equals:
+          - ${self:provider.stage}
+          - prod
+      - Fn::Equals:
+          - ${self:provider.stage}
+          - staging
+
 Resources:
   # ECS Cluster
   ECSCluster:
@@ -6,7 +16,7 @@ Resources:
       ClusterName: ${self:service}-${self:provider.stage}-cluster
       ClusterSettings:
         - Name: containerInsights
-          Value: enabled
+          Value: ${self:custom.containerInsights.${sls:stage}}
 
   # Task Definition
   ECSTaskDefinitionHttpServer:
@@ -310,9 +320,10 @@ Resources:
         - DomainName: api.${self:provider.stage}.vwanu.click
           HostedZoneId: ${ssm:/${sls:stage}/hostedZoneId}
 
-  # Auto Restart Mechanism
+  # Auto Restart Mechanism (prod/staging only)
   TaskRestartLambdaRole:
     Type: AWS::IAM::Role
+    Condition: IsProductionLike
     Properties:
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
@@ -343,6 +354,7 @@ Resources:
   # Lambda Function to Force Redeployment
   TaskRestartLambda:
     Type: AWS::Lambda::Function
+    Condition: IsProductionLike
     Properties:
       Handler: index.lambda_handler
       Runtime: python3.8
@@ -384,6 +396,7 @@ Resources:
   # Allow CloudWatch to invoke the Lambda
   TaskRestartLambdaPermission:
     Type: AWS::Lambda::Permission
+    Condition: IsProductionLike
     Properties:
       FunctionName: !Ref TaskRestartLambda
       Action: lambda:InvokeFunction
@@ -393,6 +406,7 @@ Resources:
   # Add permission for the CPU Alarm too
   TaskRestartLambdaPermissionCpu:
     Type: AWS::Lambda::Permission
+    Condition: IsProductionLike
     Properties:
       FunctionName: !Ref TaskRestartLambda
       Action: lambda:InvokeFunction
@@ -403,6 +417,7 @@ Resources:
   # CloudWatch Alarm for HTTP 5XX Errors
   High5xxErrorAlarm:
     Type: AWS::CloudWatch::Alarm
+    Condition: IsProductionLike
     Properties:
       AlarmName: !Sub '${AWS::StackName}-High504-RestartTasks'
       AlarmDescription: 'Trigger Lambda to restart ECS tasks when ALB 504 Gateway Timeout errors exceed threshold'
@@ -434,6 +449,7 @@ Resources:
   # CloudWatch Alarm to Trigger on High CPU for HTTP Server
   HighCpuTaskRestartAlarm:
     Type: AWS::CloudWatch::Alarm
+    Condition: IsProductionLike
     Properties:
       AlarmName: !Sub '${AWS::StackName}-HTTP-HighCPU-RestartTasks'
       AlarmDescription: 'Trigger Lambda to restart HTTP tasks when CPU > 75%'
@@ -452,9 +468,10 @@ Resources:
       AlarmActions:
         - !GetAtt TaskRestartLambda.Arn
 
-  # Auto Scaling
+  # Auto Scaling (prod/staging only)
   ECSAutoScalingRole:
     Type: AWS::IAM::Role
+    Condition: IsProductionLike
     Properties:
       RoleName: ${self:service}-${self:provider.stage}-ecs-autoscaling-role
       AssumeRolePolicyDocument:
@@ -471,6 +488,7 @@ Resources:
   # HTTP Server Auto Scaling
   HttpServerScalableTarget:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Condition: IsProductionLike
     DependsOn: HttpServerECSService
     Properties:
       MaxCapacity: 4
@@ -486,6 +504,7 @@ Resources:
 
   HttpServerScalingPolicy:
     Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Condition: IsProductionLike
     DependsOn: HttpServerScalableTarget
     Properties:
       PolicyName: ecs-auto-scaling-policy-${self:provider.stage}
