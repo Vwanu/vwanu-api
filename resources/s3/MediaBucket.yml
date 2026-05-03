@@ -42,36 +42,17 @@ Resources:
           # Clean up incomplete multipart uploads after 7 days
           - Id: DeleteIncompleteMultipartUploads
             Status: Enabled
-            # Filter: {} = applies to all objects in the bucket. Required by
-            # CloudFormation Early Validation (rolled out 2025) — every rule
-            # must declare its scope explicitly.
-            Filter: {}
             AbortIncompleteMultipartUpload:
               DaysAfterInitiation: 7
           # Move old versions to cheaper storage after 30 days
           - Id: TransitionOldVersions
             Status: Enabled
-            Filter: {}
             NoncurrentVersionTransitions:
               - StorageClass: STANDARD_IA  # Infrequent Access (cheaper)
                 TransitionInDays: 30
             # Delete old versions after 90 days
             NoncurrentVersionExpiration:
               NoncurrentDays: 90
-          # Auto-delete direct-uploads that were never linked to a post.
-          # Mobile uploads via presigned URL land under pending/{userId}/{uuid}.{ext};
-          # the media-processor Lambda promotes accepted files to media/. Anything
-          # left in pending/ is an orphan (user closed the app mid-flow).
-          # In a versioned bucket, ExpirationInDays adds a delete marker; pair it
-          # with NoncurrentVersionExpiration so the orphaned object's data is also
-          # removed after roughly the same 1-day lifecycle window.
-          - Id: DeletePendingUploads
-            Status: Enabled
-            Filter:
-              Prefix: pending/
-            ExpirationInDays: 1
-            NoncurrentVersionExpiration:
-              NoncurrentDays: 1
       # Tags for organization
       Tags:
         - Key: Name
