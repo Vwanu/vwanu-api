@@ -143,6 +143,9 @@ resources:
   # S3 Media Storage
   - ${file(resources/s3/MediaBucket.yml)}
 
+  # CloudFront image handler (AWS Dynamic Image Transformation solution, nested CFN)
+  - ${file(resources/cloudfront/ImageHandler.yml)}
+
   # ECS
   - ${file(resources/ecs/ecs.yml)}
 
