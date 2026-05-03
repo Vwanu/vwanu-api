@@ -42,11 +42,16 @@ Resources:
           # Clean up incomplete multipart uploads after 7 days
           - Id: DeleteIncompleteMultipartUploads
             Status: Enabled
+            # Filter: {} = applies to all objects in the bucket. Required by
+            # CloudFormation Early Validation (rolled out 2025) — every rule
+            # must declare its scope explicitly.
+            Filter: {}
             AbortIncompleteMultipartUpload:
               DaysAfterInitiation: 7
           # Move old versions to cheaper storage after 30 days
           - Id: TransitionOldVersions
             Status: Enabled
+            Filter: {}
             NoncurrentVersionTransitions:
               - StorageClass: STANDARD_IA  # Infrequent Access (cheaper)
                 TransitionInDays: 30
