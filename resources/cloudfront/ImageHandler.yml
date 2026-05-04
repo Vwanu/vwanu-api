@@ -56,8 +56,8 @@ Resources:
       # resources inherit propagating tags from the parent stack anyway.
 
 Outputs:
-  CloudFrontDomain:
-    Description: Edge URL for media transforms (set as EXPO_PUBLIC_CDN_URL on mobile)
-    Value: !GetAtt ImageHandlerStack.Outputs.CloudFrontDomainName
+  ImageHandlerApiEndpoint:
+    Description: Full CloudFront URL for image transforms (set as EXPO_PUBLIC_CDN_URL on mobile)
+    Value: !GetAtt ImageHandlerStack.Outputs.ApiEndpoint
     Export:
-      Name: ${self:service}-${self:provider.stage}-CloudFrontDomain
+      Name: ${self:service}-${self:provider.stage}-ImageHandlerApiEndpoint
