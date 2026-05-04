@@ -49,15 +49,11 @@ Resources:
         EnableS3ObjectLambdaParameter: 'No'
         # Fresh distribution; not piggybacking on an existing one.
         UseExistingCloudFrontDistributionParameter: 'No'
-      Tags:
-        - Key: Name
-          Value: ${self:service}-${self:provider.stage}-image-handler
-        - Key: Service
-          Value: ${self:service}
-        - Key: Stage
-          Value: ${self:provider.stage}
-        - Key: Purpose
-          Value: cloudfront-image-transforms
+      # Note: NO Tags block here — the AWS solution template applies its own
+      # tags to nested resources (notably IAM roles), and IAM treats tag keys
+      # as case-insensitive. Adding our own tags here was causing IAM role
+      # creation to fail with "Duplicate tag keys found". Nested-stack
+      # resources inherit propagating tags from the parent stack anyway.
 
 Outputs:
   CloudFrontDomain:
