@@ -22,7 +22,6 @@ export interface PresignPostBody {
 
 export interface ResolvedMedia {
   key: string;
-  publicUrl: string;
   contentType: string;
   contentLength: number;
 }
@@ -100,20 +99,16 @@ export const resolveMediaKeys = async (
     mediaKeys.map(async (item) => {
       validateKeyOwnership(item.key, userId);
       const { contentType, contentLength } = await headObject(bucket, item.key);
-      const publicUrl = `https://${bucket}.s3.amazonaws.com/${item.key}`;
-      return { key: item.key, publicUrl, contentType, contentLength };
+      return { key: item.key, contentType, contentLength };
     }),
   );
 };
 
 const buildMediaRow = (resolved: ResolvedMedia, userId: string) => ({
-  // Until VWA-122 (media-processor Lambda) ships, all variant fields point
-  // at the same original URL. Lambda will rewrite these once variants exist.
-  original: resolved.publicUrl,
-  large: resolved.publicUrl,
-  medium: resolved.publicUrl,
-  small: resolved.publicUrl,
-  tiny: resolved.publicUrl,
+  // VWA-133: store the S3 key, not the full URL. CDN-side variants are
+  // generated on demand by the AWS image-handler stack (VWA-131); mobile
+  // builds the rendered URL via cdnImageUrl(key, preset).
+  original: resolved.key,
   UserId: userId,
 });
 
