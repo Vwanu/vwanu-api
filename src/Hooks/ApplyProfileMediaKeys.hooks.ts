@@ -42,14 +42,11 @@ const headObject = async (bucket: string, key: string): Promise<void> => {
   }
 };
 
-const publicUrlFor = (bucket: string, key: string): string =>
-  `https://${bucket}.s3.amazonaws.com/${key}`;
-
 /**
  * Before-hook for the users service. When a patch body contains
  * `profilePictureKey` or `coverPictureKey`, validates each key (allowed
- * prefix, file exists in S3) and rewrites the body to set the matching
- * URL column instead.
+ * prefix, file exists in S3) and rewrites the body to write the bare key
+ * to the matching column. Mobile renders via cdnImageUrl(key, preset).
  *
  * If neither key is present, no-op (other patches like name/email
  * updates pass through untouched).
@@ -79,7 +76,9 @@ const applyProfileMediaKeys = async (
     }
     validateKeyShape(key, keyField);
     await headObject(bucket, key);
-    writes[urlField] = publicUrlFor(bucket, key);
+    // VWA-133: store the bare S3 key in the DB column (not the full URL).
+    // Mobile builds the rendered URL via cdnImageUrl(key, preset).
+    writes[urlField] = key;
     delete data[keyField];
   }
 
