@@ -6,9 +6,7 @@ import LimitToOwner from '../../Hooks/LimitToOwner';
 import { AutoOwn } from '../../Hooks';
 
 
-import saveProfilePicture from '../../Hooks/SaveProfilePictures.hooks';
-
-// import filesToBody from '../../middleware/PassFilesToFeathers/feathers-to-data.middleware';
+import applyProfileMediaKeys from '../../Hooks/ApplyProfileMediaKeys.hooks';
 
 // import SaveAndAttachInterests from '../../Hooks/SaveAndAttachInterest';
 
@@ -20,13 +18,12 @@ export default {
     find: [FindCommunities],
     create: [
       AutoOwn,
-      saveProfilePicture(['profilePicture', 'coverPicture']),
-      // filesToBody,
+      applyProfileMediaKeys,
     ],
     update: disallow(),
     patch: [
       LimitToOwner,
-      saveProfilePicture(['profilePicture', 'coverPicture']),
+      applyProfileMediaKeys,
     ],
     remove: [LimitToOwner],
   },
