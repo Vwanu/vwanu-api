@@ -22,7 +22,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 // ===== TYPES AND INTERFACES =====
 
-export type UploadType = 'post' | 'profile' | 'message' | 'blog';
+export type UploadType = 'post' | 'profile' | 'message' | 'blog' | 'community';
 export type FileFieldType = 'profilePicture' | 'coverPicture' | 'postImage' | 'postVideo' | 'postAudio' | 'messageImage' | 'titlePicture';
 
 export interface S3UrlResult {
@@ -69,6 +69,11 @@ const UPLOAD_CONFIGS: Record<UploadType, UploadConfiguration> = {
     maxFileSize: 20 * 1024 * 1024, // 20MB
     maxFiles: 5,
     allowedTypes: ALLOWED_FILE_TYPES.all,
+  },
+  community: {
+    maxFileSize: 10 * 1024 * 1024, // 10MB
+    maxFiles: 2,
+    allowedTypes: ALLOWED_FILE_TYPES.images,
   },
 };
 
@@ -179,7 +184,7 @@ const createFileFilter = (config: UploadConfiguration) => {
 /**
  * Generates S3 key based on upload type and file type
  */
-const generateS3Key = (uploadType: UploadType, fileType: string, filename: string): string => {
+export const generateS3Key = (uploadType: UploadType, fileType: string, filename: string): string => {
   const uniqueFilename = generateUniqueFilename(filename);
 
   switch (uploadType) {
