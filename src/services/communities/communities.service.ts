@@ -8,7 +8,6 @@ import { Communities } from './communities.class';
 import { Community } from '../../database/communities';
 import { CommunityUser } from '../../database/community-users';
 import { CommunityBan } from '../../database/community-bans';
-import { postStorage as profilesStorage } from '../../storage/s3';
 import updateTheTSVector from '../search/tsquery-and-search.hook';
 import communityJoinHooks from '../community-join/community-join.hooks'
 import {CommunityUsers} from '../community-users/community-users.class'
@@ -16,7 +15,6 @@ import communityUsersHooks from '../community-users/community-users.hooks'
 import {CommunityJoinRequest} from '../community-join/community-join.class'
 import {CommunityBans} from '../community-bans/community-bans.class'
 import communityBansHooks from '../community-bans/community-bans.hooks'
-import fileToFeathers from '../../middleware/PassFilesToFeathers/file-to-feathers.middleware';
 import {CommunityJoinRequest as CommunityJoinRequestModel} from '../../database/communityJoinRequest'
 import {CommunityInvitationRequest as InvitationModel} from '../../database/communityInvitationRequest';
 import {CommunityInvitationRequest  } from '../community-invitation-request/community-invitation-request.class'
@@ -61,16 +59,11 @@ export default function (app: Application): void {
     paginate:app.get('paginate')
   }
 
-  // Initialize our service with any options it requires
-  app.use(
-    '/communities',
-    profilesStorage.fields([
-      { name: 'profilePicture', maxCount: 1 },
-      { name: 'coverPicture', maxCount: 1 },
-    ]),
-    fileToFeathers,
-    new Communities(communityOptions, app)
-  );
+  // Direct registration — no multer/multipart middleware. Profile/cover
+  // pictures land via the presign flow handled by applyProfileMediaKeys
+  // in communities.hooks.ts (clients send profilePictureKey/coverPictureKey
+  // in the JSON body of POST/PATCH /communities).
+  app.use('/communities', new Communities(communityOptions, app));
 
   app.use('/communities/:communityId/members', new CommunityUsers(communityUsersOptions, app))
   app.use('/communities/:communityId/joinRequest', new CommunityJoinRequest(communityJoinOptions, app))
