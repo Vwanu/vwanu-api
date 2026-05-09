@@ -1,0 +1,63 @@
+# AWS-published "Dynamic Image Transformation for Amazon CloudFront" solution
+# deployed as a nested CloudFormation stack inside the API stack.
+#
+# What it provides:
+#   - CloudFront distribution sitting in front of VwanuMediaBucket
+#   - Lambda@Edge that transforms images on demand based on the request URL
+#   - Edge cache so subsequent requests for the same transform are served fast
+#
+# Mobile builds image URLs as:
+#   https://<CloudFrontDomain>/<base64(JSON)>
+# where the JSON looks like:
+#   { "bucket": "<bucket>", "key": "posts/.../foo.jpg", "edits": { "resize": { "width": 400, "fit": "cover" } } }
+#
+# Solution version is PINNED to v7.0.1 deliberately — bumping should be a
+# conscious change. AWS publishes new versions at the same URL pattern with
+# different version segments. Source: https://docs.aws.amazon.com/solutions/dynamic-image-transformation-for-amazon-cloudfront/
+#
+# Lambda@Edge requires the parent stack to be deployed in us-east-1. ✓ (provider.region)
+Resources:
+  ImageHandlerStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://solutions-reference.s3.us-east-1.amazonaws.com/dynamic-image-transformation-for-amazon-cloudfront/v7.0.1/dynamic-image-transformation-for-amazon-cloudfront.template
+      TimeoutInMinutes: 30
+      Parameters:
+        # Reference our existing media bucket. !Ref returns the bucket name,
+        # which is what SourceBucketsParameter expects (comma-separated names).
+        SourceBucketsParameter: !Ref VwanuMediaBucket
+        # Skip the AWS demo UI — we don't need it in our account.
+        DeployDemoUIParameter: 'No'
+        # 30d log retention (default 180d is wasteful for our scale).
+        LogRetentionPeriodParameter: 30
+        # Auto-serve WebP when the client sends Accept: image/webp.
+        # Significant bandwidth win for modern mobile clients.
+        AutoWebPParameter: 'Yes'
+        # Enable CORS so the mobile app can fetch from the edge.
+        CorsEnabledParameter: 'Yes'
+        # Wildcard for now; tighten in a future production-hardening ticket.
+        CorsOriginParameter: '*'
+        # Signed URLs deferred — no SecretsManager dependency for now.
+        EnableSignatureParameter: 'No'
+        # No fallback image yet; broken-image is acceptable.
+        EnableDefaultFallbackImageParameter: 'No'
+        # All edge locations. Drop to PriceClass_100 (US/CA/EU only) for cost.
+        CloudFrontPriceClassParameter: PriceClass_All
+        # Origin Shield off — cost optimization for later.
+        OriginShieldRegionParameter: Disabled
+        # We don't hit Lambda's response-size limit; default backend is fine.
+        EnableS3ObjectLambdaParameter: 'No'
+        # Fresh distribution; not piggybacking on an existing one.
+        UseExistingCloudFrontDistributionParameter: 'No'
+      # Note: NO Tags block here — the AWS solution template applies its own
+      # tags to nested resources (notably IAM roles), and IAM treats tag keys
+      # as case-insensitive. Adding our own tags here was causing IAM role
+      # creation to fail with "Duplicate tag keys found". Nested-stack
+      # resources inherit propagating tags from the parent stack anyway.
+
+Outputs:
+  ImageHandlerApiEndpoint:
+    Description: Full CloudFront URL for image transforms (set as EXPO_PUBLIC_CDN_URL on mobile)
+    Value: !GetAtt ImageHandlerStack.Outputs.ApiEndpoint
+    Export:
+      Name: ${self:service}-${self:provider.stage}-ImageHandlerApiEndpoint
