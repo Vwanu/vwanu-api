@@ -4,7 +4,7 @@ import { HookContext } from '@feathersjs/feathers';
 
 import isSelf from '../../Hooks/isSelf.hook';
 import updateTsVector from './hook/updateTsVector';
-import saveProfilePicture from '../../Hooks/SaveProfilePictures.hooks';
+import applyProfileMediaKeys from '../../Hooks/ApplyProfileMediaKeys.hooks';
 import includeFriendshipStatus from './hook/includeFriendshipStatus';
 
 const { protect } = local.hooks;
@@ -36,7 +36,7 @@ const hooks = {
       commonHooks.isProvider('external'),
       commonHooks.preventChanges(true, ...['email']),
       ),
-      saveProfilePicture(['profilePicture', 'coverPicture']),
+      applyProfileMediaKeys,
     ],
     remove: [isSelf],
   },
