@@ -3,8 +3,6 @@ import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import { Blogs } from './blogs.class';
 import hooks from './blogs.hooks';
-import transferUploadedFilesToFeathers from '../../middleware/PassFilesToFeathers/file-to-feathers.middleware';
-import { blogStorage } from '../../storage/s3';
 import updateTheTSVector from '../search/tsquery-and-search.hook';
 import { Blog as BlogModel } from '../../database/blog';
 
@@ -23,13 +21,11 @@ export default function (app: Application): void {
   };
 
 
-  // Initialize our service with any options it requires
-  app.use(
-    '/blogs',
-    blogStorage.fields([{ name: 'titlePicture', maxCount: 1 }]),
-    transferUploadedFilesToFeathers,
-    new Blogs(options, app)
-  );
+  // Direct registration — no multer/multipart middleware. The blog title
+  // picture lands via the presign flow handled by applyBlogMediaKeys in
+  // blogs.hooks.ts (clients send titlePictureKey in the JSON body of
+  // POST/PATCH /blogs).
+  app.use('/blogs', new Blogs(options, app));
   // Get our initialized service so that we can register hooks
   const service = app.service('blogs');
   service.hooks({
