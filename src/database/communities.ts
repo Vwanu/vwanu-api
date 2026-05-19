@@ -105,11 +105,10 @@ export class Community extends Model<CommunityInterface> {
     type: DataType.STRING,
     allowNull: true,
     field: 'profile_picture',
-    validate: {
-      isUrl: {
-        msg: 'Profile picture must be a valid URL'
-      }
-    },
+    // Stores the S3 key (e.g. `community/2026/05/09/<uuid>.jpg`) — VWA-133.
+    // Mobile builds the rendered URL via cdnImageUrl(key, preset).
+    // External URLs (UI-Avatars defaults / legacy) also pass through; no
+    // validation here since both shapes are valid.
   })
   profilePicture!: string;
 
