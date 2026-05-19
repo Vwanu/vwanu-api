@@ -3,7 +3,6 @@ import {Post} from './post';
 import {User} from './user';
 
 import {Blog} from './blog';
-// import {Album} from './album';
 import {Media} from './media';
 import {PostMedia} from './post-media';
 import {BlogMedia} from './blog-media';
@@ -44,7 +43,6 @@ export default [
   User,
   Post,
   Blog,
-  // Album,
   Media,
   PostMedia,
   BlogMedia,

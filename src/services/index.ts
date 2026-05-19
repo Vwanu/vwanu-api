@@ -9,10 +9,8 @@ import friendRequest from './friendships/friendship.service';
 // import undesiredFriend from './undesiredFriends/undesiredFriends.service';
 // import timeline from './timeline/timeline.service';
 import blogs from './blogs/blogs.service';
-// import albums from './albums/albums.service';
 import notifications from './notification/notification.service';
 import interests from './interests/interests.service';
-// import medias from './medias/medias.service';
 import communities from './communities/communities.service';
 // import discussion from './discussion/discussion.service';
 // import blogResponse from './blog-response/blog-response.service';
@@ -51,10 +49,8 @@ const services =[
   friendRequest,
 //   undesiredFriend,
   blogs,
-//   albums,
   notifications,
   interests,
-//   medias,
   communities,
 //   discussion,
 //   blogResponse,
