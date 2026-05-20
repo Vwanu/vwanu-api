@@ -1,81 +1,67 @@
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  PrimaryKey,
+  AutoIncrement,
+  AllowNull,
+  Unique,
+  TableOptions,
+} from 'sequelize-typescript';
 
-import { Table, Column, Model, DataType, PrimaryKey, AllowNull, Unique, TableOptions } from 'sequelize-typescript';
+import { NotificationSlug } from '../types/notifications';
 
 export interface NotificationTypesInterface {
-  notification_slug: string;
-  notification_name: string;
-  notification_description: string;
+  id?: number;
+  slug: NotificationSlug;
+  label: string;
+  description: string | null;
 }
 
 /**
- * Represents a notification type in the database.
+ * Lookup table for notification kinds. Seeded by migration from
+ * `NOTIFICATION_TYPE_SEEDS` in src/types/notifications.ts — the slug is the
+ * stable join key with the `NotificationSlug` TypeScript enum.
  */
 @Table({
   modelName: 'NotificationTypes',
   tableName: 'notification_types',
   underscored: true,
+  timestamps: false,
 } as TableOptions<NotificationType>)
-export class NotificationType extends Model<NotificationTypesInterface> implements NotificationTypesInterface {
+export class NotificationType
+  extends Model<NotificationTypesInterface>
+  implements NotificationTypesInterface
+{
   @PrimaryKey
-  @AllowNull(false)
+  @AutoIncrement
   @Column({
-    type: DataType.STRING,
+    type: DataType.INTEGER,
     allowNull: false,
-    validate: {
-      notEmpty: true,
-      len: [1, 100], // Slug length between 1-100 characters
-    },
   })
-  notification_slug!: string;
+  id!: number;
 
   @Unique
   @AllowNull(false)
   @Column({
     type: DataType.STRING,
     allowNull: false,
-    validate: {
-      notEmpty: true,
-      len: [1, 200], // Name length between 1-200 characters
-    },
   })
-  notification_name!: string;
+  slug!: NotificationSlug;
 
-  @Unique
   @AllowNull(false)
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  label!: string;
+
   @Column({
     type: DataType.TEXT,
-    allowNull: false,
-    validate: {
-      notEmpty: true,
-      len: [1, 1000], // Description length between 1-1000 characters
-    },
+    allowNull: true,
   })
-  notification_description!: string;
-
-  // Instance methods for better encapsulation
-  public getSlug(): string {
-    return this.notification_slug;
-  }
-
-  public getName(): string {
-    return this.notification_name;
-  }
-
-  public getDescription(): string {
-    return this.notification_description;
-  }
-
-  public getDisplayName(): string {
-    return this.notification_name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-  }
-
-  public getFormattedSlug(): string {
-    return this.notification_slug.toUpperCase();
-  }
-
-  public isValidForDisplay(): boolean {
-    return this.notification_name.length > 0 && this.notification_description.length > 0;
-  }
+  description!: string | null;
 }
 
 export default NotificationType;
