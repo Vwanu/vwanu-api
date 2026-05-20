@@ -20,6 +20,7 @@ import {Conversation} from './conversation';
 import {ConversationUser} from './conversation-user';
 import {Notification} from './notification';
 import {DeviceToken} from './device-token';
+import {PushTicket} from './push-ticket';
 import {NotificationType} from './notifications_types';
 import {UserNotificationPreference} from './user-notification-preference';
 import {Friendship} from './friendship';
@@ -60,6 +61,7 @@ export default [
   ConversationUser,
   Notification,
   DeviceToken,
+  PushTicket,
   NotificationType,
   UserNotificationPreference,
   Friendship,

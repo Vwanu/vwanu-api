@@ -3,7 +3,8 @@ import { User } from '../../database/user';
 import autoOwn from '../../Hooks/AutoOwn';
 import LimitToOwner from '../../Hooks/LimitToOwner';
 import { NotificationSlug } from '../../types/notifications';
-import { notificationTypeIdFor } from '../notification/notificationTypeCache';
+import { NotificationService } from '../notifications/NotificationService';
+import { EntityType } from '../../types/enums';
 
 export default {
   before: {
@@ -54,22 +55,18 @@ export default {
     create: [
       async (context) => {
         const { models } = context.app.get('sequelizeClient');
-        console.log('Notification Hook after create triggered');
-        console.log('Context result:>> ', context.result);
-
         const { userId } = await models.Post.findOne({
           where: { id: context.result.PostId },
         });
 
-        console.log('Creating notification for user:>>??? ', userId);
-        await context.app.service('notifications').create({
+        await NotificationService.create(context.app, {
           userId,
-          fromUserId: context.params.User.id, //
+          fromUserId: context.params.User.id,
+          slug: NotificationSlug.NEW_COMMENT,
           message: 'Commented on your post',
           type: 'direct',
-          entityName: 'Post',
+          entityName: EntityType.POST,
           entityId: context.result.PostId,
-          notificationTypeId: await notificationTypeIdFor(NotificationSlug.NEW_COMMENT),
         });
 
         return context;
