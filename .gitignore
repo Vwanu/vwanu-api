@@ -38,3 +38,6 @@ terraform.rc
 # Debug/utility files
 disable-triggers.sql
 fix-db-function.js
+
+# Auto-generated from src/schema/*.ts via `npm run generate-types`
+types/generated.ts

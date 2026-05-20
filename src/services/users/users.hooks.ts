@@ -8,25 +8,23 @@ import applyProfileMediaKeys from '../../Hooks/ApplyProfileMediaKeys.hooks';
 import includeFriendshipStatus from './hook/includeFriendshipStatus';
 import seedNotificationPreferences from './hook/seedNotificationPreferences';
 import { NotificationSlug } from '../../types/notifications';
-import { notificationTypeIdFor } from '../notification/notificationTypeCache';
+import { NotificationService } from '../notifications/NotificationService';
+import { EntityType } from '../../types/enums';
 
 const { protect } = local.hooks;
 const protectKeys = protect(...['search_vector']);
 
 const Addvisitor= async (context: HookContext): Promise<HookContext> => {
-  if (!context?.result ) return context;
-  // Self-visit shouldn't generate a notification. VWA-141's funnel will
-  // enforce this centrally; for now we guard at the callsite.
-  if (context.params?.User?.id === context.result.id) return context;
-    await context.app.service('notifications').create({
-      fromUserId: context.params.User.id,
-      userId: context.result.id,
-      message: 'Visited your profile',
-      type: 'direct',
-      entityName: 'User',
-      entityId: context.params.User.id,
-      notificationTypeId: await notificationTypeIdFor(NotificationSlug.NEW_VISIT),
-    });
+  if (!context?.result) return context;
+  await NotificationService.create(context.app, {
+    fromUserId: context.params.User.id,
+    userId: context.result.id,
+    slug: NotificationSlug.NEW_VISIT,
+    message: 'Visited your profile',
+    type: 'direct',
+    entityName: EntityType.USER,
+    entityId: context.params.User.id,
+  });
   return context;
 };
 
