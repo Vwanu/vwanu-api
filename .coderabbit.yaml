@@ -1,0 +1,7 @@
+version: 1
+auto-review:
+  enabled: true
+  scope:
+    # Use standard globbing where '*' acts as the wildcard flag
+    base_branches:
+      - "qa/cycle*"
