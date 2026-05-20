@@ -12,26 +12,13 @@ import {
   TableOptions,
 } from 'sequelize-typescript';
 import { User } from './user';
+import {
+  DeviceTokenInterface,
+  DevicePlatform,
+} from '../schema/device-token.schema';
 
-export type DevicePlatform = 'ios' | 'android';
+export type { DeviceTokenInterface, DevicePlatform };
 
-export interface DeviceTokenInterface {
-  id?: string;
-  userId: string;
-  token: string;
-  platform: DevicePlatform;
-  lastSeenAt?: Date;
-}
-
-/**
- * Storage for Expo push notification tokens (VWA-139). Multi-device safe:
- * UNIQUE(token) means a single token can only belong to one user at a time.
- * Signin on a previously-used device UPDATEs the user_id (signin handoff),
- * which closes the privacy hole where User A's pushes would otherwise
- * arrive on a device User B is now signed in on.
- *
- * Don't change UNIQUE(token) to (user_id, token) without re-reading VWA-139.
- */
 @Table({
   modelName: 'DeviceToken',
   tableName: 'device_tokens',
