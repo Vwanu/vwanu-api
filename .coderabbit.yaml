@@ -4,4 +4,4 @@ auto-review:
   scope:
     # Use standard globbing where '*' acts as the wildcard flag
     base_branches:
-      - "qa/cycle*"
+      - "qa/cycle-*"
