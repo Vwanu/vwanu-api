@@ -19,6 +19,7 @@ import { CommunityBan } from './community-bans';
 import {Conversation} from './conversation';
 import {ConversationUser} from './conversation-user';
 import {Notification} from './notification';
+import {DeviceToken} from './device-token';
 import {Friendship} from './friendship';
 // import {BlogResponse} from './blog-response';
 import {CommunityUser} from './community-users';
@@ -59,6 +60,7 @@ export default [
   Conversation,
   ConversationUser,
   Notification,
+  DeviceToken,
   Friendship,
 //   BlogResponse,
   CommunityUser,

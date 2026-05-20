@@ -40,6 +40,7 @@ import location from './location/location.service';
 // import userNotificationTypes from './user_notification_types/user_notification_types.service';
 import  communityRole  from './community-role/community-role.service';
 import uploads from './uploads/uploads.service';
+import deviceTokens from './device-tokens/device-tokens.service';
 
 const services =[
 //   search,
@@ -82,6 +83,7 @@ const services =[
 //   userNotificationTypes,
 location,
   uploads,
+  deviceTokens,
 ]
 export default function (app: Application): void {
   services.forEach(service => app.configure(service));
