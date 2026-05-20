@@ -2,6 +2,8 @@ import addAssociation from '../../Hooks/AddAssociations';
 import { User } from '../../database/user';
 import autoOwn from '../../Hooks/AutoOwn';
 import LimitToOwner from '../../Hooks/LimitToOwner';
+import { NotificationSlug } from '../../types/notifications';
+import { notificationTypeIdFor } from '../notification/notificationTypeCache';
 
 export default {
   before: {
@@ -67,7 +69,7 @@ export default {
           type: 'direct',
           entityName: 'Post',
           entityId: context.result.PostId,
-          notificationType: 'post_comment',
+          notificationTypeId: await notificationTypeIdFor(NotificationSlug.NEW_COMMENT),
         });
 
         return context;

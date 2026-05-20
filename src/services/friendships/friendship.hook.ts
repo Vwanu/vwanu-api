@@ -5,6 +5,8 @@ import AutoAssignHook from '../../Hooks/AutoAssign.hook';
 import { disallow } from 'feathers-hooks-common';
 import { HookContext } from '@feathersjs/feathers';
 import { FriendshipStatus } from '../../types/enums';
+import { NotificationSlug } from '../../types/notifications';
+import { notificationTypeIdFor } from '../notification/notificationTypeCache';
 
 const AddTargetUser = AddAssociations({
   models: [
@@ -33,7 +35,7 @@ const notifyFriendRequest = async (context: HookContext): Promise<HookContext> =
       type: 'direct',
       entityName: 'Friendship',
       entityId: context.result.id,
-      notificationType: 'friend_request',
+      notificationTypeId: await notificationTypeIdFor(NotificationSlug.NEW_FRIEND_REQUEST),
     });
   } catch (error) {
     console.error('Error creating friend request notification:', error);
@@ -60,7 +62,7 @@ const notifyFriendAccept = async (context: HookContext): Promise<HookContext> =>
       type: 'direct',
       entityName: 'Friendship',
       entityId: context.result.id,
-      notificationType: 'friend_accept',
+      notificationTypeId: await notificationTypeIdFor(NotificationSlug.NEW_FRIEND_ACCEPT),
     });
   } catch (error) {
     console.error('Error creating friend accept notification:', error);
