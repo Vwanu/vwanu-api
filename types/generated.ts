@@ -306,6 +306,37 @@ export interface SendEmailTemplateType {
 }
 
 // ============================================================================
+// Types from device-token.schema.ts
+// ============================================================================
+
+export type DevicePlatform = "ios" | "android";
+
+export interface DeviceTokenInterface {
+  id: string;
+  userId: string;
+  token: string;
+  platform: any;
+  lastSeenAt: string;
+  createdAt?: string;
+}
+
+export interface CreateDeviceTokenInput {
+  id: number;
+}
+
+export interface CreateDeviceTokenBody {
+  id: number;
+}
+
+export interface DeleteDeviceTokenInput {
+  id: number;
+}
+
+export interface DeviceTokenResponse {
+  id: number;
+}
+
+// ============================================================================
 // Types from community.schema.ts
 // ============================================================================
 

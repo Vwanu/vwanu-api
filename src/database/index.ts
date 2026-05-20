@@ -19,6 +19,7 @@ import { CommunityBan } from './community-bans';
 import {Conversation} from './conversation';
 import {ConversationUser} from './conversation-user';
 import {Notification} from './notification';
+import {DeviceToken} from './device-token';
 import {NotificationType} from './notifications_types';
 import {UserNotificationPreference} from './user-notification-preference';
 import {Friendship} from './friendship';
@@ -58,6 +59,7 @@ export default [
   Conversation,
   ConversationUser,
   Notification,
+  DeviceToken,
   NotificationType,
   UserNotificationPreference,
   Friendship,
