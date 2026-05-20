@@ -20,6 +20,8 @@ import {Conversation} from './conversation';
 import {ConversationUser} from './conversation-user';
 import {Notification} from './notification';
 import {DeviceToken} from './device-token';
+import {NotificationType} from './notifications_types';
+import {UserNotificationPreference} from './user-notification-preference';
 import {Friendship} from './friendship';
 // import {BlogResponse} from './blog-response';
 import {CommunityUser} from './community-users';
@@ -30,11 +32,8 @@ import {CommunityJoinRequest} from './communityJoinRequest';
 // import {UserWorkPlace} from './userWorkplace';
 // import {CommunityBan} from './community-bans';
 // import {CommunityHistory} from './community-history';
-// import {NotificationType} from './notifications_types';
-// import {UserNotificationSettings} from './user_notifications_settings';
 // import {ErrorCode} from './errorCodes.db';
 // import {ExpiryTime} from './expiryTime';
-// import {UserNotificationTypes} from './user_notification_types';
 import { CommunityRole } from './communityRole.model';
 import {CommunityInterest, BlogInterest, PostTag, ForumDiscussionTag} from './junction-tables';
 import {ForumDiscussion} from './forumDiscussion';
@@ -61,6 +60,8 @@ export default [
   ConversationUser,
   Notification,
   DeviceToken,
+  NotificationType,
+  UserNotificationPreference,
   Friendship,
 //   BlogResponse,
   CommunityUser,
@@ -77,11 +78,8 @@ export default [
   UserFollower,
 //   Forum,
 //   Place,
-//   NotificationType,
-//   UserNotificationSettings,
 //   ErrorCode,
 //   ExpiryTime,
-//   UserNotificationTypes,
 ];
 
 // export default [];

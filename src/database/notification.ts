@@ -1,16 +1,27 @@
-import { Table, Column, Model, DataType, PrimaryKey, AllowNull, ForeignKey, BelongsTo, TableOptions } from 'sequelize-typescript';
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  PrimaryKey,
+  AllowNull,
+  ForeignKey,
+  BelongsTo,
+  TableOptions,
+} from 'sequelize-typescript';
 import { User } from './user';
-import { NotificationType, EntityType } from '../types/enums';
+import { NotificationType } from './notifications_types';
+import { EntityType } from '../types/enums';
 
 export interface NotificationInterface {
   id: string;
   userId: string;
   message?: string;
   type?: string;
-  read: boolean;
   entityName?: EntityType;
   entityId?: string;
-  notificationType: NotificationType;
+  notificationTypeId: number;
+  readAt?: Date | null;
   fromUserId?: string;
 }
 
@@ -19,8 +30,10 @@ export interface NotificationInterface {
   tableName: 'notifications',
   underscored: true,
 } as TableOptions<Notification>)
-export class Notification extends Model<NotificationInterface> implements NotificationInterface {
-
+export class Notification
+  extends Model<NotificationInterface>
+  implements NotificationInterface
+{
   @PrimaryKey
   @Column({
     type: DataType.UUID,
@@ -65,21 +78,26 @@ export class Notification extends Model<NotificationInterface> implements Notifi
   })
   entityId?: string;
 
+  @ForeignKey(() => NotificationType)
   @AllowNull(false)
   @Column({
-    type: DataType.ENUM(...Object.values(NotificationType)),
+    type: DataType.INTEGER,
     allowNull: false,
-    field: 'notification_type',
+    field: 'notification_type_id',
   })
-  notificationType!: NotificationType;
+  notificationTypeId!: number;
 
+  /**
+   * `null` = unread; non-null = read at this timestamp. Replaces the old
+   * `read BOOLEAN` (was stored as `view`) so we get "since you last saw it"
+   * for free.
+   */
   @Column({
-    type: DataType.BOOLEAN,
-    defaultValue: false,
-    allowNull: false,
-    field: 'view',
+    type: DataType.DATE,
+    allowNull: true,
+    field: 'read_at',
   })
-  read!: boolean;
+  readAt?: Date | null;
 
   @ForeignKey(() => User)
   @Column({
@@ -89,80 +107,30 @@ export class Notification extends Model<NotificationInterface> implements Notifi
   })
   fromUserId?: string;
 
-  // Associations
   @BelongsTo(() => User, 'userId')
   user!: User;
 
   @BelongsTo(() => User, 'fromUserId')
   fromUser?: User;
 
-  // Instance methods for better encapsulation
+  @BelongsTo(() => NotificationType, 'notificationTypeId')
+  notificationType!: NotificationType;
+
   public isRead(): boolean {
-    return this.read;
+    return this.readAt != null;
   }
 
   public isUnread(): boolean {
-    return !this.read;
+    return this.readAt == null;
   }
 
   public markAsRead(): void {
-    this.read = true;
+    this.readAt = new Date();
   }
 
   public markAsUnread(): void {
-    this.read = false;
-  }
-
-  public isCommunityNotification(): boolean {
-    return [
-      NotificationType.COMMUNITY_INVITE,
-      NotificationType.COMMUNITY_JOIN,
-      NotificationType.COMMUNITY_POST,
-      NotificationType.COMMUNITY_MENTION
-    ].includes(this.notificationType);
-  }
-
-  public isSocialNotification(): boolean {
-    return [
-      NotificationType.FRIEND_REQUEST,
-      NotificationType.FRIEND_ACCEPT,
-      NotificationType.FOLLOW
-    ].includes(this.notificationType);
-  }
-
-  public isContentNotification(): boolean {
-    return [
-      NotificationType.POST_LIKE,
-      NotificationType.POST_COMMENT,
-      NotificationType.BLOG_LIKE,
-      NotificationType.BLOG_COMMENT
-    ].includes(this.notificationType);
-  }
-
-  public isSystemNotification(): boolean {
-    return [
-      NotificationType.SYSTEM_UPDATE,
-      NotificationType.SECURITY_ALERT
-    ].includes(this.notificationType);
-  }
-
-  public getCategory(): 'community' | 'social' | 'content' | 'system' | 'other' {
-    if (this.isCommunityNotification()) return 'community';
-    if (this.isSocialNotification()) return 'social';
-    if (this.isContentNotification()) return 'content';
-    if (this.isSystemNotification()) return 'system';
-    return 'other';
-  }
-
-  public getTimeSinceCreated(): number {
-    return Date.now() - this.createdAt.getTime();
-  }
-
-  public getTimeSinceCreatedInHours(): number {
-    return Math.floor(this.getTimeSinceCreated() / (1000 * 60 * 60));
-  }
-
-  public isRecent(hoursThreshold = 24): boolean {
-    return this.getTimeSinceCreatedInHours() < hoursThreshold;
+    this.readAt = null;
   }
 }
+
+export default Notification;

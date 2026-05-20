@@ -20,18 +20,6 @@ export interface CreateNotificationTypesInput {
 }
 
 // ============================================================================
-// Types from user_notifications_settings.ts
-// ============================================================================
-
-export interface UserNotificationSettingsInterface {
-  id: number;
-}
-
-export interface CreateuserNotificationSettingsSchemarInput {
-  id: number;
-}
-
-// ============================================================================
 // Types from user.ts
 // ============================================================================
 
@@ -214,10 +202,10 @@ export interface NotificationInterface {
   userId: string;
   message?: string;
   type?: string;
-  viewed: boolean;
+  readAt?: string;
   entityName?: any;
   entityId?: string;
-  notificationType: any;
+  notificationTypeId: number;
   fromUserId?: string;
   createdAt: string;
   updatedAt: string;
