@@ -1,10 +1,7 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 
-import common from '../../lib/utils/common';
 import { Application } from '../../declarations';
 import { createFromMediaKeys } from './lib/createFromMediaKeys';
-
-const { getUploadedFiles } = common;
 
 export class Posts extends Service {
   app;
@@ -16,30 +13,6 @@ export class Posts extends Service {
   }
 
   async create(data, params) {
-    if (params?.query?.upload === 'presign') {
-      return createFromMediaKeys(this.app, data, params);
-    }
-
-    const postData = getUploadedFiles(['postImage', 'postVideo'], data);
-
-    console.log('data', data);
-    console.log('postData', postData);
-    const { Media: mediaData } = postData;
-
-    // Create the post first
-    const post = await this.app
-      .service('posts')
-      .Model.create(data);
-
-    if (mediaData && mediaData.length > 0) {
-      const mediaRecords = await this.app
-        .get('sequelizeClient')
-        .models.Media.bulkCreate(mediaData);
-
-      await post.addMedia(mediaRecords);
-    }
-
-    const updatedPost = await this.app.service('posts').get(post.id, params);
-    return Promise.resolve(updatedPost);
+    return createFromMediaKeys(this.app, data, params);
   }
 }
