@@ -1,6 +1,6 @@
 import { AddAssociations } from '../../Hooks';
 import commonHooks from 'feathers-hooks-common';
-import saveProfilePicture from '../../Hooks/SaveProfilePictures.hooks';
+import applyBlogMediaKeys from '../../Hooks/ApplyBlogMediaKeys.hooks';
 
 /** Local dependencies  */
 import {
@@ -55,7 +55,7 @@ export default {
       setPublishedAt,
     //   ValidateResource(Schema.createBlogSchema),
       AutoOwn,
-      saveProfilePicture(['titlePicture'],'blog'),
+      applyBlogMediaKeys,
       (context) => {
         context.params._interests = context.data.interests;
         delete context.data.interests;
@@ -70,7 +70,7 @@ export default {
       ),
       setPublishedAt,
       LimitToOwner,
-     saveProfilePicture(['titlePicture']),
+      applyBlogMediaKeys,
     ],
     remove: [LimitToOwner],
   },
