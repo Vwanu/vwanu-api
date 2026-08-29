@@ -2,11 +2,13 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import { Blogs } from './blogs.class';
+import { BlogKore } from '../blog-korem/blog-kore.class';
 import hooks from './blogs.hooks';
 import transferUploadedFilesToFeathers from '../../middleware/PassFilesToFeathers/file-to-feathers.middleware';
 import { blogStorage } from '../../storage/s3';
 import updateTheTSVector from '../search/tsquery-and-search.hook';
 import { Blog as BlogModel } from '../../database/blog';
+import requireLogin from '../../middleware/requireLogin';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -32,6 +34,8 @@ export default function (app: Application): void {
   );
   // Get our initialized service so that we can register hooks
   const service = app.service('blogs');
+
+  app.use('/blogs/:blogId/kore', requireLogin, new BlogKore(options, app));
   service.hooks({
     before: { ...hooks.before },
     after: {

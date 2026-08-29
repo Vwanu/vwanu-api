@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "fcecd952-7575-475f-817f-0c165fa4a2a6"
+      }
+    },
+    "ios": {
+      "bundleIdentifier": "com.waddprog.server",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    }
+  }
+}
