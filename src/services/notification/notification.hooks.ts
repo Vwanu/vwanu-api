@@ -39,7 +39,12 @@ export default {
       },
     ],
     //get: disallow('external'),
-    create: [],
+    // VWA-140: the raw /notifications POST endpoint is internal-only.
+    // All notification creation MUST flow through application code
+    // (NotificationService.create — see VWA-141) which applies the
+    // self-action guard and the per-user preference gate. Directly
+    // POSTing here would bypass both.
+    create: [disallow('external')],
     update: disallow(),
     patch: LimitToOwner,
     remove: LimitToOwner,

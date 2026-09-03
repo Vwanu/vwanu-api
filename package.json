@@ -62,6 +62,7 @@
     "cors": "^2.8.5",
     "debug": "^4.3.3",
     "dotenv": "^16.0.1",
+    "expo-server-sdk": "^3.15.0",
     "express": "^4.17.2",
     "express-winston": "^4.2.0",
     "feathers-authentication-management": "^3.1.0",

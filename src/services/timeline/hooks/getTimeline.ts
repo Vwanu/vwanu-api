@@ -15,29 +15,29 @@ export default (context: HookContext): HookContext => {
   const Sequelize = app.get('sequelizeClient');
 
   const amountOfComments = `(
-      SELECT 
-      COUNT(*) 
-      FROM posts 
+      SELECT
+      COUNT(*)
+      FROM posts
       WHERE posts.post_id = "Post"."id"
     )::int`;
   const amountOfKorems = `(
-      SELECT 
-      COUNT(k.id) 
+      SELECT
+      COUNT(k.id)
       FROM korems AS k
       WHERE k.entity_id = "Post"."id" AND k.entity_type='Post'
     )::int`;
 
   const isReactor = `(
-SELECT 
+SELECT
   json_agg(
     json_build_object(
      'id', k."id",
      'createdAt',k.created_at,
      'updatedAt',k.updated_at
-    ) 
-    ) 
+    )
+    )
     FROM korems AS k
-    WHERE k.entity_id="Post".id 
+    WHERE k.entity_id="Post".id
        AND  k.entity_type='Post' AND k.user_id='${context.params.User.id}'
   )`;
   // const friends = `(
@@ -46,7 +46,7 @@ SELECT
   //    )
   //   )`;
   // const WallUser = `(
-  // SELECT 
+  // SELECT
   // json_build_object(
   //  'firstName', "U"."firstName",
   //  'lastName', "U"."lastName",
@@ -60,11 +60,11 @@ SELECT
 
 //   const Original = `(
 //   SELECT
-//   CASE 
+//   CASE
 //   WHEN "Post"."originalId" IS NULL THEN NULL
 //   WHEN "Post"."originalType" = 'Post' THEN
 //   (
-//   SELECT 
+//   SELECT
 //   json_build_object(
 //     'id', "P"."id",
 //     'content', "P"."postText",
@@ -75,14 +75,14 @@ SELECT
 //     'UserId', "U"."id",
 //     'profilePicture', "U"."profilePicture"
 //   )
-//     FROM "Posts" AS "P" 
+//     FROM "Posts" AS "P"
 //     INNER JOIN "Users" AS "U" ON "U"."id" = "P"."UserId"
 //     WHERE "P"."id" = "Post"."originalId"
 //     LIMIT 1
 //     )
 //   WHEN "Post"."originalType" = 'Blogs' THEN
 //   (
-//   SELECT 
+//   SELECT
 //   json_build_object(
 //     'id', "B"."id",
 //     'content', "B"."blogText",
@@ -122,10 +122,10 @@ SELECT
 // )`;
 
   const CanDelete = `(
-    CASE 
+    CASE
     WHEN "Post".user_id = '${params.User.id}' THEN true
-    WHEN "Post".post_id IS NOT NULL 
-    AND  EXISTS( 
+    WHEN "Post".post_id IS NOT NULL
+    AND  EXISTS(
      Select 1
      FROM posts as p
      WHERE p.id = "Post".post_id AND p.user_id = '${params.User.id}')

@@ -4,7 +4,9 @@ import { User } from '../../database/user';
 import AutoAssignHook from '../../Hooks/AutoAssign.hook';
 import { disallow } from 'feathers-hooks-common';
 import { HookContext } from '@feathersjs/feathers';
-import { FriendshipStatus } from '../../types/enums';
+import { FriendshipStatus, EntityType } from '../../types/enums';
+import { NotificationSlug } from '../../types/notifications';
+import { NotificationService } from '../notifications/NotificationService';
 
 const AddTargetUser = AddAssociations({
   models: [
@@ -26,14 +28,14 @@ const notifyFriendRequest = async (context: HookContext): Promise<HookContext> =
   if (!context.result || !context.params.User?.id) return context;
 
   try {
-    await context.app.service('notifications').create({
+    await NotificationService.create(context.app, {
       fromUserId: context.params.User.id,
-      userId: context.result.targetId, // notification goes to the target user
+      userId: context.result.targetId,
+      slug: NotificationSlug.NEW_FRIEND_REQUEST,
       message: 'Sent you a friend request',
       type: 'direct',
-      entityName: 'Friendship',
+      entityName: EntityType.FRIENDSHIP,
       entityId: context.result.id,
-      notificationType: 'friend_request',
     });
   } catch (error) {
     console.error('Error creating friend request notification:', error);
@@ -53,14 +55,14 @@ const notifyFriendAccept = async (context: HookContext): Promise<HookContext> =>
     : context.result.userId;
 
   try {
-    await context.app.service('notifications').create({
+    await NotificationService.create(context.app, {
       fromUserId: context.params.User.id,
       userId: notifyUserId,
+      slug: NotificationSlug.NEW_FRIEND_ACCEPT,
       message: 'Accepted your friend request',
       type: 'direct',
-      entityName: 'Friendship',
+      entityName: EntityType.FRIENDSHIP,
       entityId: context.result.id,
-      notificationType: 'friend_accept',
     });
   } catch (error) {
     console.error('Error creating friend accept notification:', error);

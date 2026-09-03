@@ -1,25 +1,38 @@
-import { z, object, string, boolean, TypeOf } from 'zod';
-import { NotificationType, EntityType } from '../types/enums';
+import { z, object, string, boolean, number, TypeOf } from 'zod';
+import { EntityType } from '../types/enums';
 
 /**
- * Notification schema for a single notification
+ * Notification schema for a single notification.
+ *
+ * VWA-140 refactor:
+ *   - `notificationType: NotificationType` (ENUM) → `notificationTypeId: number` (FK)
+ *   - `viewed: boolean` → `readAt: Date | null`
+ *
+ * The numeric `notificationTypeId` is the FK into `notification_types`; the
+ * frontend resolves it to a slug + label via the `/notification-types`
+ * lookup endpoint (cached at app launch).
  */
 export const NotificationSchema = z.object({
   id: string().uuid(),
   userId: string().uuid(),
   message: string().optional(),
   type: string().optional(),
-  viewed: boolean(),
+  readAt: z.date().or(z.string()).nullable().optional(),
   entityName: z.nativeEnum(EntityType).optional(),
   entityId: string().uuid().optional(),
-  notificationType: z.nativeEnum(NotificationType),
+  notificationTypeId: number().int(),
   fromUserId: string().uuid().optional(),
   createdAt: z.date().or(z.string()),
   updatedAt: z.date().or(z.string()),
 });
 
 /**
- * Schema for creating a new notification
+ * Schema for creating a new notification.
+ *
+ * Note: in production, this endpoint is locked behind
+ * `disallow('external')` (see notification.hooks.ts) — all real creates
+ * flow through NotificationService.create (VWA-141). This schema is kept
+ * for internal validation and type generation.
  */
 export const createNotificationSchema = object({
   body: object({
@@ -34,9 +47,9 @@ export const createNotificationSchema = object({
       error: () => ({ message: 'Invalid entity type' }),
     }).optional(),
     entityId: string().uuid().optional(),
-    notificationType: z.nativeEnum(NotificationType, {
-      error: (iss) => iss.input === undefined ? 'Notification type is required' : 'Invalid notification type',
-    }),
+    notificationTypeId: number({
+      error: (iss) => iss.input === undefined ? 'notificationTypeId is required' : 'notificationTypeId must be an integer',
+    }).int(),
     fromUserId: string().uuid().optional(),
   }),
 });
@@ -53,7 +66,10 @@ export const getNotificationSchema = object({
 });
 
 /**
- * Schema for updating/patching a notification
+ * Schema for updating/patching a notification.
+ *
+ * The only field external clients can patch is `readAt` (to mark a
+ * notification as read). All other fields are immutable post-creation.
  */
 export const updateNotificationSchema = object({
   params: object({
@@ -62,9 +78,9 @@ export const updateNotificationSchema = object({
     }).uuid(),
   }),
   body: object({
-    viewed: boolean().optional(),
-    message: string().optional(),
-    type: string().optional(),
+    readAt: z.date().or(z.string()).nullable().optional(),
+    // Legacy shortcut: accept `read: true` and let the hook stamp readAt = now().
+    read: boolean().optional(),
   }),
 });
 
@@ -85,8 +101,9 @@ export const deleteNotificationSchema = object({
 export const queryNotificationSchema = object({
   query: object({
     userId: string().uuid().optional(),
-    viewed: z.union([boolean(), string()]).optional(),
-    notificationType: z.nativeEnum(NotificationType).optional(),
+    // `read` is a virtual filter; true → readAt IS NOT NULL, false → readAt IS NULL
+    read: z.union([boolean(), string()]).optional(),
+    notificationTypeId: number().int().optional(),
     entityName: z.nativeEnum(EntityType).optional(),
     entityId: string().uuid().optional(),
     $limit: z.number().or(z.string().transform(Number)).optional(),
@@ -95,9 +112,6 @@ export const queryNotificationSchema = object({
   }).optional(),
 });
 
-/**
- * TypeScript types inferred from schemas
- */
 export type NotificationInterface = z.infer<typeof NotificationSchema>;
 export type CreateNotificationInput = TypeOf<typeof createNotificationSchema>;
 export type GetNotificationInput = TypeOf<typeof getNotificationSchema>;
